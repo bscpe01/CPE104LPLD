@@ -89,25 +89,4 @@
     }
     t.step('end', 11, 'End: ' + count + ' numbers were displayed.');
   });
-
-  /* Worked example: Ohm's law (code only, no flowchart) */
-  C.addTrace('ohm', function (v, t) {
-    var V = v.voltage, R = v.resistance;
-    t.step(null, 3, 'Start: the program begins.');
-    t.step(null, 4, 'Prompt: show a message asking for input.', 'Enter voltage (V) and resistance (ohms): ');
-    t.vars.voltage = V; t.vars.resistance = R;
-    t.input(null, 5, 'Input: voltage = ' + fmt(V) + ', resistance = ' + fmt(R) + '.', fmt(V) + ' ' + fmt(R));
-    var zero = R === 0;
-    t.step(null, 6, 'Decision: resistance = 0? → ' + (zero ? 'TRUE: guard against division by zero.' : 'FALSE: safe to divide.'));
-    if (zero) {
-      t.step(null, 7, 'Output: show the error message.', 'Error: resistance cannot be zero.\n');
-    } else {
-      var I = V / R;
-      t.vars.current = I;
-      t.step(null, 9, 'Process: current = ' + fmt(V) + ' / ' + fmt(R) + ' = ' + fmt(I) + '.');
-      t.step(null, 10, 'Output: display the current.', 'Current = ' + fmt(I) + ' A\n');
-    }
-    t.step(null, 11, 'ENDIF: both branches meet here.');
-    t.step(null, 12, 'End: the program stops.');
-  });
 })();
