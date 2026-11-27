@@ -166,6 +166,7 @@
         <li><b>Pseudocode</b>: structured, English-like code</li>
         <li><b>Flowchart</b>: the steps as a diagram</li>
       </ul>
+      <p class="small" style="margin-top:.5rem"><a href="#algo-steps">How to create an algorithm, step by step →</a></p>
     </div>
     <div class="card">
       <h3 class="card-title">Syntax errors</h3>
@@ -350,41 +351,59 @@ ENDWHILE
 </section>
 
 <!-- ========================= SLIDE 6 · HOW TO WRITE AN ALGORITHM ========================= -->
-<section class="slide" id="algo-steps" data-title="How to Write an Algorithm" data-section="Algorithms">
+<section class="slide" id="algo-steps" data-title="Steps in Creating an Algorithm" data-section="Algorithms">
   <header class="slide-head">
     <p class="kicker">Lab 1 · Algorithms · ILO 2</p>
-    <h2>How to Write an Algorithm</h2>
+    <h2>Steps in Creating an Algorithm</h2>
+    <p class="lede">Once you understand the problem, these five basic steps turn it into an algorithm.</p>
   </header>
-  <ol class="step-tiles">
-    <li><b>Understand the Problem</b><span>Clarify the requirements, constraints, and expected outcome. Break the problem into smaller parts.</span></li>
-    <li><b>Determine the Input and Output</b><span>What data comes in (format, type, range)? What result goes out?</span></li>
-    <li><b>Choose an Algorithm Paradigm</b><span>Pick the general approach that suits the problem (see below).</span></li>
-    <li><b>Develop a High-Level Algorithm</b><span>Outline the main steps, e.g., in pseudocode, without syntax details.</span></li>
-    <li><b>Refine the Algorithm</b><span>Check correctness, efficiency, and readability. Handle edge cases.</span></li>
-    <li><b>Implement the Algorithm</b><span>Translate it into a programming language (C++ in this course).</span></li>
-    <li><b>Test and Debug</b><span>Try typical, boundary, and exceptional inputs. Fix any errors.</span></li>
-    <li><b>Analyze and Optimize</b><span>Consider time and space complexity. Remove bottlenecks.</span></li>
-  </ol>
-  <div class="paradigms">
-    <span class="paradigms-label">Common paradigms:</span>
-    <span class="tag">Divide &amp; Conquer</span><span class="tag">Greedy</span><span class="tag">Dynamic Programming</span><span class="tag">Backtracking</span><span class="tag">Branch &amp; Bound</span><span class="tag">Randomized</span>
+  <div class="table-wrap">
+    <table class="table compact basic-steps">
+      <thead><tr><th scope="col">Step</th><th scope="col">What to do</th><th scope="col">Example: average of 3 quizzes, Passed or Failed</th></tr></thead>
+      <tbody>
+        <tr><th scope="row"><span class="step-n">1</span>Identify the inputs and outputs</th><td>What data do you start with? What result must you produce?</td><td>Inputs: q1, q2, q3. Outputs: the average and "Passed" or "Failed".</td></tr>
+        <tr><th scope="row"><span class="step-n">2</span>Work out the process</th><td>Find the formula or rule that turns the inputs into the outputs. Solve one example by hand.</td><td>average = (q1 + q2 + q3) ÷ 3. Pass if average ≥ 75. By hand: 80, 90, 70 → 80.</td></tr>
+        <tr><th scope="row"><span class="step-n">3</span>Write the steps in order</th><td>Number the steps from Start to End. One action per step, in plain words.</td><td>Start → read q1, q2, q3 → compute the average → display the average → End.</td></tr>
+        <tr><th scope="row"><span class="step-n">4</span>Add decisions and repeats</th><td>Where does the result depend on a condition (if)? Does anything need to repeat (loop)?</td><td>Add: if average ≥ 75, display "Passed"; otherwise, display "Failed".</td></tr>
+        <tr><th scope="row"><span class="step-n">5</span>Test it by hand</th><td>Follow your steps with sample values. If an answer is wrong, fix the steps and test again.</td><td>80, 90, 70 → 80, Passed ✓ · 70, 60, 75 → 68.33, Failed ✓ · 75, 75, 75 → 75, Passed ✓</td></tr>
+      </tbody>
+    </table>
   </div>
+  <details class="answer" style="margin-top:1rem">
+    <summary><span>Show the finished algorithm</span></summary>
+    <div class="grid-2 align-start" style="margin-top:1rem">
+      <div class="card">
+        <h3 class="card-title">The finished algorithm</h3>
+        <ol class="algo-steps">
+          <li>Start.</li>
+          <li>Read q1, q2, and q3.</li>
+          <li>Compute average = (q1 + q2 + q3) ÷ 3.</li>
+          <li>Display the average.</li>
+          <li>If the average is 75 or higher, display "Passed". Otherwise, display "Failed".</li>
+          <li>End.</li>
+        </ol>
+      </div>
+      <div class="concept"><p class="box-label">Remember</p><ul><li>Every algorithm has a clear <b>Start</b> and <b>End</b>.</li><li>Each step does <b>one</b> thing.</li><li>Test with a value <b>on the boundary</b> (exactly 75), not only easy ones.</li></ul></div>
+    </div>
+  </details>
   <aside class="notes">
     <p class="note-time">Suggested time: about 6 min</p>
     <h4>Teaching tips</h4>
     <ul>
-      <li>Steps 4 and 5 together are <em>stepwise refinement</em> (top-down design): start with big steps, then add detail.</li>
-      <li>Paradigms, briefly. <b>Divide &amp; Conquer</b> splits a problem, solves the parts, then combines them. <b>Greedy</b> takes the best local choice each step. <b>Dynamic Programming</b> solves overlapping subproblems once and stores the results. <b>Backtracking</b> tries a choice and undoes it if it fails. <b>Branch &amp; Bound</b> prunes branches that can't win. <b>Randomized</b> uses randomness for speed. Lab 1 problems only need straightforward sequence, selection, and loops.</li>
-      <li>Step 6 example from the original deck notes: factorial. <code>if n is 0 or 1 return 1, else result = 1; for i from 2 to n: result = result * i</code>.</li>
+      <li>These steps happen inside cycle step 2 (Plan the logic). Understanding the problem is cycle step 1, which is why it is not repeated here.</li>
+      <li>Build the quiz example on the board with the class, one row at a time, then click <b>Show the finished algorithm</b>.</li>
+      <li>Step 5 is a desk-check. Students will do the same for the Lab Exercise (a desk-check table), and in Lab 15 (debugging).</li>
     </ul>
     <h4>Common student pitfalls</h4>
     <ul>
-      <li>Jumping straight to coding (step 6) without listing inputs and outputs, which leads to missing variables.</li>
-      <li>Testing only the "happy path" (a grade of 95) and never a boundary (exactly 90 or 89).</li>
+      <li>Skipping step 2: writing steps before solving one example by hand.</li>
+      <li>Putting several actions in one step ("read the scores and compute and display").</li>
+      <li>Forgetting the "otherwise" part of a decision.</li>
+      <li>Testing only easy values and never the boundary (exactly 75).</li>
     </ul>
     <h4>Ask the class</h4>
     <ul>
-      <li>"What are the inputs and outputs of an ATM withdrawal?" (Inputs: card, PIN, amount. Outputs: cash, receipt, new balance, or an error.)</li>
+      <li>"What changes if we also want to display 'Excellent' for an average of 90 or higher?" (Another decision in step 4; test 90 and 89.99.)</li>
     </ul>
   </aside>
 </section>
@@ -393,7 +412,7 @@ ENDWHILE
 <section class="slide" id="ohms-law" data-title="Worked Example: Ohm's Law" data-section="Algorithms">
   <header class="slide-head">
     <p class="kicker">Lab 1 · Algorithms · Engineering problem</p>
-    <h2>Applying the 8 Steps: Ohm's Law</h2>
+    <h2>Applying the Steps: Ohm's Law</h2>
     <p class="lede">Find the current <b>I</b> through a resistor, given the voltage <b>V</b> and resistance <b>R</b>, where I = V ÷ R.</p>
   </header>
   <div class="grid-2 align-start">
@@ -401,14 +420,11 @@ ENDWHILE
       <table class="table compact">
         <thead><tr><th scope="col">Step</th><th scope="col">Applied to Ohm's Law</th></tr></thead>
         <tbody>
-          <tr><th scope="row">1 · Understand</th><td>Current depends on voltage and resistance: I = V / R.</td></tr>
-          <tr><th scope="row">2 · Input / Output</th><td>In: voltage (V), resistance (Ω). Out: current (A).</td></tr>
-          <tr><th scope="row">3 · Paradigm</th><td>Direct computation: a sequence with one decision.</td></tr>
-          <tr><th scope="row">4 · High-level</th><td>Get V and R, compute I, display I.</td></tr>
-          <tr><th scope="row">5 · Refine</th><td>What if R = 0? Division by zero, so add a check.</td></tr>
-          <tr><th scope="row">6 · Implement</th><td>Write the pseudocode on the right (C++ comes later).</td></tr>
-          <tr><th scope="row">7 · Test</th><td>12 V, 4 Ω gives 3 A. 9 V, 0 Ω gives an error message.</td></tr>
-          <tr><th scope="row">8 · Analyze</th><td>A fixed number of steps, clear names, and bad input handled.</td></tr>
+          <tr><th scope="row">1 · Inputs &amp; outputs</th><td>In: voltage V (volts) and resistance R (ohms). Out: current I (amperes).</td></tr>
+          <tr><th scope="row">2 · Process</th><td>I = V ÷ R. By hand: 12 V and 4 Ω → 3 A.</td></tr>
+          <tr><th scope="row">3 · Steps in order</th><td>Start → read V and R → compute I → display I → End.</td></tr>
+          <tr><th scope="row">4 · Decisions</th><td>What if R = 0? Dividing by zero is impossible, so add: if R = 0, display an error; otherwise, compute and display I.</td></tr>
+          <tr><th scope="row">5 · Test by hand</th><td>12 V, 4 Ω → 3 A ✓ · 9 V, 0 Ω → error message ✓</td></tr>
         </tbody>
       </table>
     </div>
@@ -440,7 +456,7 @@ END
     <h4>Teaching tips</h4>
     <ul>
       <li>This example serves ILO 2 (<em>algorithms for engineering problems</em>). Cover the right half and ask the class to supply each step first.</li>
-      <li>Run the tracer with 12 V and 4 Ω, then 9 V and 0 Ω. The division-by-zero guard is the payoff of step 5 (Refine).</li>
+      <li>Run the tracer with 12 V and 4 Ω, then 9 V and 0 Ω. The division-by-zero check is what step 4 (decisions) adds, and step 5 (testing) proves it works.</li>
       <li>Connect it to their physics and circuits classes. Engineers write algorithms for formulas they already know.</li>
     </ul>
     <h4>Common student pitfalls</h4>
@@ -1425,7 +1441,7 @@ START
     ENDWHILE
 END
 </pre>
-        <p class="small">34 loop tests instead of 101, and no modulus needed. This is step 8, <i>Analyze &amp; Optimize</i>.</p>
+        <p class="small">34 loop tests instead of 101, and no modulus needed. Once an algorithm works, look for a simpler version.</p>
       </div>
       <div class="card">
         <h3 class="card-title">Alternative: REPEAT … UNTIL</h3>
@@ -1451,7 +1467,7 @@ END
       <li>Start the 10-minute timer and walk around the room. Open the hints one at a time only if many students are stuck.</li>
       <li>Before revealing, show one or two student solutions (photos posted in the MS Teams class chat work well).</li>
       <li>Reveal the answer, set the tracer speed to <b>Turbo</b>, and press Play. The output fills with 33 numbers while the loop arrow lights up again and again.</li>
-      <li>Show the optimized version: the same output in about a third of the work. That is the "Analyze &amp; Optimize" step.</li>
+      <li>Show the optimized version: the same output in about a third of the work. Lesson: first make it correct, then look for a simpler way.</li>
       <li>Initialization could also use the Preparation (hexagon) symbol. A rectangle is used here because students know it best.</li>
     </ul>
     <h4>Common student pitfalls</h4>

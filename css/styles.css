@@ -387,7 +387,7 @@ html:not(.js) .slide { display: block; border-bottom: 2px dashed var(--border); 
 .num-dot { display: inline-grid; place-items: center; width: 1.7rem; height: 1.7rem; border-radius: 50%; background: var(--accent-strong); color: var(--accent-ink); font-size: .9rem; }
 .fc.mini { max-height: 30vh; }
 
-/* 8 steps */
+/* Step tiles */
 .step-tiles { list-style: none; counter-reset: st; padding: 0; margin: 0; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 1rem; }
 .step-tiles li {
   counter-increment: st;
@@ -404,8 +404,6 @@ html:not(.js) .slide { display: block; border-bottom: 2px dashed var(--border); 
 }
 .step-tiles b { font-size: 1.02rem; }
 .step-tiles span { font-size: .9rem; color: var(--muted); line-height: 1.4; }
-.paradigms { margin-top: 1.2rem; display: flex; flex-wrap: wrap; align-items: center; gap: .2rem; }
-.paradigms-label { font-weight: 700; margin-right: .4rem; }
 
 /* Tables */
 .table-wrap { overflow-x: auto; border-radius: var(--radius); }
@@ -1039,3 +1037,13 @@ html { font-variant-ligatures: none; font-feature-settings: "liga" 0, "calt" 0; 
 .btn.primary { box-shadow: 0 1px 2px rgba(15, 23, 42, .08), 0 4px 12px color-mix(in srgb, var(--accent) 22%, transparent); }
 .badge-lab { background: var(--accent); color: var(--accent-ink); }
 .toc-list a[aria-current="true"] { box-shadow: inset 3px 0 0 var(--accent); }
+
+
+/* Lab 1: basic steps in creating an algorithm */
+.basic-steps th[scope="row"] { width: 17rem; font-size: 1.02rem; }
+.basic-steps td { font-size: .98rem; }
+.basic-steps td:last-child { color: var(--muted); }
+.basic-steps .step-n {
+  display: inline-grid; place-items: center; width: 1.7rem; height: 1.7rem; margin-right: .55rem;
+  border-radius: 8px; background: var(--accent-soft); color: var(--accent); font-weight: 900; font-size: .9rem;
+}
