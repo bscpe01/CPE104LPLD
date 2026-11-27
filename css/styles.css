@@ -1047,3 +1047,17 @@ html { font-variant-ligatures: none; font-feature-settings: "liga" 0, "calt" 0; 
   display: inline-grid; place-items: center; width: 1.7rem; height: 1.7rem; margin-right: .55rem;
   border-radius: 8px; background: var(--accent-soft); color: var(--accent); font-weight: 900; font-size: .9rem;
 }
+
+/* Lab 1: algorithm vs pseudocode vs flowchart */
+.forms-flow { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: .7rem; }
+.ff-box { display: flex; flex-direction: column; gap: .1rem; padding: .7rem 1rem; border-radius: 14px; background: var(--surface); border: 1px solid var(--border); box-shadow: var(--shadow); text-align: center; min-width: 9.5rem; }
+.ff-box b { font-size: 1.05rem; }
+.ff-box span { font-size: .85rem; color: var(--muted); }
+.ff-algo { background: var(--accent-soft); border-color: var(--accent); }
+.ff-algo b { color: var(--accent); }
+.ff-code { background: var(--surface-2); }
+.ff-pair { display: flex; flex-direction: column; gap: .5rem; }
+.ff-arrow { font-size: .8rem; font-weight: 800; color: var(--muted); text-transform: uppercase; letter-spacing: .06em; }
+.ff-arrow::after { content: " →"; color: var(--accent); }
+.forms-grid { display: grid; grid-template-columns: minmax(0, .8fr) minmax(0, 1.35fr) minmax(0, 1fr); gap: 1rem; align-items: start; }
+@media (max-width: 1100px) { .forms-grid { grid-template-columns: minmax(0, 1fr); } }

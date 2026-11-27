@@ -47,7 +47,7 @@ window.CPE104L_COURSE = {
         'Formulate step-by-step algorithms for engineering problems.',
         'Construct standard flowcharts and write structured pseudocode.'
       ],
-      topics: ['Program development cycle', 'Sequence, selection, loop', 'Pseudocode keywords', 'Operators', 'Flowchart symbols', 'Battlefield Coordinates'],
+      topics: ['Program development cycle', 'Sequence, selection, loop', 'Pseudocode keywords', 'Operators', 'Flowchart symbols', 'Flood Watch'],
       materials: []
     },
     {

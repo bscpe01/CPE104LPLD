@@ -4,7 +4,7 @@
 
     1. Helpers & storage            8. Tracers (step through code + flowchart)
     2. Code highlighting            9. Seatwork timer
-    3. Page chrome (top bar, …)    10. Quadrant checker (Labs 1–2)
+    3. Page chrome (top bar, …)    10. Quadrant checker (Lab 6)
     4. Slide navigation            11. Search (palette + home page)
     5. Toggles & keyboard          12. Home page (lab cards)
     6. Tabs, reveals, covers       13. Init
@@ -745,14 +745,14 @@
     render();
   }
 
-  /* ---------- 10. Quadrant checker (Battlefield Coordinates, Labs 1–2) ---------- */
+  /* ---------- 10. Quadrant checker (Battlefield Coordinates, Lab 6 warm-up) ---------- */
   function classify(x, y) {
     if (x === 0 && y === 0) return { label: 'Origin', q: 0 };
     if (x > 0 && y > 0) return { label: 'Quadrant 1', q: 1 };
     if (x < 0 && y > 0) return { label: 'Quadrant 2', q: 2 };
     if (x < 0 && y < 0) return { label: 'Quadrant 3', q: 3 };
     if (x > 0 && y < 0) return { label: 'Quadrant 4', q: 4 };
-    return { label: (x === 0 ? 'On the y-axis' : 'On the x-axis') + ' (not one of the five required outputs)', q: -1 };
+    return { label: x === 0 ? 'On the y-axis' : 'On the x-axis', q: -1 };
   }
   function initChecker(el) {
     var xIn = $('[data-coord="x"]', el), yIn = $('[data-coord="y"]', el);
