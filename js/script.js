@@ -336,7 +336,7 @@
   function toggleNotes() { setNotes(notesPanel.hidden); }
 
   function currentTheme() {
-    return root.getAttribute('data-theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+    return root.getAttribute('data-theme') === 'dark' ? 'dark' : 'light';   /* light by default */
   }
   function toggleTheme() {
     var t = currentTheme() === 'dark' ? 'light' : 'dark';

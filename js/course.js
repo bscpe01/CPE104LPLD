@@ -186,7 +186,7 @@ window.CPE104L_COURSE = {
       desc: 'Design, implement, test, and document an integrated, modular C++ software solution applying multiple algorithms (Final Project Rubric).'
     },
     {
-      id: 'final', kind: 'milestone', short: 'Final Exam', title: 'Final Practical Exam & Demo', week: '18', part: 'p5',
+      id: 'final', kind: 'milestone', short: 'Final Exam', title: 'Final Practical Exam', week: '18', part: 'p5',
       desc: 'Develop and defend a complete C++ program solving an engineering or real-world problem.'
     }
   ]
