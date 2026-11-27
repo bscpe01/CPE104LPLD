@@ -1,0 +1,1491 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Lab 14 · Intro to OOP: Polymorphism · CPE 104L</title>
+  <meta name="description" content="CPE 104L Programming Logic and Design, Lab No. 14: Intro to OOP, Polymorphism. Overloading, virtual functions, dynamic binding, abstract classes, virtual destructors. BS Computer Engineering, Bulacan State University.">
+  <meta name="color-scheme" content="light dark">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%232f3410'/%3E%3Cpath d='M32 11 53 32 32 53 11 32Z' fill='none' stroke='%23f5c518' stroke-width='6' stroke-linejoin='round'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="../css/styles.css">
+  <script>
+    (function () { var d = document.documentElement; d.classList.add('js');
+      try { var t = localStorage.getItem('cpe104l.theme'); if (t === 'dark' || t === 'light') d.setAttribute('data-theme', t); } catch (e) {} })();
+  </script>
+  <script src="../js/course.js" defer></script>
+  <script src="../js/search-index.js" defer></script>
+  <script src="../js/script.js" defer></script>
+  <script src="../js/labs/lab-14.js" defer></script>
+</head>
+<body data-page="lab-14" data-root="../">
+  <svg class="svg-defs" aria-hidden="true" focusable="false"><defs><marker id="arrow" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="10" markerHeight="10" markerUnits="userSpaceOnUse" orient="auto"><path class="arrowhead" d="M0 0 L10 5 L0 10 Z"/></marker><marker id="l14-gen" viewBox="0 0 20 20" refX="20" refY="10" markerWidth="20" markerHeight="20" markerUnits="userSpaceOnUse" orient="auto"><path d="M1 1 L20 10 L1 19 Z" style="fill:var(--surface);stroke:var(--fc-line);stroke-width:2;stroke-linejoin:round"/></marker></defs></svg>
+  <div class="app" id="app">
+    <main class="stage" id="stage">
+      <div class="deck" id="deck" tabindex="-1">
+<noscript><p class="noscript">JavaScript is off, so every slide is shown in one long page. Turn JavaScript on for slide navigation, speaker notes, and the live tracers.</p></noscript>
+
+<!-- ========================= SLIDE 1 · TITLE ========================= -->
+<section class="slide" id="l14-title" data-title="Title & ILOs" data-section="Introduction">
+  <div class="lab-title">
+    <div>
+      <div class="lab-badges"><span class="badge-lab">Lab No. 14</span><span class="badge-week">Week 15</span><span class="badge-co">CO1 · CO2</span></div>
+      <p class="kicker">CPE 104L · Programming Logic and Design</p>
+      <h1>Polymorphism <span>Intro to OOP: one interface, many forms</span></h1>
+      <p class="lede">Write one loop that works for every kind of object in a family, even for classes you will add next month.</p>
+      <ol class="roadmap" aria-label="Lab roadmap">
+        <li><a href="#l14-what">Many forms</a></li>
+        <li><a href="#l14-virtual">virtual functions</a></li>
+        <li><a href="#l14-shapes">Shape* array</a></li>
+        <li><a href="#l14-abstract">Abstract classes</a></li>
+        <li><a href="#l14-sensors">CpE: sensors</a></li>
+        <li><a href="#l14-exercise">Lab Exercise 14</a></li>
+      </ol>
+    </div>
+    <div class="ilo-card">
+      <h2>Intended Learning Outcomes</h2>
+      <ol>
+        <li>Apply polymorphism in basic C++ programs.</li>
+      </ol>
+      <div class="ilo-meta">
+        <span><b>Activities:</b> Live coding demonstrations · Guided OOP design exercises · Laboratory activities</span>
+        <span><b>Assessment:</b> Lab Exercise No. 14 · 5-Level Lab Rubric</span>
+      </div>
+    </div>
+  </div>
+  <aside class="notes">
+    <p class="note-time">Suggested time: about 3 min</p>
+    <h4>Teaching tips</h4>
+    <ul>
+      <li>Hook: "In Lab 13 a <code>Laptop</code> could redefine <code>describe()</code>. Today we find out why that is not enough, and fix it with one keyword: <code>virtual</code>."</li>
+      <li>This is the last OOP lab. After it come debugging (Lab 15), the Final Project (Week 17), and the Final Practical Exam (Week 18). Polymorphism makes project code easier to extend, so it is worth the effort.</li>
+      <li>Have Lab 13's <code>Device</code> / <code>Laptop</code> code open. Today's demos extend it.</li>
+    </ul>
+    <h4>Common student pitfalls</h4>
+    <ul>
+      <li>Thinking polymorphism is a new syntax to memorize. It is mostly one keyword (<code>virtual</code>) plus pointers or references to the base class.</li>
+    </ul>
+  </aside>
+</section>
+
+<!-- ========================= SLIDE 2 · BRIDGE ========================= -->
+<section class="slide" id="l14-bridge" data-title="From Lab 13: Inheritance" data-section="Introduction">
+  <header class="slide-head">
+    <p class="kicker">Lab 14 · Review</p>
+    <h2>From Lab 13: Inheritance Recap</h2>
+    <p class="lede">A <code>Laptop</code> <b>is a</b> <code>Device</code>. It inherits <code>brand</code>, chains constructors, and redefines <code>describe()</code>.</p>
+  </header>
+  <div class="grid-2 align-start" style="grid-template-columns:minmax(0,1.3fr) minmax(0,1fr)">
+    <figure class="codeblock">
+      <figcaption>Lab 13's <code>devices.cpp</code> (excerpt)</figcaption>
+<pre class="code compact scroll" data-cpp style="max-height:60vh">
+class Device {                     // base class
+protected:
+    string brand;                  // derived classes see it
+    int powerWatts;
+public:
+    Device(string b, int w) : brand(b), powerWatts(w) {}
+    void describe() const {
+        cout &lt;&lt; brand &lt;&lt; ", " &lt;&lt; powerWatts
+             &lt;&lt; " W" &lt;&lt; endl;
+    }
+};
+
+class Laptop : public Device {     // Laptop IS-A Device
+private:
+    int ramGB;
+public:
+    Laptop(string b, int w, int ram)
+        : Device(b, w), ramGB(ram) {}   // chaining
+    void describe() const {        // redefined
+        cout &lt;&lt; "Laptop: ";
+        Device::describe();        // base version
+        cout &lt;&lt; "  RAM: " &lt;&lt; ramGB &lt;&lt; " GB" &lt;&lt; endl;
+    }
+};
+</pre>
+    </figure>
+    <div class="stack">
+      <div class="card">
+        <h3 class="card-title">Lab 13 gave us</h3>
+        <ul class="tight">
+          <li><b>Encapsulation</b>: <code>private</code> data, public methods (<code>BankAccount</code>).</li>
+          <li><b>Inheritance</b>: <code>protected</code>, chaining, <code>Device::describe()</code>.</li>
+        </ul>
+      </div>
+      <div class="concept"><p class="box-label">Today's question</p><p>If all you have is a <code>Device*</code> pointing at a <code>Laptop</code>, which <code>describe()</code> runs? And how do you make it run the <b>Laptop's</b> version?</p></div>
+      <div class="note-box">
+        <p class="box-label">Syllabus note</p>
+        <p class="small">The syllabus lists <b>Lab No. 13 &amp; 14</b> together: <i>Intro to OOP: Encapsulation, Inheritance, and Polymorphism</i> (Weeks 14–15). Here, Lab 13 = encapsulation &amp; inheritance (Week 14); Lab 14 = <b>polymorphism</b> (Week 15). Each has its own Lab Exercise.</p>
+      </div>
+    </div>
+  </div>
+  <aside class="notes">
+    <p class="note-time">Suggested time: about 5 min</p>
+    <h4>Teaching tips</h4>
+    <ul>
+      <li>Read the Lab 13 code aloud and have students name each feature: base class, <code>protected</code>, <code>: public</code>, constructor chaining, redefined method, scope resolution <code>Device::</code>.</li>
+      <li>The code is the <code>devices.cpp</code> program from Lab 13's <a href="lab-13.html#l13-redefine">Redefining a Base-Class Function</a> slide, so students have already traced it.</li>
+      <li>Leave the "Today's question" unanswered. Take a show of hands for "Device version" vs "Laptop version", then reveal on the next slides.</li>
+    </ul>
+    <h4>Common student pitfalls</h4>
+    <ul>
+      <li>Forgetting that <code>protected</code> members are visible in derived classes but still hidden from <code>main()</code>.</li>
+      <li>Mixing up <code>Device::describe()</code> (call the base version) with <code>Device(b, w)</code> (call the base constructor).</li>
+    </ul>
+    <h4>Ask the class</h4>
+    <ul>
+      <li>"Is a <code>Laptop</code> a <code>Device</code>? Is every <code>Device</code> a <code>Laptop</code>?" (Yes; no. Inheritance goes one way.)</li>
+    </ul>
+  </aside>
+</section>
+
+<!-- ========================= SLIDE 3 · WHAT IS POLYMORPHISM ========================= -->
+<section class="slide" id="l14-what" data-title="What Is Polymorphism?" data-section="Introduction">
+  <header class="slide-head">
+    <p class="kicker">Lab 14 · Concept</p>
+    <h2>What Is Polymorphism?</h2>
+  </header>
+  <div class="grid-2 align-start">
+    <div class="stack">
+      <div class="concept big"><p class="box-label">Key concept</p><p><b>Polymorphism</b> (Greek <i>poly</i> = many, <i>morph</i> = form) means <b>one interface, many implementations</b>: the same call does the right thing for each type of object.</p></div>
+      <div class="card soft">
+        <h3 class="card-title">Everyday analogy</h3>
+        <p>Press the <b>power button</b> on a laptop, a phone, or an electric fan. Same action, but each device responds in its own way. You don't need to know which device it is to press it.</p>
+      </div>
+      <div class="grid-2 tight-gap">
+        <div class="card">
+          <h3 class="card-title">Compile-time</h3>
+          <p class="small">Function and operator <b>overloading</b>. The compiler picks the version from the argument types.</p>
+        </div>
+        <div class="card">
+          <h3 class="card-title">Run-time</h3>
+          <p class="small"><b><code>virtual</code> functions</b> called through a base-class pointer or reference. The program picks the version while running.</p>
+        </div>
+      </div>
+    </div>
+    <figure class="card chart-card">
+      <figcaption>One call, three behaviors</figcaption>
+      <div class="chart-body">
+        <svg class="fc" viewBox="0 0 560 330" role="img" aria-label="Diagram: the single call shapes[i]->area() branches to three different functions: Circle::area computes pi r squared, Rectangle::area computes w times h, and Triangle::area computes one half b h.">
+          <g class="fc-node"><rect class="s-predef" x="160" y="16" width="240" height="52" rx="6"/><text x="280" y="42" style="font-family:var(--font-mono)">shapes[i]-&gt;area()</text></g>
+          <path class="fc-line" d="M280 68 V110 H95 V160"/>
+          <path class="fc-line" d="M280 110 V160"/>
+          <path class="fc-line plain" d="M280 110 H465"/>
+          <path class="fc-line" d="M465 110 V160"/>
+          <text class="fc-label" x="280" y="92" style="text-anchor:start" dx="10">which object is it?</text>
+          <g class="fc-node"><rect class="s-process" x="10" y="160" width="170" height="74"/><text x="95" y="186" style="font-family:var(--font-mono);font-size:14px">Circle::area()</text><text x="95" y="212">π × r²</text></g>
+          <g class="fc-node"><rect class="s-process" x="195" y="160" width="170" height="74"/><text x="280" y="186" style="font-family:var(--font-mono);font-size:14px">Rectangle::area()</text><text x="280" y="212">w × h</text></g>
+          <g class="fc-node"><rect class="s-process" x="380" y="160" width="170" height="74"/><text x="465" y="186" style="font-family:var(--font-mono);font-size:14px">Triangle::area()</text><text x="465" y="212">½ × b × h</text></g>
+          <text x="280" y="280" style="font-size:14px;fill:var(--muted)">The caller writes ONE line.</text>
+          <text x="280" y="304" style="font-size:14px;fill:var(--muted)">Each class supplies its own version.</text>
+        </svg>
+      </div>
+    </figure>
+  </div>
+  <aside class="notes">
+    <p class="note-time">Suggested time: about 5 min</p>
+    <h4>Teaching tips</h4>
+    <ul>
+      <li>Write "one interface, many implementations" on the board and keep it there all session.</li>
+      <li>The diagram is the goal of today's lab. By the <a href="#l14-shapes">Shape* array</a> slide, students will run exactly this loop.</li>
+      <li>Compile-time polymorphism is a short recap (Lab 11 overloading). Most of the lab is about run-time polymorphism.</li>
+    </ul>
+    <h4>Common student pitfalls</h4>
+    <ul>
+      <li>Confusing <b>overloading</b> (same name, different parameters, same scope) with <b>overriding</b> (same signature, redefined in a derived class through <code>virtual</code>).</li>
+    </ul>
+    <h4>Ask the class</h4>
+    <ul>
+      <li>"Name another 'same action, different behavior' example." (A remote's Play button for TV vs. speaker; a 'charge' command for a phone vs. a power bank.)</li>
+    </ul>
+  </aside>
+</section>
+
+<!-- ========================= SLIDE 4 · COMPILE-TIME POLYMORPHISM ========================= -->
+<section class="slide" id="l14-overload" data-title="Compile-Time: Overloading" data-section="Introduction">
+  <header class="slide-head">
+    <p class="kicker">Lab 14 · Compile-time polymorphism</p>
+    <h2>Compile-Time Polymorphism: Overloading</h2>
+    <p class="lede">The compiler chooses which function to call by looking at the argument types, before the program runs.</p>
+  </header>
+  <div class="tabs" data-tabs>
+    <div class="tablist" role="tablist" aria-label="Overloading examples">
+      <button type="button" role="tab" data-tab="fn" aria-selected="true">Function overloading (Lab 11)</button>
+      <button type="button" role="tab" data-tab="op">Operator overloading (preview)</button>
+    </div>
+    <div class="tabpanel" role="tabpanel" data-panel="fn">
+      <div class="code-pair">
+        <figure class="codeblock">
+          <figcaption><code>overload.cpp</code></figcaption>
+<pre class="code" data-cpp>
+#include &lt;iostream&gt;
+using namespace std;
+
+// Same name, different parameter lists (Lab 11)
+double area(double radius) {
+    return 3.14159 * radius * radius;
+}
+
+double area(double width, double height) {
+    return width * height;
+}
+
+int main() {
+    cout &lt;&lt; "Circle area:    " &lt;&lt; area(2.0) &lt;&lt; endl;
+    cout &lt;&lt; "Rectangle area: " &lt;&lt; area(4.0, 5.0) &lt;&lt; endl;
+    return 0;
+}
+</pre>
+        </figure>
+        <div class="stack">
+          <figure class="codeblock"><figcaption>Output</figcaption>
+<pre class="console">Circle area:    12.5664
+Rectangle area: 20</pre></figure>
+          <ul class="tight">
+            <li>Same name <code>area</code>, different <b>parameter lists</b>.</li>
+            <li><code>area(2.0)</code> → 1 argument → the circle version.</li>
+            <li>Decided at <b>compile time</b>: no objects or pointers needed.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <div class="tabpanel" role="tabpanel" data-panel="op">
+      <div class="code-pair">
+        <figure class="codeblock">
+          <figcaption><code>vector2d.cpp</code></figcaption>
+<pre class="code scroll" data-cpp style="max-height:44vh">
+#include &lt;iostream&gt;
+using namespace std;
+
+class Vector2D {
+private:
+    double x, y;
+public:
+    Vector2D(double xVal, double yVal) : x(xVal), y(yVal) {}
+
+    // v1 + v2 builds a new Vector2D
+    Vector2D operator+(const Vector2D&amp; other) const {
+        return Vector2D(x + other.x, y + other.y);
+    }
+
+    // lets cout print a Vector2D (a friend, not a member)
+    friend ostream&amp; operator&lt;&lt;(ostream&amp; out, const Vector2D&amp; v) {
+        out &lt;&lt; "(" &lt;&lt; v.x &lt;&lt; ", " &lt;&lt; v.y &lt;&lt; ")";
+        return out;
+    }
+};
+
+int main() {
+    Vector2D force1(3.0, 4.0);
+    Vector2D force2(1.5, -2.0);
+    Vector2D total = force1 + force2;
+    cout &lt;&lt; force1 &lt;&lt; " + " &lt;&lt; force2 &lt;&lt; " = " &lt;&lt; total &lt;&lt; endl;
+    return 0;
+}
+</pre>
+        </figure>
+        <div class="stack">
+          <figure class="codeblock"><figcaption>Output</figcaption>
+<pre class="console">(3, 4) + (1.5, -2) = (4.5, 2)</pre></figure>
+          <ul class="tight">
+            <li><code>+</code> now works on <code>Vector2D</code> (adding two forces).</li>
+            <li><code>operator&lt;&lt;</code> is a <b>friend</b>, not a member, because the left operand is <code>cout</code>.</li>
+            <li>It returns <code>out</code> so you can chain <code>&lt;&lt;</code>.</li>
+          </ul>
+          <p class="callout tip">Preview only: operator overloading is <b>not</b> required in Lab Exercise 14.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+  <aside class="notes">
+    <p class="note-time">Suggested time: about 7 min</p>
+    <h4>Teaching tips</h4>
+    <ul>
+      <li>Function overloading is a 1-minute recap from Lab 11. Ask a student to predict which <code>area</code> each call uses.</li>
+      <li>Operator overloading: show that <code>force1 + force2</code> is really a call to <code>force1.operator+(force2)</code>. Keep it brief; it is enrichment.</li>
+      <li>Engineering link: adding force or velocity vectors component by component, as in physics.</li>
+    </ul>
+    <h4>Common student pitfalls</h4>
+    <ul>
+      <li>Trying to overload by return type only (<code>int f()</code> vs <code>double f()</code>). Not allowed: the parameter lists must differ.</li>
+      <li>Writing <code>operator&lt;&lt;</code> as a member function. Then <code>cout</code> would have to be on the right side.</li>
+    </ul>
+    <h4>Ask the class</h4>
+    <ul>
+      <li>"What would <code>area(3)</code> call?" (The one-parameter version; the <code>int</code> 3 converts to <code>double</code>.)</li>
+    </ul>
+  </aside>
+</section>
+
+<!-- ========================= SLIDE 5 · THE PROBLEM ========================= -->
+<section class="slide" id="l14-problem" data-title="The Problem: Static Binding" data-section="Virtual functions">
+  <header class="slide-head">
+    <p class="kicker">Lab 14 · Virtual functions</p>
+    <h2>The Problem: Static Binding</h2>
+    <p class="lede">Continue Lab 13's example: point a <code>Device*</code> at a <code>Laptop</code> and call <code>describe()</code>.</p>
+  </header>
+  <div class="code-pair">
+    <figure class="codeblock">
+      <figcaption><code>static_binding.cpp</code></figcaption>
+<pre class="code scroll" data-cpp>
+#include &lt;iostream&gt;
+#include &lt;string&gt;
+using namespace std;
+
+class Device {
+protected:
+    string brand;
+    int powerWatts;
+public:
+    Device(string b, int w) : brand(b), powerWatts(w) {}
+    void describe() const {
+        cout &lt;&lt; brand &lt;&lt; ", " &lt;&lt; powerWatts
+             &lt;&lt; " W" &lt;&lt; endl;
+    }
+};
+
+class Laptop : public Device {
+private:
+    int ramGB;
+public:
+    Laptop(string b, int w, int ram)
+        : Device(b, w), ramGB(ram) {}
+    void describe() const {        // redefined (Lab 13)
+        cout &lt;&lt; "Laptop: ";
+        Device::describe();
+        cout &lt;&lt; "  RAM: " &lt;&lt; ramGB &lt;&lt; " GB" &lt;&lt; endl;
+    }
+};
+
+int main() {
+    Laptop lap("Lenovo", 65, 16);
+    Device* ptr = &amp;lap;        // base pointer, derived object
+
+    lap.describe();            // Laptop::describe()
+    ptr-&gt;describe();           // Device::describe()  surprise!
+    return 0;
+}
+</pre>
+    </figure>
+    <div class="stack">
+      <figure class="codeblock"><figcaption>Output</figcaption>
+<pre class="console">Laptop: Lenovo, 65 W
+  RAM: 16 GB
+Lenovo, 65 W</pre></figure>
+      <div class="mem" aria-label="Memory: lap object holds brand Lenovo, powerWatts 65 and ramGB 16; ptr holds the address of lap">
+        <div class="mem-cell"><span class="mem-name">lap</span><span class="mem-val">"Lenovo" | 65 | 16</span><span class="mem-addr">a Laptop object</span></div>
+        <div class="mem-cell is-pointer is-hl"><span class="mem-name">ptr</span><span class="mem-val">&amp;lap</span><span class="mem-addr">declared as Device*</span></div>
+      </div>
+      <div class="pitfall"><p class="box-label">Why line 35 skips the Laptop part</p>
+        <ul>
+          <li>The object <b>is</b> a Laptop, but <code>ptr</code> is declared as <code>Device*</code>.</li>
+          <li>Without <code>virtual</code>, the compiler binds the call using the <b>pointer's type</b>, at compile time.</li>
+          <li>This is <b>static (early) binding</b>.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+  <aside class="notes">
+    <p class="note-time">Suggested time: about 6 min</p>
+    <h4>Teaching tips</h4>
+    <ul>
+      <li>Run it live. Before pressing Run, ask for predictions of line 35. Many students expect the "Laptop: … RAM" text, as in Lab 13's <code>lap.describe()</code>.</li>
+      <li>Explain why we want base pointers at all: a single array or function that handles <em>every</em> device (laptops, phones, routers) without knowing their exact types.</li>
+      <li>Lab 10 link: <code>ptr-&gt;describe()</code> is the same as <code>(*ptr).describe()</code>.</li>
+    </ul>
+    <h4>Common student pitfalls</h4>
+    <ul>
+      <li>Thinking the compiler "looks inside" the pointer. It only knows the declared type unless the function is <code>virtual</code>.</li>
+      <li>Trying <code>Laptop* lp = &amp;someDevice;</code> (base to derived). That direction does not compile without a cast.</li>
+    </ul>
+    <h4>Ask the class</h4>
+    <ul>
+      <li>"Which is legal: <code>Device* p = &amp;lap;</code> or <code>Laptop* p = &amp;d;</code> (where <code>d</code> is a <code>Device</code>)?" (Only the first. A Laptop is a Device.)</li>
+    </ul>
+  </aside>
+</section>
+
+<!-- ========================= SLIDE 6 · VIRTUAL FUNCTIONS ========================= -->
+<section class="slide" id="l14-virtual" data-title="virtual & Dynamic Binding" data-section="Virtual functions">
+  <header class="slide-head">
+    <p class="kicker">Lab 14 · Virtual functions</p>
+    <h2><code>virtual</code> Functions &amp; Dynamic Binding</h2>
+    <p class="lede">Mark the base function <code>virtual</code>. Now the <b>object's real type</b> decides which version runs, while the program runs.</p>
+  </header>
+  <div class="code-pair">
+    <figure class="codeblock">
+      <figcaption><code>virtual_devices.cpp</code></figcaption>
+<pre class="code scroll" data-cpp>
+#include &lt;iostream&gt;
+#include &lt;string&gt;
+using namespace std;
+
+class Device {
+protected:
+    string brand;
+    int powerWatts;
+public:
+    Device(string b, int w) : brand(b), powerWatts(w) {}
+    virtual void describe() const {        // (1) virtual
+        cout &lt;&lt; brand &lt;&lt; ", " &lt;&lt; powerWatts
+             &lt;&lt; " W" &lt;&lt; endl;
+    }
+};
+
+class Laptop : public Device {
+private:
+    int ramGB;
+public:
+    Laptop(string b, int w, int ram)
+        : Device(b, w), ramGB(ram) {}
+    void describe() const override {       // (2) override
+        cout &lt;&lt; "Laptop: ";
+        Device::describe();
+        cout &lt;&lt; "  RAM: " &lt;&lt; ramGB &lt;&lt; " GB" &lt;&lt; endl;
+    }
+};
+
+class Smartphone : public Device {
+private:
+    int batteryMah;
+public:
+    Smartphone(string b, int w, int mah)
+        : Device(b, w), batteryMah(mah) {}
+    void describe() const override {
+        cout &lt;&lt; "Phone: " &lt;&lt; brand &lt;&lt; ", "
+             &lt;&lt; batteryMah &lt;&lt; " mAh" &lt;&lt; endl;
+    }
+};
+
+int main() {
+    Device d("Generic", 10);
+    Laptop lap("Lenovo", 65, 16);
+    Smartphone phone("Samsung", 25, 5000);
+    Device* devices[3] = {&amp;d, &amp;lap, &amp;phone};
+
+    for (int i = 0; i &lt; 3; i++) {
+        devices[i]-&gt;describe();    // chosen at RUN time
+    }
+    return 0;
+}
+</pre>
+    </figure>
+    <div class="stack">
+      <figure class="codeblock"><figcaption>Output</figcaption>
+<pre class="console">Generic, 10 W
+Laptop: Lenovo, 65 W
+  RAM: 16 GB
+Phone: Samsung, 5000 mAh</pre></figure>
+      <p class="syntax"><span class="muted">Base:</span> virtual <i>type</i> <i>name</i>(<i>params</i>) const</p>
+      <p class="syntax"><span class="muted">Derived:</span> <i>type</i> <i>name</i>(<i>params</i>) const override</p>
+      <div class="table-wrap">
+        <table class="table compact">
+          <thead><tr><th scope="col"></th><th scope="col">Static binding</th><th scope="col">Dynamic binding</th></tr></thead>
+          <tbody>
+            <tr><th scope="row">When</th><td>Compile time</td><td>Run time</td></tr>
+            <tr><th scope="row">Uses</th><td>Pointer's declared type</td><td>Object's actual type</td></tr>
+            <tr><th scope="row">Needs</th><td>Nothing (default)</td><td><code>virtual</code> + pointer or reference</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+  <aside class="notes">
+    <p class="note-time">Suggested time: about 7 min</p>
+    <h4>Teaching tips</h4>
+    <ul>
+      <li>Live-code it: add the single word <code>virtual</code> to the <code>Device::describe()</code> line of the previous program and rerun. Then add <code>Smartphone</code> and the array.</li>
+      <li>Point out that the <code>for</code> loop never mentions <code>Laptop</code> or <code>Smartphone</code>. Adding a <code>Router</code> class later needs <b>no change</b> to the loop. That is the payoff.</li>
+      <li>"Overriding" = a derived class supplies its own version of a <em>virtual</em> function with the same signature.</li>
+      <li>Optional depth: the compiler keeps a hidden table of function addresses (a "vtable") for classes with virtual functions. Not needed for the exercise.</li>
+    </ul>
+    <h4>Common student pitfalls</h4>
+    <ul>
+      <li>Putting <code>virtual</code> only in the derived class. It must be in the <b>base</b> class (once virtual, always virtual in derived classes).</li>
+      <li>Calling through an object (<code>lap.describe()</code>) and expecting to "see" polymorphism. You need a base pointer or reference.</li>
+    </ul>
+    <h4>Ask the class</h4>
+    <ul>
+      <li>"What do we change in <code>main</code> to add a <code>SmartWatch</code>?" (Create it and put its address in the array. The loop stays the same.)</li>
+    </ul>
+  </aside>
+</section>
+
+<!-- ========================= SLIDE 7 · OVERRIDE ========================= -->
+<section class="slide" id="l14-override" data-title="override: Let the Compiler Check" data-section="Virtual functions">
+  <header class="slide-head">
+    <p class="kicker">Lab 14 · Virtual functions</p>
+    <h2><code>override</code>: Let the Compiler Check You</h2>
+    <p class="lede">A function overrides only if its <b>name, parameters, <code>const</code>, and return type</b> all match the base version.</p>
+  </header>
+  <div class="grid-2 align-start" style="grid-template-columns:minmax(0,1.15fr) minmax(0,1fr)">
+    <figure class="codeblock">
+      <figcaption><code>laptop.cpp</code>: a "silent" mistake</figcaption>
+<pre class="code bad-code scroll" data-cpp data-nocheck style="max-height:52vh">
+#include &lt;iostream&gt;
+#include &lt;string&gt;
+using namespace std;
+
+class Device {
+protected:
+    string brand;
+    int powerWatts;
+public:
+    Device(string b, int w) : brand(b), powerWatts(w) {}
+    virtual void describe() const {
+        cout &lt;&lt; brand &lt;&lt; ", " &lt;&lt; powerWatts
+             &lt;&lt; " W" &lt;&lt; endl;
+    }
+};
+
+class Laptop : public Device {
+private:
+    int ramGB;
+public:
+    Laptop(string b, int w, int ram)
+        : Device(b, w), ramGB(ram) {}
+    void describe() {              // forgot const: a NEW function
+        cout &lt;&lt; "Laptop: ";
+        Device::describe();
+        cout &lt;&lt; "  RAM: " &lt;&lt; ramGB &lt;&lt; " GB" &lt;&lt; endl;
+    }
+};
+
+int main() {
+    Laptop lap("Lenovo", 65, 16);
+    Device* ptr = &amp;lap;
+    ptr-&gt;describe();
+    return 0;
+}
+</pre>
+    </figure>
+    <div class="stack">
+      <figure class="codeblock"><figcaption>It compiles (g++ 13 warns) and prints the WRONG text</figcaption>
+<pre class="console">laptop.cpp:11:18: warning: 'virtual void Device::describe() const' was hidden [-Woverloaded-virtual=]
+laptop.cpp:23:10: note:   by 'void Laptop::describe()'
+<span class="muted-out">$ ./laptop</span>
+Lenovo, 65 W</pre></figure>
+      <p>Add <code>override</code> on line 23:</p>
+<pre class="code bad-code" data-cpp data-nocheck>
+void describe() override {     // forgot const
+</pre>
+      <figure class="codeblock"><figcaption>Now it is a compile ERROR (good!)</figcaption>
+<pre class="console">laptop.cpp:23:10: error: 'void Laptop::describe()' marked 'override', but does not override</pre></figure>
+      <div class="practice"><p class="box-label">Habit</p><p>Write <code>override</code> on every overriding function. A typo becomes a compile error instead of a hidden logic bug. Fix here: <code>void describe() const override</code>.</p></div>
+    </div>
+  </div>
+  <aside class="notes">
+    <p class="note-time">Suggested time: about 5 min</p>
+    <h4>Teaching tips</h4>
+    <ul>
+      <li>The two outputs are real g++ 13 messages (trimmed). The <code>-Woverloaded-virtual</code> warning is part of <code>-Wall</code> in g++ 13; older compilers (such as the one bundled with many Dev-C++ installs) may compile this with <b>no warning at all</b>.</li>
+      <li>Make the point: a warning can be ignored, an error cannot. <code>override</code> turns a silent logic bug into an error at a specific line.</li>
+      <li><code>override</code> is C++11 and later. Codechum and modern IDEs support it.</li>
+    </ul>
+    <h4>Common student pitfalls</h4>
+    <ul>
+      <li>Missing <code>const</code>, a different parameter type (<code>int</code> vs <code>double</code>), or a misspelled name (<code>Describe</code>).</li>
+      <li>Writing <code>override</code> in the base class. It belongs in the derived class only.</li>
+    </ul>
+    <h4>Ask the class</h4>
+    <ul>
+      <li>"Would <code>void describe(int level) const override</code> compile?" (No. The parameter list differs, so it does not override anything.)</li>
+    </ul>
+  </aside>
+</section>
+
+<!-- ========================= SLIDE 8 · SHAPE ARRAY + TRACER ========================= -->
+<section class="slide" id="l14-shapes" data-title="Shape* Array (Tracer)" data-section="Abstract classes">
+  <header class="slide-head">
+    <p class="kicker">Lab 14 · Base-class pointers and references</p>
+    <h2>Polymorphism in Action: An Array of <code>Shape*</code></h2>
+  </header>
+  <div class="example-grid" style="grid-template-columns:minmax(0,1.25fr) minmax(0,1fr)">
+    <div class="stack">
+      <figure class="codeblock">
+        <figcaption><code>shapes.cpp</code></figcaption>
+<pre class="code scroll compact" id="l14-shapes-code" data-cpp style="max-height:47vh">
+#include &lt;iostream&gt;
+#include &lt;string&gt;
+using namespace std;
+
+const double PI = 3.14159;
+
+class Shape {
+public:
+    virtual double area() const { return 0.0; }   // placeholder
+    virtual string name() const { return "Shape"; }
+};
+
+class Circle : public Shape {
+private:
+    double radius;
+public:
+    Circle(double r) : radius(r) {}
+    double area() const override { return PI * radius * radius; }
+    string name() const override { return "Circle"; }
+};
+
+class Rectangle : public Shape {
+private:
+    double width, height;
+public:
+    Rectangle(double w, double h) : width(w), height(h) {}
+    double area() const override { return width * height; }
+    string name() const override { return "Rectangle"; }
+};
+
+class Triangle : public Shape {
+private:
+    double base, height;
+public:
+    Triangle(double b, double h) : base(b), height(h) {}
+    double area() const override { return 0.5 * base * height; }
+    string name() const override { return "Triangle"; }
+};
+
+// works for ANY shape: a reference to the base class
+void report(const Shape&amp; s) {
+    cout &lt;&lt; s.name() &lt;&lt; " area = " &lt;&lt; s.area() &lt;&lt; endl;
+}
+
+int main() {
+    Circle c(2.0);
+    Rectangle r(4.0, 5.0);
+    Triangle t(3.0, 6.0);
+
+    Shape* shapes[3] = {&amp;c, &amp;r, &amp;t};
+    double total = 0.0;
+    for (int i = 0; i &lt; 3; i++) {
+        report(*shapes[i]);
+        total += shapes[i]-&gt;area();
+    }
+    cout &lt;&lt; "Total area = " &lt;&lt; total &lt;&lt; endl;
+    return 0;
+}
+</pre>
+      </figure>
+      <figure class="codeblock"><figcaption>Real output</figcaption>
+<pre class="console">Circle area = 12.5664
+Rectangle area = 20
+Triangle area = 9
+Total area = 41.5664</pre></figure>
+    </div>
+    <div class="tracer" data-trace="l14-shapes" data-code="#l14-shapes-code" data-title="Trace it: which area() runs?"></div>
+  </div>
+  <aside class="notes">
+    <p class="note-time">Suggested time: about 10 min</p>
+    <h4>Teaching tips</h4>
+    <ul>
+      <li>Step through with the tracer. At each call, ask "Which <code>area()</code> runs now?" before pressing Step. The highlighted line jumps into <code>Circle</code>, then <code>Rectangle</code>, then <code>Triangle</code>.</li>
+      <li>Two ways to use the base class: a <b>pointer</b> (<code>shapes[i]-&gt;area()</code>) and a <b>reference</b> (<code>report(const Shape&amp; s)</code>). Both give dynamic binding.</li>
+      <li>The objects are local variables, so there is no <code>new</code>/<code>delete</code> yet. Dynamic objects come with <a href="#l14-vdtor">virtual destructors</a>.</li>
+      <li>Point at line 9: <code>Shape::area()</code> returns 0.0. What is the area of a "generic shape"? Meaningless. Next slide fixes it.</li>
+      <li>Output check: π × 2 × 2 with π = 3.14159 is 12.56636; <code>cout</code> shows 6 significant digits, 12.5664.</li>
+    </ul>
+    <h4>Common student pitfalls</h4>
+    <ul>
+      <li>Writing <code>report(shapes[i])</code>. <code>report</code> needs a <code>Shape&amp;</code>, so dereference the pointer: <code>*shapes[i]</code>.</li>
+      <li>Declaring <code>Shape shapes[3] = {c, r, t};</code> (objects, not pointers). That copies only the Shape part, and every area becomes 0 (<a href="#l14-slicing">slicing</a>).</li>
+    </ul>
+    <h4>Ask the class</h4>
+    <ul>
+      <li>"Add a <code>Square</code>. Which lines of <code>main</code> change?" (Create it and add it to the array; change 3 to 4. <code>report</code> and the loop body stay the same.)</li>
+    </ul>
+  </aside>
+</section>
+
+<!-- ========================= SLIDE 9 · ABSTRACT CLASSES ========================= -->
+<section class="slide" id="l14-abstract" data-title="Pure Virtual & Abstract Classes" data-section="Abstract classes">
+  <header class="slide-head">
+    <p class="kicker">Lab 14 · Abstract classes</p>
+    <h2>Pure Virtual Functions &amp; Abstract Classes</h2>
+    <p class="lede">A plain "Shape" has no real area. Say so with <code>= 0</code>, and C++ stops anyone from creating one.</p>
+  </header>
+  <div class="grid-2 align-start">
+    <div class="stack">
+      <figure class="codeblock">
+        <figcaption>New <code>Shape</code> for <code>shapes.cpp</code> (the rest is unchanged)</figcaption>
+<pre class="code" data-cpp>
+class Shape {                       // abstract
+public:
+    virtual double area() const = 0; // pure
+    virtual string name() const = 0; // pure
+    virtual ~Shape() {}
+};
+</pre>
+      </figure>
+      <div class="concept"><p class="box-label">Key concept</p>
+        <ul>
+          <li>A <b>pure virtual function</b> (<code>= 0</code>) has no body in the base class: "every shape <i>must</i> have an area, but I can't compute it here."</li>
+          <li>A class with at least one pure virtual function is an <b>abstract class</b>. It exists only to be inherited.</li>
+          <li>A derived class must override <b>every</b> pure virtual function, or it is abstract too.</li>
+        </ul>
+      </div>
+      <p class="syntax">Shape s; <span class="muted">✗ error</span> · Shape* p = &amp;c; <span class="muted">✓</span> · const Shape&amp; s <span class="muted">✓</span></p>
+    </div>
+    <div class="stack">
+      <figure class="codeblock">
+        <figcaption><code>shape.cpp</code>: try to create a Shape</figcaption>
+<pre class="code bad-code" data-cpp data-nocheck>
+class Shape {
+public:
+    virtual double area() const = 0;
+    virtual ~Shape() {}
+};
+
+int main() {
+    Shape s;          // try it!
+    return 0;
+}
+</pre>
+      </figure>
+      <figure class="codeblock"><figcaption>g++ output</figcaption>
+<pre class="console">shape.cpp:8:11: error: cannot declare variable 's' to be of abstract type 'Shape'
+shape.cpp:1:7: note:   because the following virtual functions are pure within 'Shape':
+shape.cpp:3:20: note:     'virtual double Shape::area() const'</pre></figure>
+    </div>
+  </div>
+  <aside class="notes">
+    <p class="note-time">Suggested time: about 7 min</p>
+    <h4>Teaching tips</h4>
+    <ul>
+      <li>Live: change <code>Shape</code> in <code>shapes.cpp</code>, rerun (same output), then add <code>Shape s;</code> in <code>main</code> and read the error together.</li>
+      <li>Read the "note" lines: g++ even lists <b>which</b> functions are still pure. If a derived class forgets one override, the same note tells you which one.</li>
+      <li>Design view: an abstract class is a <b>contract</b>. "Anything that claims to be a Shape must provide <code>area()</code> and <code>name()</code>."</li>
+    </ul>
+    <h4>Common student pitfalls</h4>
+    <ul>
+      <li>Writing <code>virtual double area() const = 0 { }</code> or forgetting the <code>= 0</code>.</li>
+      <li>Forgetting to override one pure function in a derived class, then getting "cannot declare variable 'c' to be of abstract type 'Circle'".</li>
+    </ul>
+    <h4>Ask the class</h4>
+    <ul>
+      <li>"Can an abstract class have normal (non-virtual) functions and data members?" (Yes. <code>Sensor</code> on a later slide has both.)</li>
+    </ul>
+  </aside>
+</section>
+
+<!-- ========================= SLIDE 10 · UML ========================= -->
+<section class="slide" id="l14-uml" data-title="UML: Shape Hierarchy" data-section="Abstract classes">
+  <header class="slide-head">
+    <p class="kicker">Lab 14 · Design</p>
+    <h2>UML Class Diagram: The Shape Hierarchy</h2>
+  </header>
+  <figure class="card" style="margin:0">
+    <svg viewBox="0 0 920 446" role="img" style="display:block;width:100%;max-height:52vh" aria-label="UML class diagram. Abstract class Shape, name in italics, with abstract operations area returning double and name returning string, plus a destructor. Three classes inherit from it with hollow-triangle arrows: Circle with private radius, Rectangle with private width and height, and Triangle with private base and height. Each has a constructor, area, and name.">
+      <g style="font-family:var(--font-mono);font-size:15px;fill:var(--text)">
+        <!-- Shape (abstract) -->
+        <rect x="320" y="8" width="280" height="150" rx="4" style="fill:var(--surface);stroke:var(--fc-io);stroke-width:2"/>
+        <rect x="320" y="8" width="280" height="52" rx="4" style="fill:var(--fc-io-fill);stroke:var(--fc-io);stroke-width:2"/>
+        <text x="460" y="31" text-anchor="middle" font-style="italic" style="font-family:var(--font-sans);font-weight:800;font-size:18px">Shape</text>
+        <text x="460" y="50" text-anchor="middle" style="font-family:var(--font-sans);font-size:12px;fill:var(--muted)">{abstract}</text>
+        <path d="M320 74 H600" style="stroke:var(--fc-io);stroke-width:2"/>
+        <text x="334" y="98" font-style="italic">+ area() : double</text>
+        <text x="334" y="121" font-style="italic">+ name() : string</text>
+        <text x="334" y="144">+ ~Shape()</text>
+        <!-- Circle -->
+        <rect x="20" y="250" width="270" height="186" rx="4" style="fill:var(--surface);stroke:var(--fc-proc);stroke-width:2"/>
+        <rect x="20" y="250" width="270" height="38" rx="4" style="fill:var(--fc-proc-fill);stroke:var(--fc-proc);stroke-width:2"/>
+        <text x="155" y="275" text-anchor="middle" style="font-family:var(--font-sans);font-weight:800;font-size:18px">Circle</text>
+        <text x="34" y="312">- radius : double</text>
+        <path d="M20 352 H290" style="stroke:var(--fc-proc);stroke-width:2"/>
+        <text x="34" y="376">+ Circle(r : double)</text>
+        <text x="34" y="398">+ area() : double</text>
+        <text x="34" y="420">+ name() : string</text>
+        <!-- Rectangle -->
+        <rect x="325" y="250" width="270" height="186" rx="4" style="fill:var(--surface);stroke:var(--fc-proc);stroke-width:2"/>
+        <rect x="325" y="250" width="270" height="38" rx="4" style="fill:var(--fc-proc-fill);stroke:var(--fc-proc);stroke-width:2"/>
+        <text x="460" y="275" text-anchor="middle" style="font-family:var(--font-sans);font-weight:800;font-size:18px">Rectangle</text>
+        <text x="339" y="312">- width : double</text>
+        <text x="339" y="334">- height : double</text>
+        <path d="M325 352 H595" style="stroke:var(--fc-proc);stroke-width:2"/>
+        <text x="339" y="376">+ Rectangle(w, h : double)</text>
+        <text x="339" y="398">+ area() : double</text>
+        <text x="339" y="420">+ name() : string</text>
+        <!-- Triangle -->
+        <rect x="630" y="250" width="270" height="186" rx="4" style="fill:var(--surface);stroke:var(--fc-proc);stroke-width:2"/>
+        <rect x="630" y="250" width="270" height="38" rx="4" style="fill:var(--fc-proc-fill);stroke:var(--fc-proc);stroke-width:2"/>
+        <text x="765" y="275" text-anchor="middle" style="font-family:var(--font-sans);font-weight:800;font-size:18px">Triangle</text>
+        <text x="644" y="312">- base : double</text>
+        <text x="644" y="334">- height : double</text>
+        <path d="M630 352 H900" style="stroke:var(--fc-proc);stroke-width:2"/>
+        <text x="644" y="376">+ Triangle(b, h : double)</text>
+        <text x="644" y="398">+ area() : double</text>
+        <text x="644" y="420">+ name() : string</text>
+      </g>
+      <!-- generalization arrows (hollow triangles point at the base class) -->
+      <path d="M155 250 V206 H415 V158" style="fill:none;stroke:var(--fc-line);stroke-width:2;marker-end:url(#l14-gen)"/>
+      <path d="M460 250 V158" style="fill:none;stroke:var(--fc-line);stroke-width:2;marker-end:url(#l14-gen)"/>
+      <path d="M765 250 V206 H505 V158" style="fill:none;stroke:var(--fc-line);stroke-width:2;marker-end:url(#l14-gen)"/>
+    </svg>
+  </figure>
+  <ul class="chips" aria-label="UML notation">
+    <li><i>Italic</i> = abstract class / pure virtual (<code>= 0</code>)</li>
+    <li><code>+</code> public · <code>-</code> private · <code>#</code> protected</li>
+    <li>Hollow triangle ▷ = inherits from ("is a"), points to the base</li>
+    <li><code>area()</code> repeated below = overridden</li>
+  </ul>
+  <aside class="notes">
+    <p class="note-time">Suggested time: about 4 min</p>
+    <h4>Teaching tips</h4>
+    <ul>
+      <li>Connect each box to the code: <code>- radius : double</code> is <code>private: double radius;</code>, <code>+ area() : double</code> is a public function returning <code>double</code>.</li>
+      <li>The <b>direction</b> of the arrow matters: from the derived class to the base class, triangle at the base.</li>
+      <li>Students must draw this kind of diagram for Lab Exercise 14 (the Employee hierarchy) and for the Final Project documentation.</li>
+    </ul>
+    <h4>Common student pitfalls</h4>
+    <ul>
+      <li>Drawing the arrow from base to derived, or using a filled/plain arrowhead (that means association, not inheritance).</li>
+      <li>Forgetting to mark abstract parts in italics (or with <code>{abstract}</code> when hand-drawing, since italics are hard to see on paper).</li>
+    </ul>
+    <h4>Ask the class</h4>
+    <ul>
+      <li>"Where would a <code>Square</code> go: under <code>Shape</code> or under <code>Rectangle</code>?" (Either can be argued; good discussion of "is a".)</li>
+    </ul>
+  </aside>
+</section>
+
+<!-- ========================= SLIDE 11 · VIRTUAL DESTRUCTORS ========================= -->
+<section class="slide" id="l14-vdtor" data-title="Virtual Destructors" data-section="Abstract classes">
+  <header class="slide-head">
+    <p class="kicker">Lab 14 · Dynamic objects</p>
+    <h2>Virtual Destructors</h2>
+    <p class="lede">With <code>new</code>, you often hold a derived object in a base pointer. <code>delete</code> must run the <b>derived</b> destructor too.</p>
+  </header>
+  <div class="code-pair">
+    <figure class="codeblock">
+      <figcaption><code>destructors.cpp</code></figcaption>
+<pre class="code scroll" data-cpp>
+#include &lt;iostream&gt;
+#include &lt;string&gt;
+using namespace std;
+
+class Device {
+protected:
+    string brand;
+    int powerWatts;
+public:
+    Device(string b, int w) : brand(b), powerWatts(w) {
+        cout &lt;&lt; "Device constructor" &lt;&lt; endl;
+    }
+    virtual ~Device() { cout &lt;&lt; "~Device" &lt;&lt; endl; }
+    virtual void describe() const {
+        cout &lt;&lt; brand &lt;&lt; ", " &lt;&lt; powerWatts
+             &lt;&lt; " W" &lt;&lt; endl;
+    }
+};
+
+class Laptop : public Device {
+private:
+    int* usageLog;              // memory owned by Laptop
+public:
+    Laptop(string b, int w)
+        : Device(b, w), usageLog(new int[24]) {
+        cout &lt;&lt; "Laptop constructor" &lt;&lt; endl;
+    }
+    ~Laptop() {
+        delete[] usageLog;
+        cout &lt;&lt; "~Laptop: log freed" &lt;&lt; endl;
+    }
+    void describe() const override {
+        cout &lt;&lt; "Laptop: ";
+        Device::describe();
+    }
+};
+
+int main() {
+    Device* d = new Laptop("Lenovo", 65);   // base pointer
+    d-&gt;describe();
+    delete d;                   // which destructors run?
+    return 0;
+}
+</pre>
+    </figure>
+    <div class="stack">
+      <div class="grid-2 tight-gap">
+        <figure class="codeblock"><figcaption>With <code>virtual</code> (line 13)</figcaption>
+<pre class="console">Device constructor
+Laptop constructor
+Laptop: Lenovo, 65 W
+~Laptop: log freed
+~Device</pre></figure>
+        <figure class="codeblock"><figcaption>Without <code>virtual</code></figcaption>
+<pre class="console">Device constructor
+Laptop constructor
+Laptop: Lenovo, 65 W
+~Device
+</pre></figure>
+      </div>
+      <p class="small muted">Without <code>virtual</code>, g++ <code>-Wall</code> also warns: <i>deleting object of polymorphic class type 'Device' which has non-virtual destructor might cause undefined behavior</i>.</p>
+      <div class="pitfall"><p class="box-label">What went wrong</p><p><code>~Laptop()</code> never ran, so the log was never freed: a <b>memory leak</b>. Officially this is <b>undefined behavior</b>; the output is what g++ did.</p></div>
+      <div class="concept"><p class="box-label">Rule</p><p>If a class has any <code>virtual</code> function, give it a <code>virtual</code> destructor.</p></div>
+    </div>
+  </div>
+  <aside class="notes">
+    <p class="note-time">Suggested time: about 6 min</p>
+    <h4>Teaching tips</h4>
+    <ul>
+      <li>Order of destruction is the reverse of construction: derived first, then base. Students saw constructor chaining in Lab 13; this is the mirror image.</li>
+      <li>Both outputs are real runs with g++ 13. A memory checker (Valgrind) reported "96 bytes definitely lost" for the non-virtual version (24 <code>int</code>s × 4 bytes).</li>
+      <li>Lab 10 link: every <code>new</code> needs exactly one <code>delete</code>; <code>new[]</code> pairs with <code>delete[]</code>.</li>
+    </ul>
+    <h4>Common student pitfalls</h4>
+    <ul>
+      <li>Making only the derived destructor virtual. It is the <b>base</b> destructor that must be virtual.</li>
+      <li>Ignoring the <code>-Wdelete-non-virtual-dtor</code> warning because "it still runs".</li>
+      <li>Using <code>delete</code> instead of <code>delete[]</code> for an array made with <code>new[]</code>.</li>
+    </ul>
+    <h4>Ask the class</h4>
+    <ul>
+      <li>"Why didn't the program crash if memory leaked?" (A leak doesn't stop a short program. It hurts long-running programs, such as firmware that runs for months.)</li>
+    </ul>
+  </aside>
+</section>
+
+<!-- ========================= SLIDE 12 · SENSORS (CpE) ========================= -->
+<section class="slide" id="l14-sensors" data-title="CpE Example: Sensor Monitor" data-section="Abstract classes">
+  <header class="slide-head">
+    <p class="kicker">Lab 14 · CpE example</p>
+    <h2>CpE Example: A Polymorphic Sensor Monitor</h2>
+  </header>
+  <div class="example-grid" style="grid-template-columns:minmax(0,1.25fr) minmax(0,1fr)">
+    <div class="stack">
+      <figure class="codeblock">
+        <figcaption><code>sensors.cpp</code> (readings are simulated)</figcaption>
+<pre class="code scroll compact" id="l14-sensors-code" data-cpp style="max-height:47vh">
+#include &lt;iostream&gt;
+#include &lt;string&gt;
+using namespace std;
+
+class Sensor {                        // abstract base class
+protected:
+    string id;
+public:
+    Sensor(string sensorId) : id(sensorId) {}
+    virtual ~Sensor() {}
+    virtual double read() const = 0;  // pure virtual
+    virtual string unit() const = 0;  // pure virtual
+    string getId() const { return id; }
+};
+
+class TemperatureSensor : public Sensor {
+public:
+    TemperatureSensor(string sid) : Sensor(sid) {}
+    double read() const override { return 31.5; }   // simulated
+    string unit() const override { return "deg C"; }
+};
+
+class LightSensor : public Sensor {
+public:
+    LightSensor(string sid) : Sensor(sid) {}
+    double read() const override { return 420.0; }  // simulated
+    string unit() const override { return "lux"; }
+};
+
+class DistanceSensor : public Sensor {
+public:
+    DistanceSensor(string sid) : Sensor(sid) {}
+    double read() const override { return 12.5; }   // simulated
+    string unit() const override { return "cm"; }
+};
+
+int main() {
+    const int COUNT = 3;
+    Sensor* sensors[COUNT] = {
+        new TemperatureSensor("TEMP-01"),
+        new LightSensor("LUX-02"),
+        new DistanceSensor("DIST-03")
+    };
+
+    cout &lt;&lt; "--- Monitoring cycle ---" &lt;&lt; endl;
+    for (int i = 0; i &lt; COUNT; i++) {
+        cout &lt;&lt; sensors[i]-&gt;getId() &lt;&lt; ": " &lt;&lt; sensors[i]-&gt;read()
+             &lt;&lt; " " &lt;&lt; sensors[i]-&gt;unit() &lt;&lt; endl;
+    }
+
+    for (int i = 0; i &lt; COUNT; i++) {
+        delete sensors[i];            // virtual destructor runs
+    }
+    return 0;
+}
+</pre>
+      </figure>
+      <figure class="codeblock"><figcaption>Real output</figcaption>
+<pre class="console">--- Monitoring cycle ---
+TEMP-01: 31.5 deg C
+LUX-02: 420 lux
+DIST-03: 12.5 cm</pre></figure>
+    </div>
+    <div class="tracer" data-trace="l14-sensors" data-code="#l14-sensors-code" data-title="Trace the monitoring loop"></div>
+  </div>
+  <aside class="notes">
+    <p class="note-time">Suggested time: about 8 min</p>
+    <h4>Teaching tips</h4>
+    <ul>
+      <li>Embedded systems are built this way: a controller loops over "a sensor" without caring whether it is a thermistor, a light-dependent resistor, or an ultrasonic module.</li>
+      <li>On real hardware, <code>read()</code> would talk to a pin or a bus (e.g. <code>analogRead()</code> on Arduino). Here it returns a fixed value so the output is predictable.</li>
+      <li>Everything from today appears here: an abstract class, pure virtual functions, <code>override</code>, a base-pointer array, <code>new</code>/<code>delete</code>, and a virtual destructor.</li>
+      <li><code>getId()</code> is <b>not</b> virtual: every sensor stores its ID the same way, so there is nothing to override.</li>
+      <li>"deg C" is used instead of the ° symbol, which may not display correctly in a Windows console.</li>
+    </ul>
+    <h4>Common student pitfalls</h4>
+    <ul>
+      <li>Forgetting the <code>delete</code> loop (memory leak), or deleting only <code>sensors[0]</code>.</li>
+      <li>Expecting <code>420.0</code> to print as <code>420.0</code>. Default <code>cout</code> prints <code>420</code>.</li>
+    </ul>
+    <h4>Ask the class</h4>
+    <ul>
+      <li>"Add a <code>HumiditySensor</code> (65 %RH). Which lines change?" (A new class plus one array entry; <code>COUNT</code> becomes 4.)</li>
+    </ul>
+  </aside>
+</section>
+
+<!-- ========================= SLIDE 13 · SLICING ========================= -->
+<section class="slide" id="l14-slicing" data-title="Pitfall: Object Slicing" data-section="Pitfalls & review">
+  <header class="slide-head">
+    <p class="kicker">Lab 14 · Pitfall</p>
+    <h2>Pitfall: Object Slicing</h2>
+    <p class="lede">Pass a derived object <b>by value</b> as a base object, and only the base part is copied. The rest is "sliced off".</p>
+  </header>
+  <div class="code-pair">
+    <figure class="codeblock">
+      <figcaption><code>slicing.cpp</code></figcaption>
+<pre class="code scroll" data-cpp>
+#include &lt;iostream&gt;
+#include &lt;string&gt;
+using namespace std;
+
+class Device {
+protected:
+    string brand;
+    int powerWatts;
+public:
+    Device(string b, int w) : brand(b), powerWatts(w) {}
+    virtual ~Device() {}
+    virtual void describe() const {
+        cout &lt;&lt; brand &lt;&lt; ", " &lt;&lt; powerWatts
+             &lt;&lt; " W" &lt;&lt; endl;
+    }
+};
+
+class Laptop : public Device {
+private:
+    int ramGB;
+public:
+    Laptop(string b, int w, int ram)
+        : Device(b, w), ramGB(ram) {}
+    void describe() const override {
+        cout &lt;&lt; "Laptop: ";
+        Device::describe();
+        cout &lt;&lt; "  RAM: " &lt;&lt; ramGB &lt;&lt; " GB" &lt;&lt; endl;
+    }
+};
+
+// by value: copies ONLY the Device part (slicing)
+void showByValue(Device d) {
+    d.describe();
+}
+
+// by reference: no copy, the real object is used
+void showByRef(const Device&amp; d) {
+    d.describe();
+}
+
+int main() {
+    Laptop lap("Lenovo", 65, 16);
+    showByValue(lap);
+    showByRef(lap);
+    return 0;
+}
+</pre>
+    </figure>
+    <div class="stack">
+      <figure class="codeblock"><figcaption>Output</figcaption>
+<pre class="console">Lenovo, 65 W
+Laptop: Lenovo, 65 W
+  RAM: 16 GB</pre></figure>
+      <div class="mem" aria-label="Slicing: the Laptop object has brand, powerWatts and ramGB; the by-value copy d has only brand and powerWatts">
+        <div class="mem-cell"><span class="mem-name">lap</span><span class="mem-val">"Lenovo" | 65 | 16</span><span class="mem-addr">Laptop</span></div>
+        <div class="mem-cell is-hl"><span class="mem-name">d (copy)</span><span class="mem-val">"Lenovo" | 65</span><span class="mem-addr">only a Device</span></div>
+      </div>
+      <div class="pitfall"><p class="box-label">Fix</p><p>Pass by reference (<code>const Device&amp;</code>) or by pointer (<code>Device*</code>), as in Lab 11. Never store derived objects in an array of base <b>objects</b>.</p></div>
+      <div class="note-box"><p class="box-label">Good to know: dynamic_cast</p><p class="small"><code>Laptop* lp = dynamic_cast&lt;Laptop*&gt;(ptr);</code> gives <code>nullptr</code> if <code>ptr</code> does not point to a Laptop (needs a class with a virtual function). Use it rarely; prefer a virtual function.</p></div>
+    </div>
+  </div>
+  <aside class="notes">
+    <p class="note-time">Suggested time: about 5 min</p>
+    <h4>Teaching tips</h4>
+    <ul>
+      <li>Same object, same virtual function, two different results. The only difference is <code>Device d</code> vs <code>const Device&amp; d</code> in the parameter list.</li>
+      <li>Lab 11 link: pass-by-value makes a copy; pass-by-reference uses the caller's variable. With classes, the copy is made as the parameter's type (Device), so it truly is a Device.</li>
+      <li><code>dynamic_cast</code> is optional enrichment. If a design needs many <code>dynamic_cast</code>s, a virtual function is usually missing.</li>
+    </ul>
+    <h4>Common student pitfalls</h4>
+    <ul>
+      <li><code>Shape shapes[3] = {c, r, t};</code> compiles (when Shape is not abstract) but slices every element.</li>
+      <li>With an abstract base, <code>void f(Shape s)</code> does not even compile, which is one more benefit of abstract classes.</li>
+    </ul>
+    <h4>Ask the class</h4>
+    <ul>
+      <li>"Why does <code>const</code> appear in <code>const Device&amp;</code>?" (The function only reads the object; <code>const</code> prevents accidental changes and allows passing temporaries.)</li>
+    </ul>
+  </aside>
+</section>
+
+<!-- ========================= SLIDE 14 · FOUR PILLARS ========================= -->
+<section class="slide" id="l14-pillars" data-title="The Four Pillars of OOP" data-section="Pitfalls & review">
+  <header class="slide-head">
+    <p class="kicker">Lab 14 · Recap of Labs 12–14</p>
+    <h2>The Four Pillars of OOP</h2>
+  </header>
+  <div class="table-wrap">
+    <table class="table">
+      <thead><tr><th scope="col">Pillar</th><th scope="col">Idea in one line</th><th scope="col">C++ in one line</th><th scope="col">Lab</th></tr></thead>
+      <tbody>
+        <tr><th scope="row">Encapsulation</th><td>Keep data <code>private</code>; change it only through methods that check it.</td><td><code>private: double balance; public: void deposit(double amt);</code></td><td style="white-space:nowrap">12–13</td></tr>
+        <tr><th scope="row">Abstraction</th><td>Show <b>what</b> an object does, hide <b>how</b>.</td><td><code>virtual double area() const = 0;</code></td><td style="white-space:nowrap">12, 14</td></tr>
+        <tr><th scope="row">Inheritance</th><td>A new class reuses and extends an existing one ("is a").</td><td><code>class Laptop : public Device { … };</code></td><td>13</td></tr>
+        <tr><th scope="row">Polymorphism</th><td>One interface, many forms; the object's type picks the code.</td><td><code>Shape* s = &amp;c;  s-&gt;area();</code></td><td>14</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="grid-3">
+    <div class="card"><h3 class="card-title">How they connect</h3><p class="small">Encapsulation protects each object. Inheritance builds the family. Abstraction defines the contract. Polymorphism lets one loop use the whole family.</p></div>
+    <div class="card"><h3 class="card-title">In the Final Project</h3><p class="small">A well-designed project uses classes with private data, small methods, and (where it fits) a base class with virtual functions.</p></div>
+    <div class="card"><h3 class="card-title">Memory aid</h3><p class="small"><b>A PIE</b>: Abstraction, Polymorphism, Inheritance, Encapsulation.</p></div>
+  </div>
+  <aside class="notes">
+    <p class="note-time">Suggested time: about 4 min</p>
+    <h4>Teaching tips</h4>
+    <ul>
+      <li>Cover the "C++ in one line" column and ask students to supply an example for each pillar from Labs 12–14.</li>
+      <li>Abstraction is often taught with Lab 12 (a class's public interface hides its details) and becomes explicit with abstract classes today.</li>
+    </ul>
+    <h4>Common student pitfalls</h4>
+    <ul>
+      <li>Treating encapsulation and abstraction as the same thing. Encapsulation is about <b>protecting</b> data; abstraction is about <b>simplifying</b> what users of a class need to know.</li>
+    </ul>
+    <h4>Ask the class</h4>
+    <ul>
+      <li>"Which pillar does <code>getId()</code> in <code>Sensor</code> show? Which does <code>read()</code> show?" (Encapsulation; polymorphism/abstraction.)</li>
+    </ul>
+  </aside>
+</section>
+
+<!-- ========================= SLIDE 15 · PITFALLS ========================= -->
+<section class="slide" id="l14-pitfalls" data-title="Common Pitfalls" data-section="Pitfalls & review">
+  <header class="slide-head">
+    <p class="kicker">Lab 14 · Avoid these</p>
+    <h2>Common Polymorphism Pitfalls</h2>
+  </header>
+  <div class="grid-3" style="margin-top:0">
+    <div class="pitfall"><p class="box-label">1 · No <code>virtual</code> in the base</p><p>Base pointers call the base version (static binding).</p><p class="small"><b>Fix:</b> <code>virtual</code> on the base function.</p></div>
+    <div class="pitfall"><p class="box-label">2 · Signature mismatch</p><p>Missing <code>const</code> or a different parameter type creates a new function instead of overriding.</p><p class="small"><b>Fix:</b> always write <code>override</code>.</p></div>
+    <div class="pitfall"><p class="box-label">3 · Slicing</p><p>Passing or storing a derived object by value as a base object.</p><p class="small"><b>Fix:</b> use <code>const Base&amp;</code> or <code>Base*</code>.</p></div>
+    <div class="pitfall"><p class="box-label">4 · Missing virtual destructor</p><p><code>delete basePtr;</code> skips the derived destructor (undefined behavior, leaks).</p><p class="small"><b>Fix:</b> <code>virtual ~Base() {}</code></p></div>
+    <div class="pitfall"><p class="box-label">5 · Creating an abstract object</p><p><code>Shape s;</code> or <code>new Shape()</code> will not compile.</p><p class="small"><b>Fix:</b> create a concrete derived class (<code>Circle</code>).</p></div>
+    <div class="pitfall"><p class="box-label">6 · <code>new</code> without <code>delete</code></p><p>Every object made with <code>new</code> leaks if you never <code>delete</code> it.</p><p class="small"><b>Fix:</b> one <code>delete</code> per <code>new</code>, in a loop for arrays of pointers.</p></div>
+  </div>
+  <aside class="notes">
+    <p class="note-time">Suggested time: about 4 min</p>
+    <h4>Teaching tips</h4>
+    <ul>
+      <li>Use this as a checklist for Lab Exercise 14. Students can check their own code against all six before submitting.</li>
+      <li>Pitfalls 1, 2, and 4 compile (sometimes with warnings) and give wrong behavior. Pitfall 5 is a compile error. Point out that errors are friendlier than silent bugs.</li>
+      <li>Lab 15 (Debugging) has a "bug gallery" that includes the missing-<code>virtual</code> bug.</li>
+    </ul>
+    <h4>Common student pitfalls</h4>
+    <ul>
+      <li>Fixing the symptom (casting pointers around) instead of the cause (a missing <code>virtual</code>).</li>
+    </ul>
+    <h4>Ask the class</h4>
+    <ul>
+      <li>"Which of these six can the compiler catch for you?" (5 always; 2 with <code>override</code>; 4 often as a warning with <code>-Wall</code>.)</li>
+    </ul>
+  </aside>
+</section>
+
+<!-- ========================= SLIDE 16 · QUICK CHECK ========================= -->
+<section class="slide" id="l14-quick-check" data-title="Quick Check" data-section="Pitfalls & review">
+  <header class="slide-head">
+    <p class="kicker">Lab 14 · Check your understanding</p>
+    <h2>Quick Check</h2>
+  </header>
+  <div class="qa-grid">
+    <details class="qa"><summary><span class="q-num">1</span><span class="q-text">In your own words, what is polymorphism?</span></summary><p>One interface, many implementations: the same call (like <code>s-&gt;area()</code>) runs different code depending on the actual type of the object.</p></details>
+    <details class="qa"><summary><span class="q-num">2</span><span class="q-text"><code>describe()</code> is NOT virtual. <code>Device* p = &amp;lap; p-&gt;describe();</code> runs which version?</span></summary><p><code>Device::describe()</code>. Without <code>virtual</code>, the call is bound at compile time using the pointer's type (static binding).</p></details>
+    <details class="qa"><summary><span class="q-num">3</span><span class="q-text">Overloading or overriding: <code>area(double r)</code> and <code>area(double w, double h)</code> in the same file?</span></summary><p>Overloading (compile-time polymorphism): same name, different parameter lists. Overriding is a derived class redefining a <code>virtual</code> function with the same signature.</p></details>
+    <details class="qa"><summary><span class="q-num">4</span><span class="q-text">Why does <code>Shape s;</code> fail when <code>Shape</code> has <code>virtual double area() const = 0;</code>?</span></summary><p><code>Shape</code> is an abstract class: it has a pure virtual function with no body, so C++ will not create objects of it. Pointers and references to <code>Shape</code> are still fine.</p></details>
+    <details class="qa"><summary><span class="q-num">5</span><span class="q-text">What does <code>override</code> add if the code already works without it?</span></summary><p>A compile-time check. If the function does not really override a base virtual function (wrong <code>const</code>, parameters, or name), the compiler reports an error instead of silently creating a new function.</p></details>
+    <details class="qa"><summary><span class="q-num">6</span><span class="q-text">When does a base class need a <code>virtual</code> destructor?</span></summary><p>Whenever derived objects may be deleted through a base pointer, which in practice means any class with virtual functions. Otherwise only the base destructor may run (undefined behavior, leaks).</p></details>
+  </div>
+  <aside class="notes">
+    <p class="note-time">Suggested time: about 6 min</p>
+    <h4>Teaching tips</h4>
+    <ul>
+      <li>Think-pair-share: 30 seconds alone, 30 seconds with a seatmate, then open the answer.</li>
+      <li>Q2 and Q3 are the most commonly missed in exams. Spend extra time if needed.</li>
+    </ul>
+    <h4>Common student pitfalls</h4>
+    <ul>
+      <li>Answering Q2 with "Laptop, because the object is a Laptop". That is only true when the function is virtual.</li>
+    </ul>
+    <h4>Ask the class</h4>
+    <ul>
+      <li>Follow-up for Q4: "Can a derived class of <code>Shape</code> also be abstract?" (Yes, if it leaves any pure virtual function unimplemented.)</li>
+    </ul>
+  </aside>
+</section>
+
+<!-- ========================= SLIDE 17 · SEATWORK ========================= -->
+<section class="slide" id="l14-seatwork" data-title="Seatwork: Home Energy Monitor" data-section="Pitfalls & review">
+  <header class="slide-head">
+    <p class="kicker">Lab 14 · Seatwork</p>
+    <h2>Seatwork: Home Energy Monitor</h2>
+  </header>
+  <div class="story"><p class="task" style="margin-top:0;padding-top:0;border-top:0"><b>Instruction:</b> Copy the given code. Write the three missing classes so the program compiles and prints the expected output: <code>ElectricFan</code> (75 W), <code>Refrigerator</code> (150 W), and <code>AirConditioner</code> (1000 W). Each one inherits from <code>Appliance</code> and overrides <code>name()</code> and <code>watts()</code>.</p></div>
+  <div class="grid-2 align-start">
+    <figure class="codeblock">
+      <figcaption>Given code <code>energy.cpp</code></figcaption>
+<pre class="code scroll compact" data-cpp data-nocheck style="max-height:46vh">
+#include &lt;iostream&gt;
+#include &lt;iomanip&gt;
+#include &lt;string&gt;
+using namespace std;
+
+class Appliance {
+protected:
+    double hoursPerDay;
+public:
+    Appliance(double hours) : hoursPerDay(hours) {}
+    virtual ~Appliance() {}
+    virtual string name() const = 0;
+    virtual double watts() const = 0;
+    double dailyKWh() const {
+        return watts() * hoursPerDay / 1000.0;
+    }
+};
+
+// TODO: write ElectricFan (75 W), Refrigerator (150 W),
+//       and AirConditioner (1000 W) here.
+
+int main() {
+    Appliance* home[3] = {
+        new ElectricFan(8), new Refrigerator(24), new AirConditioner(6)
+    };
+    double totalKWh = 0.0;
+    cout &lt;&lt; fixed &lt;&lt; setprecision(2);
+    for (int i = 0; i &lt; 3; i++) {
+        cout &lt;&lt; home[i]-&gt;name() &lt;&lt; ": "
+             &lt;&lt; home[i]-&gt;dailyKWh() &lt;&lt; " kWh" &lt;&lt; endl;
+        totalKWh += home[i]-&gt;dailyKWh();
+    }
+    cout &lt;&lt; "Total: " &lt;&lt; totalKWh &lt;&lt; " kWh per day" &lt;&lt; endl;
+    cout &lt;&lt; "Cost at PHP 12.00/kWh: PHP " &lt;&lt; totalKWh * 12.0 &lt;&lt; endl;
+    for (int i = 0; i &lt; 3; i++) {
+        delete home[i];
+    }
+    return 0;
+}
+</pre>
+    </figure>
+    <div class="stack">
+      <figure class="codeblock"><figcaption>Expected output</figcaption>
+<pre class="console">Electric fan: 0.60 kWh
+Refrigerator: 3.60 kWh
+Air conditioner: 6.00 kWh
+Total: 10.20 kWh per day
+Cost at PHP 12.00/kWh: PHP 122.40</pre></figure>
+      <div class="grid-2 tight-gap">
+        <div class="card">
+          <h3 class="card-title">Need a hint?</h3>
+          <details class="hint"><summary>Hint 1</summary><p>Copy the structure of <code>TemperatureSensor</code>: a constructor that passes <code>hours</code> to <code>Appliance(hours)</code>, then two <code>override</code> functions.</p></details>
+          <details class="hint"><summary>Hint 2</summary><p>Fan check: 75 W × 8 h ÷ 1000 = 0.60 kWh.</p></details>
+        </div>
+        <div class="card timer" data-timer data-minutes="15">
+          <h3 class="card-title">Timer</h3>
+          <p class="timer-display" style="font-size:clamp(2rem,1.4rem + 2vw,3.2rem)">15:00</p>
+          <div class="timer-presets" role="group" aria-label="Timer presets">
+            <button type="button" class="btn ghost tiny" data-min="10">10</button>
+            <button type="button" class="btn ghost tiny" data-min="15">15</button>
+            <button type="button" class="btn ghost tiny" data-min="20">20</button>
+          </div>
+          <div class="timer-actions">
+            <button type="button" class="btn primary" data-timer-act="toggle">Start</button>
+            <button type="button" class="btn" data-timer-act="reset">Reset</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <details class="answer">
+    <summary><span>Reveal answer</span></summary>
+    <div class="code-pair" style="margin-top:1rem">
+      <figure class="codeblock">
+        <figcaption>Complete <code>energy.cpp</code></figcaption>
+<pre class="code scroll compact" data-cpp>
+#include &lt;iostream&gt;
+#include &lt;iomanip&gt;
+#include &lt;string&gt;
+using namespace std;
+
+class Appliance {                          // GIVEN
+protected:
+    double hoursPerDay;
+public:
+    Appliance(double hours) : hoursPerDay(hours) {}
+    virtual ~Appliance() {}
+    virtual string name() const = 0;
+    virtual double watts() const = 0;
+    double dailyKWh() const {
+        return watts() * hoursPerDay / 1000.0;
+    }
+};
+
+class ElectricFan : public Appliance {     // answer starts here
+public:
+    ElectricFan(double hours) : Appliance(hours) {}
+    string name() const override { return "Electric fan"; }
+    double watts() const override { return 75.0; }
+};
+
+class Refrigerator : public Appliance {
+public:
+    Refrigerator(double hours) : Appliance(hours) {}
+    string name() const override { return "Refrigerator"; }
+    double watts() const override { return 150.0; }
+};
+
+class AirConditioner : public Appliance {
+public:
+    AirConditioner(double hours) : Appliance(hours) {}
+    string name() const override { return "Air conditioner"; }
+    double watts() const override { return 1000.0; }
+};
+
+int main() {                               // GIVEN
+    Appliance* home[3] = {
+        new ElectricFan(8), new Refrigerator(24), new AirConditioner(6)
+    };
+    double totalKWh = 0.0;
+    cout &lt;&lt; fixed &lt;&lt; setprecision(2);
+    for (int i = 0; i &lt; 3; i++) {
+        cout &lt;&lt; home[i]-&gt;name() &lt;&lt; ": "
+             &lt;&lt; home[i]-&gt;dailyKWh() &lt;&lt; " kWh" &lt;&lt; endl;
+        totalKWh += home[i]-&gt;dailyKWh();
+    }
+    cout &lt;&lt; "Total: " &lt;&lt; totalKWh &lt;&lt; " kWh per day" &lt;&lt; endl;
+    cout &lt;&lt; "Cost at PHP 12.00/kWh: PHP " &lt;&lt; totalKWh * 12.0 &lt;&lt; endl;
+    for (int i = 0; i &lt; 3; i++) {
+        delete home[i];
+    }
+    return 0;
+}
+</pre>
+      </figure>
+      <div class="stack">
+        <ul class="tight">
+          <li>Each class: a constructor that calls <code>Appliance(hours)</code> and two <code>override</code> functions.</li>
+          <li><code>dailyKWh()</code> is written once in the base class, yet it calls the right <code>watts()</code> for each object.</li>
+          <li>Because the base destructor is virtual, <code>delete home[i]</code> cleans up each appliance correctly.</li>
+        </ul>
+        <p class="small muted">Simplified model: a real refrigerator's compressor cycles on and off, so its actual daily energy is lower.</p>
+      </div>
+    </div>
+  </details>
+  <aside class="notes">
+    <p class="note-time">Suggested time: about 15 min</p>
+    <h4>Running the seatwork</h4>
+    <ul>
+      <li>Students copy the given code with the Copy button and work in Codechum or their IDE. Pairs are fine.</li>
+      <li>Walk around and check for <code>override</code> on both functions and for the constructor chaining syntax.</li>
+      <li>Early finishers: add a <code>Television</code> (100 W, 5 h/day) and update the array size and loops.</li>
+    </ul>
+    <h4>Common student pitfalls</h4>
+    <ul>
+      <li>Forgetting <code>: Appliance(hours)</code>. The error says there is no default constructor for <code>Appliance</code>.</li>
+      <li>Forgetting <code>const</code> on the overrides, then getting "marked 'override', but does not override" (good practice for reading errors).</li>
+      <li>Leaving <code>watts()</code> out of one class, so it stays abstract and <code>new</code> fails to compile.</li>
+    </ul>
+    <h4>Ask the class</h4>
+    <ul>
+      <li>"Why is <code>dailyKWh()</code> not virtual?" (The formula is the same for every appliance. Only <code>watts()</code> differs.)</li>
+    </ul>
+  </aside>
+</section>
+
+<!-- ========================= SLIDE 18 · LAB EXERCISE (1/3) ========================= -->
+<!-- LOCKED-ACTIVITY:START lab-14 -->
+<section class="slide locked-slide" id="l14-exercise" data-title="Laboratory Exercise No. 14 (locked)" data-section="Laboratory Exercise" data-locked="lab-14">
+  <header class="slide-head">
+    <p class="kicker">Laboratory Exercise No. 14</p>
+    <h2>This lab activity is locked</h2>
+    <p class="lede">It opens when your instructor releases it. Enter the passphrase your instructor gives you.</p>
+  </header>
+  <div class="lock-card">
+    <svg class="lock-icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="10.5" width="14" height="10" rx="2"/><path d="M8 10.5V7.5a4 4 0 0 1 8 0v3M12 14.5v2.5"/></svg>
+    <h3>Laboratory Exercise No. 14</h3>
+    <form class="lock-form" autocomplete="off">
+      <label class="sr-only" for="unlock-lab-14">Passphrase</label>
+      <input id="unlock-lab-14" type="password" placeholder="Passphrase" autocomplete="off" spellcheck="false">
+      <button type="submit" class="btn primary">Unlock</button>
+    </form>
+    <p class="lock-msg" aria-live="polite"></p>
+    <p class="small muted">The activity is stored encrypted on this site and is unlocked in your browser. Once unlocked, it stays open on this device.</p>
+  </div>
+  <script type="application/json" class="locked-data">{"v":1,"iter":250000,"salt":"hB3Wx1OIVwVmQfDg52QHDw==","iv":"rTo1TpbTqbeBSKGT","data":"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"}</script>
+  <aside class="notes">
+    <p class="note-time">Locked activity (3 slides)</p>
+    <h4>Instructor</h4>
+    <ul>
+      <li>Type this lab's passphrase (private instructor package → <code>passwords.json</code>) to open the activity on the classroom PC. It stays unlocked on that browser until you press "Lock again".</li>
+      <li>To release the activity to students, announce or post the passphrase (e.g. in MS Teams).</li>
+      <li>To re-lock it for everyone, change the passphrase and rerun <code>node tools/lock-activities.js</code>.</li>
+    </ul>
+  </aside>
+</section>
+<!-- LOCKED-ACTIVITY:END lab-14 -->
+
+<!-- ========================= SLIDE 21 · WRAP-UP ========================= -->
+<section class="slide" id="l14-wrap-up" data-title="Wrap-up" data-section="Laboratory Exercise">
+  <header class="slide-head">
+    <p class="kicker">Wrap-up</p>
+    <h2>One Interface, Many Forms</h2>
+  </header>
+  <div class="table-wrap">
+    <table class="table compare-table">
+      <thead><tr><th scope="col"></th><th scope="col">You write</th><th scope="col">It means</th></tr></thead>
+      <tbody>
+        <tr><th scope="row">virtual</th><td><code>virtual double area() const;</code></td><td>Derived classes may override; calls through base pointers/references pick the object's version.</td></tr>
+        <tr><th scope="row">override</th><td><code>double area() const override;</code></td><td>"Check that I really override something."</td></tr>
+        <tr><th scope="row">pure virtual</th><td><code>virtual double area() const = 0;</code></td><td>No body here; the class becomes abstract.</td></tr>
+        <tr><th scope="row">virtual dtor</th><td><code>virtual ~Shape() {}</code></td><td><code>delete basePtr;</code> runs the derived destructor too.</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="grid-3">
+    <div class="card"><h3 class="card-title">Remember</h3><ul class="tight"><li>Polymorphism needs <code>virtual</code> + a <b>pointer or reference</b>.</li><li>Write <code>override</code> every time.</li><li>Pass objects by reference to avoid slicing.</li></ul></div>
+    <div class="card"><h3 class="card-title">Exit ticket</h3><p>On a ¼ sheet: write a 3-line example where removing the word <code>virtual</code> changes the program's output, and explain why.</p></div>
+    <div class="card"><h3 class="card-title">Next: Lab No. 15</h3><p><b>Debugging Techniques</b>: error types, reading compiler messages, debuggers, and test cases.</p><p><a href="lab-15.html">Open Lab 15 →</a></p></div>
+  </div>
+  <aside class="notes">
+    <p class="note-time">Suggested time: about 3 min</p>
+    <h4>Teaching tips</h4>
+    <ul>
+      <li>Collect exit tickets. Students who can explain the "remove <code>virtual</code>" effect have met the ILO.</li>
+      <li>Preview Lab 15: the missing-<code>virtual</code> bug appears again in its bug gallery, along with the most common bugs from the whole course.</li>
+      <li>Remind students that the Final Project (Week 17) may use classes and polymorphism where it fits the problem.</li>
+    </ul>
+    <h4>Common student pitfalls</h4>
+    <ul>
+      <li>Leaving the lab thinking every class needs <code>virtual</code>. Use it when a class is meant to be a base class with behavior that varies.</li>
+    </ul>
+  </aside>
+</section>
+
+      </div>
+    </main>
+  </div>
+</body>
+</html>

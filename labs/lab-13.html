@@ -1,0 +1,1450 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Lab 13 · Intro to OOP: Encapsulation and Inheritance · CPE 104L</title>
+  <meta name="description" content="CPE 104L Programming Logic and Design, Lab No. 13: Intro to OOP: Encapsulation and Inheritance. Private data, getters and setters with validation, const member functions, base and derived classes, protected members, and constructor chaining in C++.">
+  <meta name="color-scheme" content="light dark">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%232f3410'/%3E%3Cpath d='M32 11 53 32 32 53 11 32Z' fill='none' stroke='%23f5c518' stroke-width='6' stroke-linejoin='round'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="../css/styles.css">
+  <script>
+    (function () { var d = document.documentElement; d.classList.add('js');
+      try { var t = localStorage.getItem('cpe104l.theme'); if (t === 'dark' || t === 'light') d.setAttribute('data-theme', t); } catch (e) {} })();
+  </script>
+  <script src="../js/course.js" defer></script>
+  <script src="../js/search-index.js" defer></script>
+  <script src="../js/script.js" defer></script>
+  <script src="../js/labs/lab-13.js" defer></script>
+</head>
+<body data-page="lab-13" data-root="../">
+  <svg class="svg-defs" aria-hidden="true" focusable="false"><defs><marker id="arrow" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="10" markerHeight="10" markerUnits="userSpaceOnUse" orient="auto"><path class="arrowhead" d="M0 0 L10 5 L0 10 Z"/></marker></defs></svg>
+  <div class="app" id="app">
+    <main class="stage" id="stage">
+      <div class="deck" id="deck" tabindex="-1">
+<noscript><p class="noscript">JavaScript is off, so every slide is shown in one long page. Turn JavaScript on for slide navigation, speaker notes, and the live tracers.</p></noscript>
+
+<!-- ========================= TITLE ========================= -->
+<section class="slide" id="l13-title" data-title="Title & ILOs" data-section="Introduction">
+  <div class="lab-title">
+    <div>
+      <div class="lab-badges"><span class="badge-lab">Lab No. 13</span><span class="badge-week">Week 14</span><span class="badge-co">CO1 · CO2</span></div>
+      <p class="kicker">CPE 104L · Programming Logic and Design</p>
+      <h1>Intro to OOP <span>Encapsulation and Inheritance</span></h1>
+      <p class="lede">Protect an object's data behind a public interface, then reuse a class by building new classes on top of it.</p>
+      <ol class="roadmap" aria-label="Lab roadmap">
+        <li><a href="#l13-encap">Encapsulation</a></li>
+        <li><a href="#l13-bank-trace">BankAccount trace</a></li>
+        <li><a href="#l13-inherit">Inheritance</a></li>
+        <li><a href="#l13-order">Constructor order</a></li>
+        <li><a href="#l13-seatwork">Seatwork</a></li>
+        <li><a href="#l13-lab-a">Lab exercise</a></li>
+      </ol>
+    </div>
+    <div class="stack">
+      <div class="ilo-card">
+        <h2>Intended Learning Outcome</h2>
+        <ol>
+          <li>Apply encapsulation and inheritance in basic C++ programs.</li>
+        </ol>
+        <div class="ilo-meta">
+          <span><b>Activities:</b> Live coding demonstrations · Guided OOP design exercises · Laboratory activities</span>
+          <span><b>Assessment:</b> Lab Exercise No. 13 · 5-Level Lab Rubric</span>
+        </div>
+      </div>
+      <div class="note-box"><p class="box-label">Syllabus note</p><p>The syllabus groups <b>Lab No. 13 &amp; 14 – Intro to OOP: Encapsulation, Inheritance, and Polymorphism</b> (Weeks 14–15). On this site, Lab 13 covers encapsulation and inheritance, and <a href="lab-14.html">Lab 14</a> covers polymorphism.</p></div>
+    </div>
+  </div>
+  <aside class="notes">
+    <p class="note-time">Suggested time: about 3 min</p>
+    <h4>Teaching tips</h4>
+    <ul>
+      <li>Hook: <em>"Last week anyone could set a rectangle's length to −4. Today the class learns to protect itself, and then we stop copy-pasting code between similar classes."</em></li>
+      <li>The ILO in the syllabus covers encapsulation, inheritance, and polymorphism across Labs 13–14. Today is the first two; Lab 14 finishes with polymorphism.</li>
+      <li>Students need Lab 12 (class, object, constructor, <code>public</code>/<code>private</code>) and Lab 11 pass-by-reference. Spend a minute on the bridge slide if Lab 12 felt rushed.</li>
+    </ul>
+    <h4>Common student pitfalls</h4>
+    <ul>
+      <li>Thinking encapsulation just means "write <code>private:</code>". It's a design habit: decide what the outside world may do, and make the class enforce it.</li>
+    </ul>
+  </aside>
+</section>
+
+<!-- ========================= BRIDGE ========================= -->
+<section class="slide" id="l13-bridge" data-title="Recap: The Trouble with Public Data" data-section="Introduction">
+  <header class="slide-head">
+    <p class="kicker">Lab 13 · Bridge from Lab 12</p>
+    <h2>Recap: The Trouble with Public Data</h2>
+    <p class="lede">Lab 12's first <code>Rectangle</code> had public data. It works, but nothing stops nonsense values.</p>
+  </header>
+  <div class="grid-2 align-start">
+    <div class="stack">
+      <div class="card">
+        <h3 class="card-title">Lab 12 in five lines</h3>
+        <ul class="tight">
+          <li>A <b>class</b> is a blueprint; an <b>object</b> is an instance with its own data.</li>
+          <li><code>object.member</code> reaches a member of one object.</li>
+          <li>A <b>constructor</b> initializes an object when it is created.</li>
+          <li><code>public</code> members are usable anywhere; <code>private</code> ones only inside the class.</li>
+          <li>UML: <code>+</code> public, <code>-</code> private.</li>
+        </ul>
+      </div>
+      <div class="pitfall"><p class="box-label">The problem</p><p>A rectangle can't have a side of −4, yet the class stores it and computes an area of −10. Any line of code anywhere can break the object.</p></div>
+      <div class="concept"><p class="box-label">Today's question</p><p>How can a class <b>protect its own data</b>, and how can new classes <b>reuse</b> an existing one?</p></div>
+    </div>
+    <div class="stack">
+      <figure class="codeblock">
+        <figcaption><code>negative_area.cpp</code></figcaption>
+<pre class="code" data-cpp>
+#include &lt;iostream&gt;
+using namespace std;
+
+class Rectangle {
+public:
+    double length;
+    double width;
+    double area() { return length * width; }
+};
+
+int main() {
+    Rectangle r;
+    r.length = -4;          // nothing stops this!
+    r.width = 2.5;
+    cout &lt;&lt; "Area = " &lt;&lt; r.area() &lt;&lt; endl;
+    return 0;
+}
+</pre>
+      </figure>
+      <figure class="codeblock"><figcaption>Output</figcaption><pre class="console">Area = -10</pre></figure>
+    </div>
+  </div>
+  <aside class="notes">
+    <p class="note-time">Suggested time: about 4 min</p>
+    <h4>Teaching tips</h4>
+    <ul>
+      <li>Ask the class to predict the output before running it. The program compiles with no warnings, and the bad value only shows up at run time.</li>
+      <li>Scale it up: in a banking app, a public <code>balance</code> means any function could set it to a million. That's the motivation for the BankAccount example.</li>
+      <li>Quick oral review of Lab 12 using the five bullets: call on students to give a code example for each one.</li>
+    </ul>
+    <h4>Common student pitfalls</h4>
+    <ul>
+      <li>"Just check for negatives in <code>main</code>." That works until another programmer forgets the check. Putting the check inside the class means it can't be skipped.</li>
+    </ul>
+    <h4>Ask the class</h4>
+    <ul>
+      <li>"Where should the rule 'length must be positive' live: in <code>main</code>, or in <code>Rectangle</code>?" (In <code>Rectangle</code>.)</li>
+    </ul>
+  </aside>
+</section>
+
+<!-- ========================= ENCAPSULATION ========================= -->
+<section class="slide" id="l13-encap" data-title="Encapsulation" data-section="Encapsulation">
+  <header class="slide-head">
+    <p class="kicker">Lab 13 · Encapsulation</p>
+    <h2>Encapsulation: Private Data, Public Interface</h2>
+    <p class="lede"><b>Encapsulation</b> bundles data with the functions that use it and <b>hides the data</b>, so that only those functions can read or change it.</p>
+  </header>
+  <div class="grid-2 align-start" style="grid-template-columns:minmax(0,1.2fr) minmax(0,1fr)">
+    <figure class="card chart-card">
+      <figcaption>How main() talks to a BankAccount</figcaption>
+      <svg class="fc" viewBox="0 0 640 330" style="max-width:660px" role="img" aria-label="main() has arrows to three public functions of a BankAccount object: deposit, withdraw, and getBalance. Those functions have arrows into the private data area holding accountNumber and balance. A dashed red line from main() straight toward balance is blocked with an X at the object's border.">
+        <g><rect class="s-terminal" x="10" y="134" width="110" height="46" rx="10"/><text x="65" y="157">main()</text></g>
+        <rect x="168" y="12" width="462" height="306" rx="30" style="fill:var(--accent-soft);stroke:var(--accent);stroke-width:2.5"/>
+        <text x="420" y="38" style="font-size:16px;font-weight:800;fill:var(--accent)">BankAccount object</text>
+        <path class="fc-line" d="M120 148 L190 98"/>
+        <path class="fc-line" d="M120 157 H190"/>
+        <path class="fc-line" d="M120 166 L190 216"/>
+        <g><rect x="192" y="74" width="150" height="42" rx="8" style="fill:var(--surface);stroke:var(--ok);stroke-width:2.2"/><text x="267" y="95" style="font-family:var(--font-mono);font-size:14px">deposit()</text></g>
+        <g><rect x="192" y="136" width="150" height="42" rx="8" style="fill:var(--surface);stroke:var(--ok);stroke-width:2.2"/><text x="267" y="157" style="font-family:var(--font-mono);font-size:14px">withdraw()</text></g>
+        <g><rect x="192" y="198" width="150" height="42" rx="8" style="fill:var(--surface);stroke:var(--ok);stroke-width:2.2"/><text x="267" y="219" style="font-family:var(--font-mono);font-size:14px">getBalance()</text></g>
+        <text x="267" y="266" style="font-size:14px;font-weight:800;fill:var(--ok)">public interface</text>
+        <path class="fc-line" d="M342 95 H376"/>
+        <path class="fc-line" d="M342 157 H376"/>
+        <path class="fc-line" d="M342 219 H376"/>
+        <rect x="378" y="60" width="230" height="200" rx="14" style="fill:var(--surface);stroke:var(--bad);stroke-width:2;stroke-dasharray:7 5"/>
+        <path d="M425 86 V80 a7 7 0 0 1 14 0 V86" style="fill:none;stroke:var(--bad);stroke-width:2.2"/>
+        <rect x="420" y="86" width="24" height="17" rx="3" style="fill:var(--bad)"/>
+        <text x="510" y="94" style="font-size:15px;font-weight:800;fill:var(--bad)">private data</text>
+        <text x="493" y="134" style="font-size:13px;fill:var(--muted)">accountNumber</text>
+        <text x="493" y="156" style="font-family:var(--font-mono);font-size:15px;font-weight:800">"2026-0001"</text>
+        <text x="493" y="194" style="font-size:13px;fill:var(--muted)">balance</text>
+        <text x="493" y="216" style="font-family:var(--font-mono);font-size:15px;font-weight:800">5000.00</text>
+        <path d="M65 180 V292 H152" style="fill:none;stroke:var(--bad);stroke-width:2;stroke-dasharray:6 5"/>
+        <path d="M160 284 L176 300 M176 284 L160 300" style="stroke:var(--bad);stroke-width:3.5;stroke-linecap:round"/>
+        <text class="a-start" x="12" y="314" style="font-family:var(--font-mono);font-size:12.5px;fill:var(--bad)">acct.balance = -999;</text>
+      </svg>
+    </figure>
+    <div class="stack">
+      <div class="concept"><p class="box-label">The recipe</p><ol><li>Make data members <code>private</code>.</li><li>Add <code>public</code> member functions for exactly what users need to do.</li><li>Inside those functions, <b>check every change</b>.</li></ol></div>
+      <div class="benefits">
+        <div class="benefit"><b>Data integrity</b><span>The object can never hold an invalid value, such as a negative balance.</span></div>
+        <div class="benefit"><b>Validation in one place</b><span>Write the rule once in the class, not in every <code>main</code>.</span></div>
+        <div class="benefit"><b>Hidden implementation</b><span>Change how data is stored inside without breaking code that uses the class.</span></div>
+        <div class="benefit"><b>Easier debugging</b><span>If the balance is wrong, only a few functions could have changed it.</span></div>
+      </div>
+    </div>
+  </div>
+  <aside class="notes">
+    <p class="note-time">Suggested time: about 6 min</p>
+    <h4>Teaching tips</h4>
+    <ul>
+      <li>ATM analogy: you can press "Withdraw" and "Balance Inquiry", but you can't open the machine and grab the cash. The buttons are the public interface; the cash box is private.</li>
+      <li>Walk the diagram: every arrow from <code>main()</code> lands on a public function, and only those functions reach the private data. The dashed red line is what the compiler blocks.</li>
+      <li>Encapsulation also enables <b>abstraction</b> (Lab 12's pillar): users know <em>what</em> <code>withdraw()</code> does, not <em>how</em>.</li>
+    </ul>
+    <h4>Common student pitfalls</h4>
+    <ul>
+      <li>Thinking <code>private</code> makes data secure from hackers. It is a compile-time rule for programmers, not encryption.</li>
+      <li>Writing a getter and a setter for every member automatically. A setter with no checks is almost the same as public data.</li>
+    </ul>
+    <h4>Ask the class</h4>
+    <ul>
+      <li>"Name another real device with a public interface and hidden internals." (Vending machine, aircon remote, Meralco meter.)</li>
+    </ul>
+  </aside>
+</section>
+
+<!-- ========================= BANKACCOUNT CLASS ========================= -->
+<section class="slide" id="l13-bank" data-title="Example: BankAccount" data-section="Encapsulation">
+  <header class="slide-head">
+    <p class="kicker">Lab 13 · Encapsulation</p>
+    <h2>Example: An Encapsulated <code>BankAccount</code></h2>
+    <p class="lede">Private data, public functions that check every change, and <code>const</code> getters that can only read.</p>
+  </header>
+  <div class="grid-2 align-start" style="grid-template-columns:minmax(0,1fr) minmax(0,1.25fr)">
+    <div class="stack">
+      <div class="card" style="padding:.8rem"><svg class="fc uml" viewBox="0 0 337 240" style="max-width:337px" role="img" aria-label="UML class diagram: BankAccount with private accountNumber (string) and balance (double); public constructor, deposit and withdraw returning bool, and const getters getBalance and getAccountNumber.">
+<g class="uml-box">
+<rect x="4" y="4" width="329" height="232" rx="4" style="fill:var(--surface);stroke:var(--fc-proc);stroke-width:2"/>
+<rect x="4" y="4" width="329" height="40" rx="4" style="fill:var(--fc-proc-fill);stroke:var(--fc-proc);stroke-width:2"/>
+<text x="168" y="24" style="font-size:16px;font-weight:800">BankAccount</text>
+<path d="M4 104 H333" style="stroke:var(--fc-proc);stroke-width:2"/>
+<text class="a-start" x="16" y="62" style="font-family:var(--font-mono);font-size:14px;font-weight:500"><tspan style="fill:var(--bad);font-weight:800">-</tspan> accountNumber : string</text>
+<text class="a-start" x="16" y="86" style="font-family:var(--font-mono);font-size:14px;font-weight:500"><tspan style="fill:var(--bad);font-weight:800">-</tspan> balance : double</text>
+<text class="a-start" x="16" y="122" style="font-family:var(--font-mono);font-size:14px;font-weight:500"><tspan style="fill:var(--ok);font-weight:800">+</tspan> BankAccount(number : string)</text>
+<text class="a-start" x="16" y="146" style="font-family:var(--font-mono);font-size:14px;font-weight:500"><tspan style="fill:var(--ok);font-weight:800">+</tspan> deposit(amount : double) : bool</text>
+<text class="a-start" x="16" y="170" style="font-family:var(--font-mono);font-size:14px;font-weight:500"><tspan style="fill:var(--ok);font-weight:800">+</tspan> withdraw(amount : double) : bool</text>
+<text class="a-start" x="16" y="194" style="font-family:var(--font-mono);font-size:14px;font-weight:500"><tspan style="fill:var(--ok);font-weight:800">+</tspan> getBalance() const : double</text>
+<text class="a-start" x="16" y="218" style="font-family:var(--font-mono);font-size:14px;font-weight:500"><tspan style="fill:var(--ok);font-weight:800">+</tspan> getAccountNumber() const : string</text>
+</g>
+</svg></div>
+      <div class="concept"><p class="box-label">Design decisions</p>
+        <ul>
+          <li><code>balance</code> starts at 0 and is <b>private</b>.</li>
+          <li><code>deposit()</code> and <code>withdraw()</code> validate and return a <code>bool</code>: <code>true</code> = done, <code>false</code> = rejected.</li>
+          <li>There is <b>no</b> <code>setBalance()</code> on purpose: money moves only through valid deposits and withdrawals.</li>
+          <li>Getters are <code>const</code>: they read but never change the object.</li>
+        </ul>
+      </div>
+    </div>
+    <figure class="codeblock">
+      <figcaption>The class (the full program is on the next slide)</figcaption>
+<pre class="code scroll compact" data-cpp>
+class BankAccount {
+private:
+    string accountNumber;
+    double balance;
+
+public:
+    BankAccount(string number)
+        : accountNumber(number), balance(0) {}
+
+    bool deposit(double amount) {
+        if (amount &lt;= 0) {
+            return false;       // invalid amount
+        }
+        balance += amount;
+        return true;
+    }
+
+    bool withdraw(double amount) {
+        if (amount &lt;= 0 || amount &gt; balance) {
+            return false;       // invalid or too much
+        }
+        balance -= amount;
+        return true;
+    }
+
+    double getBalance() const { return balance; }
+    string getAccountNumber() const { return accountNumber; }
+};
+</pre>
+    </figure>
+  </div>
+  <aside class="notes">
+    <p class="note-time">Suggested time: about 6 min</p>
+    <h4>Teaching tips</h4>
+    <ul>
+      <li>Map UML to code line by line: two <code>-</code> attributes become the <code>private:</code> section; five <code>+</code> operations become the <code>public:</code> section.</li>
+      <li>Returning <code>bool</code> lets the caller decide how to react (print a message, retry, log it). The class doesn't print anything itself, which keeps it reusable.</li>
+      <li>The UML shows <code>const</code> the C++ way. Strict UML marks read-only operations with <code>{query}</code>; either is fine for this course.</li>
+    </ul>
+    <h4>Common student pitfalls</h4>
+    <ul>
+      <li>Checking only <code>amount &gt; balance</code> and forgetting <code>amount &lt;= 0</code>. A withdrawal of −500 would then <em>add</em> money.</li>
+      <li>Printing error messages inside <code>withdraw()</code> <em>and</em> in <code>main</code>, so the message appears twice.</li>
+    </ul>
+    <h4>Ask the class</h4>
+    <ul>
+      <li>"Why is there no <code>setBalance()</code>?" (Anyone could set any amount and skip the rules.)</li>
+    </ul>
+  </aside>
+</section>
+
+<!-- ========================= BANK TRACE (TRACER 1) ========================= -->
+<section class="slide" id="l13-bank-trace" data-title="Trace: A Rejected Withdrawal" data-section="Encapsulation">
+  <header class="slide-head">
+    <p class="kicker">Lab 13 · Encapsulation · Trace</p>
+    <h2>Trace: A Rejected Withdrawal</h2>
+    <p class="lede"><code>withdraw()</code> refuses to take more than the balance, and <code>main()</code> finds out from the <code>bool</code> it returns.</p>
+  </header>
+  <div class="example-grid" style="grid-template-columns:minmax(0,1.2fr) minmax(0,1fr)">
+    <figure class="codeblock">
+      <figcaption><code>bank_account.cpp</code></figcaption>
+<pre class="code scroll compact" id="l13-bank-code" data-cpp data-stdin="5000 7500">
+#include &lt;iostream&gt;
+#include &lt;iomanip&gt;
+#include &lt;string&gt;
+using namespace std;
+
+class BankAccount {
+private:
+    string accountNumber;
+    double balance;
+
+public:
+    BankAccount(string number)
+        : accountNumber(number), balance(0) {}
+
+    bool deposit(double amount) {
+        if (amount &lt;= 0) {
+            return false;       // invalid amount
+        }
+        balance += amount;
+        return true;
+    }
+
+    bool withdraw(double amount) {
+        if (amount &lt;= 0 || amount &gt; balance) {
+            return false;       // invalid or too much
+        }
+        balance -= amount;
+        return true;
+    }
+
+    double getBalance() const { return balance; }
+    string getAccountNumber() const { return accountNumber; }
+};
+
+int main() {
+    BankAccount acct("2026-0001");
+    double amount;
+    cout &lt;&lt; fixed &lt;&lt; setprecision(2);
+
+    cout &lt;&lt; "Deposit: ";
+    cin &gt;&gt; amount;
+    if (!acct.deposit(amount)) {
+        cout &lt;&lt; "Deposit rejected." &lt;&lt; endl;
+    }
+    cout &lt;&lt; "Withdraw: ";
+    cin &gt;&gt; amount;
+    if (acct.withdraw(amount)) {
+        cout &lt;&lt; "Withdrawal OK." &lt;&lt; endl;
+    } else {
+        cout &lt;&lt; "Withdrawal rejected." &lt;&lt; endl;
+    }
+    cout &lt;&lt; acct.getAccountNumber() &lt;&lt; " balance: PHP "
+         &lt;&lt; acct.getBalance() &lt;&lt; endl;
+    return 0;
+}
+</pre>
+    </figure>
+    <div class="stack">
+      <div class="tracer" data-trace="l13-bank" data-code="#l13-bank-code" data-title="Trace it">
+        <div class="tracer-inputs">
+          <label>deposit <input type="number" data-var="deposit" value="5000" step="any"></label>
+          <label>withdraw <input type="number" data-var="withdraw" value="7500" step="any"></label>
+        </div>
+      </div>
+      <figure class="sample"><figcaption>Another real run: accepted</figcaption><pre class="console">Deposit: <span class="in">5000</span>
+Withdraw: <span class="in">1200</span>
+Withdrawal OK.
+2026-0001 balance: PHP 3800.00</pre></figure>
+    </div>
+  </div>
+  <aside class="notes">
+    <p class="note-time">Suggested time: about 8 min</p>
+    <h4>Teaching tips</h4>
+    <ul>
+      <li>Run the tracer with 5000 / 7500 first. At line 24 the condition is true, so <code>withdraw()</code> returns <code>false</code> and the balance in the Memory panel stays 5000.00.</li>
+      <li>Then try −50 / 100: both calls are rejected and the balance stays 0.00. Then 5000 / 1200 for the normal case.</li>
+      <li>Point out that <code>main</code> never mentions <code>balance</code>. It can only ask the object to do things, and the object decides.</li>
+      <li>Boundary test: withdraw exactly 5000. <code>amount &gt; balance</code> is false, so it's allowed and the balance becomes 0.00.</li>
+    </ul>
+    <h4>Common student pitfalls</h4>
+    <ul>
+      <li>Calling <code>acct.withdraw(amount);</code> on its own line and ignoring the returned <code>bool</code>. The program then can't tell the user it failed.</li>
+      <li>Calling <code>withdraw()</code> twice (once in the <code>if</code>, once again inside it), which withdraws twice.</li>
+    </ul>
+    <h4>Ask the class</h4>
+    <ul>
+      <li>"What should the bank do with a deposit of 0? What does our class do?" (Rejects it, because of <code>amount &lt;= 0</code>.)</li>
+    </ul>
+  </aside>
+</section>
+
+<!-- ========================= GETTERS / SETTERS ========================= -->
+<section class="slide" id="l13-getset" data-title="Getters & Setters with Validation" data-section="Encapsulation">
+  <header class="slide-head">
+    <p class="kicker">Lab 13 · Encapsulation</p>
+    <h2>Getters and Setters with Validation</h2>
+    <p class="lede">A <b>getter</b> returns a private value. A <b>setter</b> changes it, but only if the new value passes the class's rules.</p>
+  </header>
+  <div class="grid-2 align-start" style="grid-template-columns:minmax(0,1.2fr) minmax(0,1fr)">
+    <figure class="codeblock">
+      <figcaption><code>student_grade.cpp</code></figcaption>
+<pre class="code scroll" data-cpp data-stdin="105">
+#include &lt;iostream&gt;
+#include &lt;string&gt;
+using namespace std;
+
+class Student {
+private:
+    string name;
+    double grade;
+
+public:
+    Student(string n) : name(n), grade(0) {}
+
+    string getName() const { return name; }
+    double getGrade() const { return grade; }
+
+    bool setGrade(double g) {
+        if (g &lt; 0 || g &gt; 100) {
+            return false;       // keep the old grade
+        }
+        grade = g;
+        return true;
+    }
+};
+
+int main() {
+    Student s("Ana");
+    double g;
+    cout &lt;&lt; "Enter grade: ";
+    cin &gt;&gt; g;
+    if (!s.setGrade(g)) {
+        cout &lt;&lt; "Invalid grade. Use 0 to 100." &lt;&lt; endl;
+    }
+    cout &lt;&lt; s.getName() &lt;&lt; ": " &lt;&lt; s.getGrade() &lt;&lt; endl;
+    return 0;
+}
+</pre>
+    </figure>
+    <div class="stack">
+      <div class="stack" style="gap:.6rem">
+        <figure class="sample"><figcaption>Run 1: invalid</figcaption><pre class="console">Enter grade: <span class="in">105</span>
+Invalid grade. Use 0 to 100.
+Ana: 0</pre></figure>
+        <figure class="sample"><figcaption>Run 2: valid</figcaption><pre class="console">Enter grade: <span class="in">92.5</span>
+Ana: 92.5</pre></figure>
+      </div>
+      <div class="table-wrap">
+        <table class="table compact">
+          <thead><tr><th scope="col"></th><th scope="col">Getter (accessor)</th><th scope="col">Setter (mutator)</th></tr></thead>
+          <tbody>
+            <tr><th scope="row">Name</th><td><code>getGrade()</code></td><td><code>setGrade(g)</code></td></tr>
+            <tr><th scope="row">Job</th><td>Return a copy of the value</td><td>Check, then change the value</td></tr>
+            <tr><th scope="row">Usually</th><td><code>const</code>, no parameters</td><td>Returns <code>bool</code> (or ignores bad input)</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="note-box"><p class="box-label">Note</p><p>Only add the setters users really need. <code>Student</code> has no <code>setName()</code>, so a name is fixed once the object is constructed.</p></div>
+    </div>
+  </div>
+  <aside class="notes">
+    <p class="note-time">Suggested time: about 6 min</p>
+    <h4>Teaching tips</h4>
+    <ul>
+      <li>Run it live with 105, −1, 0, 100, and 92.5. The boundaries 0 and 100 are accepted because the test is <code>g &lt; 0 || g &gt; 100</code>.</li>
+      <li>After an invalid input the grade keeps its old value (0 from the constructor). That's the class protecting itself.</li>
+      <li>Textbooks call getters <em>accessors</em> and setters <em>mutators</em> (Gaddis, Malik). The <code>get</code>/<code>set</code> naming is just a convention.</li>
+    </ul>
+    <h4>Common student pitfalls</h4>
+    <ul>
+      <li>A setter that assigns first and checks later. Always check <b>before</b> changing the data.</li>
+      <li>Using <code>&amp;&amp;</code> instead of <code>||</code> in the range check (<code>g &lt; 0 &amp;&amp; g &gt; 100</code> is never true).</li>
+      <li>A getter that returns nothing (<code>void getGrade()</code>) or that prints instead of returning.</li>
+    </ul>
+    <h4>Ask the class</h4>
+    <ul>
+      <li>"How would you change <code>setGrade</code> so an invalid grade becomes the nearest valid one instead?" (Clamp: below 0 becomes 0, above 100 becomes 100. A design choice.)</li>
+    </ul>
+  </aside>
+</section>
+
+<!-- ========================= CONST MEMBER FUNCTIONS ========================= -->
+<section class="slide" id="l13-const" data-title="const Member Functions" data-section="Encapsulation">
+  <header class="slide-head">
+    <p class="kicker">Lab 13 · Encapsulation</p>
+    <h2><code>const</code> Member Functions</h2>
+    <p class="lede">Mark every function that only <b>reads</b> the object as <code>const</code>. The compiler then guarantees it changes nothing.</p>
+  </header>
+  <div class="grid-2 align-start" style="grid-template-columns:minmax(0,1.2fr) minmax(0,1fr)">
+    <div class="stack">
+      <p class="syntax" style="margin:0"><i>returnType</i> <i>name</i>(<i>parameters</i>) <b>const</b> { … }</p>
+      <figure class="codeblock">
+        <figcaption><code>report.cpp</code>: a const reference parameter (Lab 11) needs const getters</figcaption>
+<pre class="code" data-cpp>
+#include &lt;iostream&gt;
+#include &lt;string&gt;
+using namespace std;
+
+class Student {
+private:
+    string name;
+    double grade;
+
+public:
+    Student(string n, double g) : name(n), grade(g) {}
+
+    string getName() const { return name; }
+    double getGrade() const { return grade; }
+};
+
+void printReport(const Student&amp; s) {   // read-only
+    cout &lt;&lt; s.getName() &lt;&lt; ": " &lt;&lt; s.getGrade() &lt;&lt; endl;
+}
+
+int main() {
+    Student a("Ana", 92.5);
+    printReport(a);
+    return 0;
+}
+</pre>
+      </figure>
+      <figure class="codeblock"><figcaption>Output</figcaption><pre class="console">Ana: 92.5</pre></figure>
+    </div>
+    <div class="stack">
+      <div class="concept"><p class="box-label">Rules</p>
+        <ul>
+          <li><code>const</code> goes <b>after</b> the parameter list.</li>
+          <li>Inside a <code>const</code> function, data members are read-only.</li>
+          <li>A <code>const</code> object or <code>const&amp;</code> parameter can call <b>only</b> <code>const</code> functions.</li>
+          <li>Getters: <code>const</code>. Setters, <code>deposit()</code>, <code>withdraw()</code>: never.</li>
+        </ul>
+      </div>
+      <div class="pitfall"><p class="box-label">A const function that tries to change data</p>
+<pre class="code bad-code no-ln" data-cpp data-nocheck>
+double getGrade() const {
+    grade = 100;          // not allowed!
+    return grade;
+}
+</pre>
+<pre class="console" style="margin-top:.5rem">error: assignment of member 'Student::grade' in read-only object</pre>
+      </div>
+      <div class="pitfall"><p class="box-label">Forgetting const on a getter</p><p class="small">Remove <code>const</code> from <code>getGrade()</code> in <code>report.cpp</code> and line 18 fails:</p>
+<pre class="console" style="margin-top:.4rem">error: passing 'const Student' as 'this' argument discards qualifiers</pre>
+      </div>
+    </div>
+  </div>
+  <aside class="notes">
+    <p class="note-time">Suggested time: about 5 min</p>
+    <h4>Teaching tips</h4>
+    <ul>
+      <li>Connect to Lab 11: passing by <code>const&amp;</code> avoids copying the object and promises not to change it. That promise only works if the functions called on it are <code>const</code> too.</li>
+      <li>Live demo: delete <code>const</code> from <code>getGrade()</code>, compile, and read the "discards qualifiers" message together. It's one of the most confusing g++ messages, so it's worth seeing once in class.</li>
+      <li>Rule of thumb for the lab exercise: if a function's name starts with <code>get</code>, <code>is</code>, or describes a calculation, make it <code>const</code>.</li>
+    </ul>
+    <h4>Common student pitfalls</h4>
+    <ul>
+      <li>Putting <code>const</code> in front (<code>const double getGrade()</code>). That makes the <em>return value</em> const, not the function.</li>
+      <li>Adding <code>const</code> to the prototype but not to the definition outside the class (or the reverse). They must match.</li>
+    </ul>
+    <h4>Ask the class</h4>
+    <ul>
+      <li>"Can <code>withdraw()</code> be <code>const</code>?" (No: it changes <code>balance</code>.)</li>
+    </ul>
+  </aside>
+</section>
+
+<!-- ========================= INHERITANCE ========================= -->
+<section class="slide" id="l13-inherit" data-title="Inheritance: Is-a" data-section="Inheritance">
+  <header class="slide-head">
+    <p class="kicker">Lab 13 · Inheritance</p>
+    <h2>Inheritance: The "Is-a" Relationship</h2>
+    <p class="lede">A <b>derived class</b> automatically gets the members of its <b>base class</b> and adds its own. Use it when the new class is a special kind of the existing one.</p>
+  </header>
+  <div class="grid-2 align-start" style="grid-template-columns:minmax(0,1.15fr) minmax(0,1fr)">
+    <figure class="card" style="margin:0;padding:.8rem">
+      <svg class="fc uml" viewBox="0 0 554 390" style="max-width:554px" role="img" aria-label="UML inheritance diagram: Laptop and Smartphone each inherit from Device. Hollow-triangle arrows point from each derived class to the base class Device. Device has private brand and powerWatts, a constructor, turnOn and describe. Laptop adds private ramGB and showRam. Smartphone adds private batteryMah and showBattery.">
+<g class="uml-box">
+<rect x="138" y="6" width="277" height="184" rx="4" style="fill:var(--surface);stroke:var(--fc-proc);stroke-width:2"/>
+<rect x="138" y="6" width="277" height="40" rx="4" style="fill:var(--fc-proc-fill);stroke:var(--fc-proc);stroke-width:2"/>
+<text x="277" y="26" style="font-size:16px;font-weight:800">Device</text>
+<path d="M138 106 H415" style="stroke:var(--fc-proc);stroke-width:2"/>
+<text class="a-start" x="150" y="64" style="font-family:var(--font-mono);font-size:14px;font-weight:500"><tspan style="fill:var(--bad);font-weight:800">-</tspan> brand : string</text>
+<text class="a-start" x="150" y="88" style="font-family:var(--font-mono);font-size:14px;font-weight:500"><tspan style="fill:var(--bad);font-weight:800">-</tspan> powerWatts : int</text>
+<text class="a-start" x="150" y="124" style="font-family:var(--font-mono);font-size:14px;font-weight:500"><tspan style="fill:var(--ok);font-weight:800">+</tspan> Device(b : string, w : int)</text>
+<text class="a-start" x="150" y="148" style="font-family:var(--font-mono);font-size:14px;font-weight:500"><tspan style="fill:var(--ok);font-weight:800">+</tspan> turnOn() : void</text>
+<text class="a-start" x="150" y="172" style="font-family:var(--font-mono);font-size:14px;font-weight:500"><tspan style="fill:var(--ok);font-weight:800">+</tspan> describe() const : void</text>
+</g>
+<g class="uml-box">
+<rect x="6" y="246" width="234" height="136" rx="4" style="fill:var(--surface);stroke:var(--fc-proc);stroke-width:2"/>
+<rect x="6" y="246" width="234" height="40" rx="4" style="fill:var(--fc-proc-fill);stroke:var(--fc-proc);stroke-width:2"/>
+<text x="123" y="266" style="font-size:16px;font-weight:800">Laptop</text>
+<path d="M6 322 H240" style="stroke:var(--fc-proc);stroke-width:2"/>
+<text class="a-start" x="18" y="304" style="font-family:var(--font-mono);font-size:14px;font-weight:500"><tspan style="fill:var(--bad);font-weight:800">-</tspan> ramGB : int</text>
+<text class="a-start" x="18" y="340" style="font-family:var(--font-mono);font-size:14px;font-weight:500"><tspan style="fill:var(--ok);font-weight:800">+</tspan> Laptop(b, w, ram)</text>
+<text class="a-start" x="18" y="364" style="font-family:var(--font-mono);font-size:14px;font-weight:500"><tspan style="fill:var(--ok);font-weight:800">+</tspan> showRam() const : void</text>
+</g>
+<g class="uml-box">
+<rect x="280" y="246" width="268" height="136" rx="4" style="fill:var(--surface);stroke:var(--fc-proc);stroke-width:2"/>
+<rect x="280" y="246" width="268" height="40" rx="4" style="fill:var(--fc-proc-fill);stroke:var(--fc-proc);stroke-width:2"/>
+<text x="414" y="266" style="font-size:16px;font-weight:800">Smartphone</text>
+<path d="M280 322 H548" style="stroke:var(--fc-proc);stroke-width:2"/>
+<text class="a-start" x="292" y="304" style="font-family:var(--font-mono);font-size:14px;font-weight:500"><tspan style="fill:var(--bad);font-weight:800">-</tspan> batteryMah : int</text>
+<text class="a-start" x="292" y="340" style="font-family:var(--font-mono);font-size:14px;font-weight:500"><tspan style="fill:var(--ok);font-weight:800">+</tspan> Smartphone(b, w, mah)</text>
+<text class="a-start" x="292" y="364" style="font-family:var(--font-mono);font-size:14px;font-weight:500"><tspan style="fill:var(--ok);font-weight:800">+</tspan> showBattery() const : void</text>
+</g>
+<path class="fc-line plain" d="M123 246 V224"/>
+<path class="fc-line plain" d="M414 246 V224"/>
+<path class="fc-line plain" d="M123 224 H414"/>
+<path class="fc-line plain" d="M277 224 V207"/>
+<polygon points="277,190 267,207 287,207" style="fill:var(--surface);stroke:var(--fc-line);stroke-width:2;stroke-linejoin:round"/>
+</svg>
+      <figcaption class="small muted" style="margin-top:.4rem">UML: the hollow triangle points from the derived classes to the base class.</figcaption>
+    </figure>
+    <div class="stack">
+      <p class="syntax" style="margin:0">class <i>Derived</i> : <b>public</b> <i>Base</i> { … };</p>
+<pre class="code no-ln" data-cpp>
+class Laptop : public Device {
+    // Laptop gets brand, powerWatts,
+    // turnOn(), and describe() from Device
+    // and adds its own members here
+};
+</pre>
+      <div class="table-wrap">
+        <table class="table compact">
+          <thead><tr><th scope="col">Base class</th><th scope="col">Derived class</th></tr></thead>
+          <tbody><tr><td>also called <b>parent</b> or <b>superclass</b></td><td>also called <b>child</b> or <b>subclass</b></td></tr></tbody>
+        </table>
+      </div>
+      <div class="concept"><p class="box-label">The is-a test</p>
+        <ul>
+          <li>"A Laptop <b>is a</b> Device." ✓ Inherit.</li>
+          <li>"A Smartphone <b>is a</b> Device." ✓ Inherit.</li>
+          <li>"A Smartphone <b>has a</b> Battery." Not inheritance: make Battery a <b>data member</b>.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+  <aside class="notes">
+    <p class="note-time">Suggested time: about 6 min</p>
+    <h4>Teaching tips</h4>
+    <ul>
+      <li>Motivation: without inheritance, Laptop, Smartphone, and SmartWatch would each repeat <code>brand</code>, <code>powerWatts</code>, and <code>turnOn()</code>. Fix a bug in one copy and the others stay broken.</li>
+      <li>Read the arrow as "is a": Laptop → Device means "Laptop is a Device". The triangle always touches the <b>base</b>.</li>
+      <li>Use the is-a vs has-a test on a few pairs: Car/Vehicle (is-a), Car/Engine (has-a), Student/Person (is-a), Section/Student (has-a, an array of students).</li>
+    </ul>
+    <h4>Common student pitfalls</h4>
+    <ul>
+      <li>Drawing the UML arrow from base to derived. It points <b>to</b> the base.</li>
+      <li>Using inheritance just to reuse code when the is-a sentence sounds wrong ("a Battery is a Smartphone").</li>
+    </ul>
+    <h4>Ask the class</h4>
+    <ul>
+      <li>"Give one more class that could inherit from Device, and one attribute it would add." (SmartWatch: stepGoal; Printer: pagesPerMinute.)</li>
+    </ul>
+  </aside>
+</section>
+
+<!-- ========================= FIRST DERIVED CLASS ========================= -->
+<section class="slide" id="l13-first-derived" data-title="Your First Derived Class" data-section="Inheritance">
+  <header class="slide-head">
+    <p class="kicker">Lab 13 · Inheritance</p>
+    <h2>Your First Derived Class</h2>
+    <p class="lede"><code>Laptop</code> inherits <code>turnOn()</code> and <code>describe()</code> from <code>Device</code>, and adds <code>ramGB</code> and <code>showRam()</code>.</p>
+  </header>
+  <div class="grid-2 align-start" style="grid-template-columns:minmax(0,1.25fr) minmax(0,1fr)">
+    <figure class="codeblock">
+      <figcaption><code>laptop.cpp</code></figcaption>
+<pre class="code scroll compact" data-cpp>
+#include &lt;iostream&gt;
+#include &lt;string&gt;
+using namespace std;
+
+class Device {
+private:
+    string brand;
+    int powerWatts;
+
+public:
+    Device(string b, int w) : brand(b), powerWatts(w) {}
+
+    void turnOn() {
+        cout &lt;&lt; brand &lt;&lt; " is now ON" &lt;&lt; endl;
+    }
+    void describe() const {
+        cout &lt;&lt; brand &lt;&lt; ", " &lt;&lt; powerWatts &lt;&lt; " W" &lt;&lt; endl;
+    }
+};
+
+class Laptop : public Device {      // is-a Device
+private:
+    int ramGB;                       // new data member
+
+public:
+    Laptop(string b, int w, int ram)
+        : Device(b, w), ramGB(ram) {}
+
+    void showRam() const {           // new function
+        cout &lt;&lt; "RAM: " &lt;&lt; ramGB &lt;&lt; " GB" &lt;&lt; endl;
+    }
+};
+
+int main() {
+    Laptop lap("Lenovo", 65, 16);
+    lap.turnOn();       // inherited from Device
+    lap.describe();     // inherited from Device
+    lap.showRam();      // Laptop's own
+    return 0;
+}
+</pre>
+    </figure>
+    <div class="stack">
+      <figure class="codeblock"><figcaption>Output</figcaption><pre class="console">Lenovo is now ON
+Lenovo, 65 W
+RAM: 16 GB</pre></figure>
+      <div class="card soft" style="padding:.8rem 1rem">
+        <p class="eyebrow">Inside the object <code>lap</code></p>
+        <div class="mem" aria-label="Memory of lap: Device part with brand Lenovo and powerWatts 65, Laptop part with ramGB 16" style="align-items:stretch">
+          <div style="border:2px dashed var(--fc-proc);border-radius:10px;padding:.35rem .5rem">
+            <p class="small" style="font-weight:800;margin-bottom:.2rem">Device part (inherited)</p>
+            <div class="mem"><div class="mem-cell"><span class="mem-name">brand</span><span class="mem-val">"Lenovo"</span></div><div class="mem-cell"><span class="mem-name">powerWatts</span><span class="mem-val">65</span></div></div>
+          </div>
+          <div style="border:2px dashed var(--ok);border-radius:10px;padding:.35rem .5rem">
+            <p class="small" style="font-weight:800;margin-bottom:.2rem">Laptop part</p>
+            <div class="mem"><div class="mem-cell"><span class="mem-name">ramGB</span><span class="mem-val">16</span></div></div>
+          </div>
+        </div>
+      </div>
+      <div class="concept"><p class="box-label">Key concept</p><p>A derived object <b>contains</b> a complete base object. <code>lap.turnOn()</code> works because <code>turnOn()</code> is a public member of Device, and every Laptop is a Device.</p></div>
+      <div class="note-box"><p class="box-label">Note</p><p>Line 27, <code>: Device(b, w)</code>, builds the Device part. More in two slides.</p></div>
+    </div>
+  </div>
+  <aside class="notes">
+    <p class="note-time">Suggested time: about 6 min</p>
+    <h4>Teaching tips</h4>
+    <ul>
+      <li>Scroll to <code>main</code> first: three calls, but <code>Laptop</code> only defines one of those functions. Ask where the other two come from.</li>
+      <li>The memory picture is the key idea: the Laptop object physically contains <code>brand</code> and <code>powerWatts</code>, even though they are private to Device.</li>
+      <li><code>describe()</code> and <code>showRam()</code> are <code>const</code> because they only read data (the rule from the const slide). <code>turnOn()</code> is left non-const: a real device would change its on/off state there.</li>
+      <li>Since <code>brand</code> is private in Device, Laptop's own functions can't print it directly. They can call <code>describe()</code> or <code>turnOn()</code> instead. The next slide fixes this with <code>protected</code>.</li>
+    </ul>
+    <h4>Common student pitfalls</h4>
+    <ul>
+      <li>Re-declaring <code>brand</code> and <code>powerWatts</code> inside Laptop "to be safe". That creates a second, separate copy, which is confusing and wrong.</li>
+      <li>Forgetting <code>public</code> before <code>Device</code> in line 21 (see Pitfalls).</li>
+    </ul>
+    <h4>Ask the class</h4>
+    <ul>
+      <li>"Inside <code>showRam()</code>, could we write <code>cout &lt;&lt; brand;</code>?" (No: brand is private to Device. Try it to see the error.)</li>
+    </ul>
+  </aside>
+</section>
+
+<!-- ========================= PROTECTED + ACCESS TABLE ========================= -->
+<section class="slide" id="l13-protected" data-title="protected & Access Rules" data-section="Inheritance">
+  <header class="slide-head">
+    <p class="kicker">Lab 13 · Inheritance</p>
+    <h2><code>protected</code> Members and Access Rules</h2>
+    <p class="lede">Private base members are inherited but locked. <code>protected</code> opens them to derived classes while still hiding them from <code>main</code>.</p>
+  </header>
+  <div class="grid-2 align-start">
+    <div class="stack">
+      <div class="table-wrap">
+        <table class="table">
+          <caption>Who can use a base-class member? (public inheritance)</caption>
+          <thead><tr><th scope="col">Member is…</th><th scope="col">Inside the class itself</th><th scope="col">Inside a derived class</th><th scope="col">Outside (<code>main</code>)</th></tr></thead>
+          <tbody>
+            <tr><th scope="row"><code>public</code> <span style="color:var(--ok)">+</span></th><td style="color:var(--ok);font-weight:800">✓ yes</td><td style="color:var(--ok);font-weight:800">✓ yes</td><td style="color:var(--ok);font-weight:800">✓ yes</td></tr>
+            <tr><th scope="row"><code>protected</code> <span style="color:var(--warn)">#</span></th><td style="color:var(--ok);font-weight:800">✓ yes</td><td style="color:var(--ok);font-weight:800">✓ yes</td><td style="color:var(--bad);font-weight:800">✗ no</td></tr>
+            <tr><th scope="row"><code>private</code> <span style="color:var(--bad)">-</span></th><td style="color:var(--ok);font-weight:800">✓ yes</td><td style="color:var(--bad);font-weight:800">✗ no</td><td style="color:var(--bad);font-weight:800">✗ no</td></tr>
+          </tbody>
+        </table>
+      </div>
+<pre class="code no-ln" data-cpp>
+class Device {
+protected:                  // # in UML
+    string brand;
+    int powerWatts;
+    …
+};
+class Smartphone : public Device {
+    …  cout &lt;&lt; brand;       // OK: protected
+};
+// in main:  phone.brand = "X";   // error
+</pre>
+<pre class="console">error: 'std::string Device::brand' is protected within this context</pre>
+    </div>
+    <div class="stack">
+      <div class="table-wrap">
+        <table class="table compact">
+          <caption>What does a derived class inherit?</caption>
+          <thead><tr><th scope="col">Inherited</th><th scope="col">Not inherited</th></tr></thead>
+          <tbody>
+            <tr><td>All data members, even private ones (they are in the object, just not accessible)</td><td><b>Constructors</b>: the derived class writes its own and calls the base one</td></tr>
+            <tr><td>All member functions (usable if public or protected)</td><td>The <b>destructor</b>: each class has its own; C++ calls both automatically</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="note-box"><p class="box-label">Design tip</p><ul><li>Default to <code>private</code>, even in a base class.</li><li>Use <code>protected</code> when derived classes genuinely need direct access.</li><li>Or keep it private and give the base class a <code>protected</code> or <code>public</code> getter.</li></ul></div>
+    </div>
+  </div>
+  <aside class="notes">
+    <p class="note-time">Suggested time: about 6 min</p>
+    <h4>Teaching tips</h4>
+    <ul>
+      <li>Read the table one row at a time. The only difference between <code>protected</code> and <code>private</code> is the middle column.</li>
+      <li>Analogy: a family recipe. Public: printed on the menu. Protected: shared with the children, not with customers. Private: only the cook knows it.</li>
+      <li>Many experienced programmers prefer private data plus protected getters even in base classes, because protected data can still be broken by any derived class. Both styles appear in textbooks, and the lab exercise uses protected for simplicity.</li>
+    </ul>
+    <h4>Common student pitfalls</h4>
+    <ul>
+      <li>Believing private members are "not inherited". They are inherited (they take up memory in the derived object), just not accessible by name.</li>
+      <li>Thinking <code>protected</code> lets <code>main</code> read the data. It doesn't (third column).</li>
+    </ul>
+    <h4>Ask the class</h4>
+    <ul>
+      <li>"Smartphone wants to print <code>brand</code> in its own function. Name two ways to allow it." (Make brand protected, or add a getter in Device.)</li>
+    </ul>
+  </aside>
+</section>
+
+<!-- ========================= BASE CONSTRUCTOR ========================= -->
+<section class="slide" id="l13-base-ctor" data-title="Calling the Base Constructor" data-section="Inheritance">
+  <header class="slide-head">
+    <p class="kicker">Lab 13 · Inheritance · Constructors</p>
+    <h2>Calling the Base Constructor</h2>
+    <p class="lede">Constructors are not inherited. A derived constructor builds its base part <b>first</b> by calling the base constructor in its member initializer list.</p>
+  </header>
+  <div class="grid-2 align-start">
+    <div class="stack">
+<pre class="code" data-cpp>
+class Laptop : public Device {
+private:
+    int ramGB;
+
+public:
+    Laptop(string b, int w, int ram)
+        : Device(b, w),   // 1. base part
+          ramGB(ram)      // 2. own members
+    {
+        // 3. then the body runs
+    }
+};
+</pre>
+      <ol class="algo-steps">
+        <li><code>Laptop lap("Lenovo", 65, 16);</code></li>
+        <li><code>Device("Lenovo", 65)</code> sets <code>brand</code> and <code>powerWatts</code>.</li>
+        <li><code>ramGB</code> becomes 16.</li>
+        <li>The Laptop constructor body runs.</li>
+      </ol>
+    </div>
+    <div class="stack">
+      <div class="concept"><p class="box-label">Rules</p>
+        <ul>
+          <li>Write the base class name with its arguments <b>first</b> in the initializer list.</li>
+          <li>Pass the base's values through the derived constructor's parameters.</li>
+          <li>The derived class can't assign the base's private members itself.</li>
+        </ul>
+      </div>
+      <div class="pitfall"><p class="box-label">What if you leave it out?</p>
+<pre class="code bad-code no-ln" data-cpp data-nocheck>
+Laptop(string b, int w, int ram) : ramGB(ram) {
+    brand = b;    // error if private
+}
+</pre>
+        <p class="small" style="margin-top:.4rem">C++ then calls <code>Device()</code> with no arguments, which doesn't exist:</p>
+<pre class="console" style="margin-top:.4rem">error: no matching function for call to 'Device::Device()'</pre>
+      </div>
+    </div>
+  </div>
+  <aside class="notes">
+    <p class="note-time">Suggested time: about 5 min</p>
+    <h4>Teaching tips</h4>
+    <ul>
+      <li>This is why Lab 12 introduced the member initializer list: a base-class part can <b>only</b> be built there.</li>
+      <li>If Device had a default constructor, leaving out <code>Device(b, w)</code> would compile but give a Laptop with the default brand. That's a silent logic bug, so always call the right base constructor explicitly.</li>
+      <li>The comments in the code show the order; the next slide proves it with output.</li>
+    </ul>
+    <h4>Common student pitfalls</h4>
+    <ul>
+      <li>Calling the base constructor inside the body: <code>{ Device(b, w); }</code>. That creates a temporary, unnamed Device that is destroyed right away; the Laptop's own Device part is unchanged.</li>
+      <li>Passing the arguments in the wrong order (<code>Device(w, b)</code>), which gives a compile error about types.</li>
+    </ul>
+    <h4>Ask the class</h4>
+    <ul>
+      <li>"Write the Smartphone constructor that takes brand, watts, and battery mAh." (<code>Smartphone(string b, int w, int mah) : Device(b, w), batteryMah(mah) {}</code>)</li>
+    </ul>
+  </aside>
+</section>
+
+<!-- ========================= CTOR / DTOR ORDER (TRACER 2) ========================= -->
+<section class="slide" id="l13-order" data-title="Constructor & Destructor Order" data-section="Inheritance">
+  <header class="slide-head">
+    <p class="kicker">Lab 13 · Inheritance · Trace</p>
+    <h2>Constructor and Destructor Order</h2>
+    <p class="lede">Base first on the way in, derived first on the way out, like putting on a shirt and then a jacket, and taking them off in reverse.</p>
+  </header>
+  <div class="example-grid">
+    <div class="stack">
+      <figure class="codeblock">
+        <figcaption><code>order.cpp</code></figcaption>
+<pre class="code" id="l13-order-code" data-cpp>
+#include &lt;iostream&gt;
+using namespace std;
+
+class Device {
+public:
+    Device() { cout &lt;&lt; "Device constructor" &lt;&lt; endl; }
+    ~Device() { cout &lt;&lt; "Device destructor" &lt;&lt; endl; }
+};
+
+class Laptop : public Device {
+public:
+    Laptop() { cout &lt;&lt; "Laptop constructor" &lt;&lt; endl; }
+    ~Laptop() { cout &lt;&lt; "Laptop destructor" &lt;&lt; endl; }
+};
+
+int main() {
+    cout &lt;&lt; "Creating a Laptop..." &lt;&lt; endl;
+    Laptop lap;
+    cout &lt;&lt; "Using the Laptop..." &lt;&lt; endl;
+    return 0;
+}
+</pre>
+      </figure>
+      <figure class="codeblock"><figcaption>Real output</figcaption><pre class="console">Creating a Laptop...
+Device constructor
+Laptop constructor
+Using the Laptop...
+Laptop destructor
+Device destructor</pre></figure>
+    </div>
+    <div class="stack">
+      <div class="tracer" data-trace="l13-order" data-code="#l13-order-code" data-title="Trace it: build and tear down"></div>
+      <div class="concept"><p class="box-label">Order rule</p><ul><li><b>Construction:</b> base → derived (Device, then Laptop).</li><li><b>Destruction:</b> derived → base (Laptop, then Device).</li></ul></div>
+    </div>
+  </div>
+  <aside class="notes">
+    <p class="note-time">Suggested time: about 6 min</p>
+    <h4>Teaching tips</h4>
+    <ul>
+      <li>Ask for predictions before stepping. Many students expect "Laptop constructor" first because <code>Laptop lap;</code> names Laptop.</li>
+      <li>Why base first? Laptop's constructor might use inherited members, so they must already exist. Why derived first when destroying? Laptop's destructor might still use the Device part.</li>
+      <li>Multilevel preview: with <code>GamingLaptop : public Laptop</code>, construction is Device → Laptop → GamingLaptop and destruction is the exact reverse.</li>
+    </ul>
+    <h4>Common student pitfalls</h4>
+    <ul>
+      <li>Thinking only the derived destructor runs. Both run automatically, and you never call either yourself.</li>
+      <li>Confusing this with Lab 12's rule for <em>several objects</em> (destroyed in reverse order of creation). That rule still holds; this one is about the parts of <em>one</em> object.</li>
+    </ul>
+    <h4>Ask the class</h4>
+    <ul>
+      <li>"Add <code>Laptop lap2;</code> after <code>lap</code>. How many lines does the program print now, and in what order?" (10 lines: lap's two constructors, lap2's two, the "Using" line, then lap2's destructors before lap's.)</li>
+    </ul>
+  </aside>
+</section>
+
+<!-- ========================= REDEFINING (TRACER 3) ========================= -->
+<section class="slide" id="l13-redefine" data-title="Redefining a Base Function" data-section="Inheritance">
+  <header class="slide-head">
+    <p class="kicker">Lab 13 · Inheritance · Trace</p>
+    <h2>Redefining a Base-Class Function</h2>
+    <p class="lede">A derived class can write its own version of a base function with the same name. To reuse the base version, call it with <code>Device::describe()</code>.</p>
+  </header>
+  <div class="example-grid">
+    <figure class="codeblock">
+      <figcaption><code>devices.cpp</code></figcaption>
+<pre class="code scroll compact" id="l13-redefine-code" data-cpp>
+#include &lt;iostream&gt;
+#include &lt;string&gt;
+using namespace std;
+
+class Device {
+protected:
+    string brand;
+    int powerWatts;
+
+public:
+    Device(string b, int w) : brand(b), powerWatts(w) {}
+
+    void describe() const {
+        cout &lt;&lt; brand &lt;&lt; ", " &lt;&lt; powerWatts
+             &lt;&lt; " W" &lt;&lt; endl;
+    }
+};
+
+class Laptop : public Device {
+private:
+    int ramGB;
+
+public:
+    Laptop(string b, int w, int ram)
+        : Device(b, w), ramGB(ram) {}
+
+    void describe() const {        // redefined
+        cout &lt;&lt; "Laptop: ";
+        Device::describe();        // base version
+        cout &lt;&lt; "  RAM: " &lt;&lt; ramGB &lt;&lt; " GB" &lt;&lt; endl;
+    }
+};
+
+class Smartphone : public Device {
+private:
+    int batteryMah;
+
+public:
+    Smartphone(string b, int w, int mah)
+        : Device(b, w), batteryMah(mah) {}
+
+    void describe() const {        // redefined
+        cout &lt;&lt; "Phone: " &lt;&lt; brand &lt;&lt; ", "
+             &lt;&lt; batteryMah &lt;&lt; " mAh" &lt;&lt; endl;
+    }
+};
+
+int main() {
+    Device d("Generic", 10);
+    Laptop lap("Lenovo", 65, 16);
+    Smartphone phone("Samsung", 25, 5000);
+    d.describe();
+    lap.describe();
+    phone.describe();
+    return 0;
+}
+</pre>
+    </figure>
+    <div class="stack">
+      <div class="tracer" data-trace="l13-redefine" data-code="#l13-redefine-code" data-title="Trace it: which describe() runs?"></div>
+      <div class="note-box"><p class="box-label">Not virtual (yet)</p><p>Here the compiler picks the version from the object's <b>declared type</b> (<code>Laptop lap</code> → <code>Laptop::describe()</code>). Lab 14 adds <code>virtual</code> so that a <code>Device*</code> pointing to a Laptop can still find <code>Laptop::describe()</code>.</p></div>
+    </div>
+  </div>
+  <aside class="notes">
+    <p class="note-time">Suggested time: about 7 min</p>
+    <h4>Teaching tips</h4>
+    <ul>
+      <li>Terminology: Gaddis calls this <b>redefining</b> a base-class function. "Overriding" is the name used once the base function is <code>virtual</code> (Lab 14). Many people use "override" loosely for both.</li>
+      <li>Trace <code>lap.describe()</code>: Laptop's version prints "Laptop: ", calls <code>Device::describe()</code> for the shared part, then adds the RAM line. Reuse instead of copy-paste.</li>
+      <li>Smartphone's version prints <code>brand</code> directly, which works only because <code>brand</code> is <code>protected</code> in this Device.</li>
+      <li>Expected output: <code>Generic, 10 W</code> / <code>Laptop: Lenovo, 65 W</code> / <code>  RAM: 16 GB</code> / <code>Phone: Samsung, 5000 mAh</code>.</li>
+    </ul>
+    <h4>Common student pitfalls</h4>
+    <ul>
+      <li>Writing <code>describe();</code> instead of <code>Device::describe();</code> inside Laptop's version. That calls Laptop's own function again, forever (infinite recursion, then a crash).</li>
+      <li>Changing the signature (e.g. <code>describe(int)</code>, or dropping <code>const</code>) and expecting a redefinition. A different signature <em>hides</em> the base version instead. Lab 14's <code>override</code> keyword catches this.</li>
+    </ul>
+    <h4>Ask the class</h4>
+    <ul>
+      <li>"What would <code>lap.Device::describe();</code> print in <code>main</code>?" (<code>Lenovo, 65 W</code>: the base version, called explicitly.)</li>
+    </ul>
+  </aside>
+</section>
+
+<!-- ========================= TYPES OF INHERITANCE ========================= -->
+<section class="slide" id="l13-types" data-title="Types of Inheritance" data-section="Inheritance">
+  <header class="slide-head">
+    <p class="kicker">Lab 13 · Inheritance</p>
+    <h2>Types of Inheritance</h2>
+    <p class="lede">Classes can be arranged in a single line, a chain, or a tree. Every arrow still means "is a".</p>
+  </header>
+  <figure class="card" style="margin:0;padding:.8rem 1rem">
+    <svg class="fc uml" viewBox="0 0 1020 232" style="max-width:1020px" role="img" aria-label="Four types of inheritance. Single: Laptop inherits from Device. Multilevel: GamingLaptop inherits from Laptop, which inherits from Device. Hierarchical: Laptop, Smartphone, and SmartWatch all inherit from Device. Multiple: CameraPhone inherits from both Phone and Camera. Each arrow has a hollow triangle pointing to the base class.">
+<text x="100" y="18" style="font-size:16px;font-weight:800;fill:var(--accent)">Single</text>
+<rect class="s-process" x="40" y="50" width="120" height="40" rx="4"/><text x="100" y="70">Device</text>
+<rect class="s-process" x="40" y="180" width="120" height="40" rx="4"/><text x="100" y="200">Laptop</text>
+<path class="fc-line plain" d="M100 180 V107"/>
+<polygon points="100,90 90,107 110,107" style="fill:var(--surface);stroke:var(--fc-line);stroke-width:2;stroke-linejoin:round"/>
+<text x="320" y="18" style="font-size:16px;font-weight:800;fill:var(--accent)">Multilevel</text>
+<rect class="s-process" x="255" y="36" width="130" height="40" rx="4"/><text x="320" y="56">Device</text>
+<rect class="s-process" x="255" y="116" width="130" height="40" rx="4"/><text x="320" y="136">Laptop</text>
+<rect class="s-process" x="245" y="196" width="150" height="40" rx="4"/><text x="320" y="216">GamingLaptop</text>
+<path class="fc-line plain" d="M320 116 V93"/>
+<polygon points="320,76 310,93 330,93" style="fill:var(--surface);stroke:var(--fc-line);stroke-width:2;stroke-linejoin:round"/>
+<path class="fc-line plain" d="M320 196 V173"/>
+<polygon points="320,156 310,173 330,173" style="fill:var(--surface);stroke:var(--fc-line);stroke-width:2;stroke-linejoin:round"/>
+<text x="610" y="18" style="font-size:16px;font-weight:800;fill:var(--accent)">Hierarchical</text>
+<rect class="s-process" x="550" y="50" width="120" height="40" rx="4"/><text x="610" y="70">Device</text>
+<rect class="s-process" x="442" y="180" width="106" height="40" rx="4"/><text x="495" y="200">Laptop</text>
+<rect class="s-process" x="557" y="180" width="106" height="40" rx="4"/><text x="610" y="200">Smartphone</text>
+<rect class="s-process" x="672" y="180" width="106" height="40" rx="4"/><text x="725" y="200">SmartWatch</text>
+<path class="fc-line plain" d="M495 180 V148"/>
+<path class="fc-line plain" d="M610 180 V148"/>
+<path class="fc-line plain" d="M725 180 V148"/>
+<path class="fc-line plain" d="M495 148 H725"/>
+<path class="fc-line plain" d="M610 148 V107"/>
+<polygon points="610,90 600,107 620,107" style="fill:var(--surface);stroke:var(--fc-line);stroke-width:2;stroke-linejoin:round"/>
+<text x="905" y="18" style="font-size:16px;font-weight:800;fill:var(--accent)">Multiple</text>
+<rect class="s-process" x="797" y="50" width="96" height="40" rx="4"/><text x="845" y="70">Phone</text>
+<rect class="s-process" x="917" y="50" width="96" height="40" rx="4"/><text x="965" y="70">Camera</text>
+<rect class="s-process" x="835" y="180" width="140" height="40" rx="4"/><text x="905" y="200">CameraPhone</text>
+<path class="fc-line plain" d="M880 180 V140 H845 V107"/><polygon points="845,90 835,107 855,107" style="fill:var(--surface);stroke:var(--fc-line);stroke-width:2;stroke-linejoin:round"/>
+<path class="fc-line plain" d="M930 180 V140 H965 V107"/><polygon points="965,90 955,107 975,107" style="fill:var(--surface);stroke:var(--fc-line);stroke-width:2;stroke-linejoin:round"/>
+<path d="M205 6 V226" style="stroke:var(--border);stroke-width:2;stroke-dasharray:4 5"/>
+<path d="M435 6 V226" style="stroke:var(--border);stroke-width:2;stroke-dasharray:4 5"/>
+<path d="M790 6 V226" style="stroke:var(--border);stroke-width:2;stroke-dasharray:4 5"/>
+</svg>
+  </figure>
+  <div class="table-wrap" style="margin-top:1rem">
+    <table class="table compact">
+      <thead><tr><th scope="col">Type</th><th scope="col">Meaning</th><th scope="col">C++</th></tr></thead>
+      <tbody>
+        <tr><th scope="row">Single</th><td>One base, one derived class</td><td><code>class Laptop : public Device</code></td></tr>
+        <tr><th scope="row">Multilevel</th><td>A derived class becomes the base of another; GamingLaptop gets Device's <i>and</i> Laptop's members</td><td><code>class GamingLaptop : public Laptop</code></td></tr>
+        <tr><th scope="row">Hierarchical</th><td>Several classes share one base</td><td><code>class Smartphone : public Device</code>, <code>class SmartWatch : public Device</code></td></tr>
+        <tr><th scope="row">Multiple</th><td>One class with two or more bases (allowed in C++, but can cause name conflicts; not required in this course)</td><td><code>class CameraPhone : public Phone, public Camera</code></td></tr>
+      </tbody>
+    </table>
+  </div>
+  <aside class="notes">
+    <p class="note-time">Suggested time: about 4 min</p>
+    <h4>Teaching tips</h4>
+    <ul>
+      <li>Today's Device/Laptop/Smartphone example is <b>hierarchical</b>; the lab exercise's Person/Student/Instructor is hierarchical too.</li>
+      <li>Multilevel shows why constructor order matters: <code>GamingLaptop</code> builds Device, then Laptop, then itself.</li>
+      <li>Multiple inheritance: mention only. If both bases have a function with the same name, calls become ambiguous. Java and C# don't allow it for classes at all.</li>
+    </ul>
+    <h4>Common student pitfalls</h4>
+    <ul>
+      <li>Calling a tree with three children "multiple inheritance". Multiple means one class with <b>several parents</b>, not one parent with several children.</li>
+      <li>Very deep chains (5+ levels) for small programs. Keep hierarchies shallow and use the is-a test at every level.</li>
+    </ul>
+    <h4>Ask the class</h4>
+    <ul>
+      <li>"Person → Student → ScholarStudent: which type is that?" (Multilevel.)</li>
+    </ul>
+  </aside>
+</section>
+
+<!-- ========================= PITFALLS ========================= -->
+<section class="slide" id="l13-pitfalls" data-title="Common Pitfalls" data-section="Practice">
+  <header class="slide-head">
+    <p class="kicker">Lab 13 · Debugging</p>
+    <h2>Common Pitfalls: Encapsulation and Inheritance</h2>
+  </header>
+  <div class="grid-2 align-start">
+    <div class="pitfall"><p class="box-label">1 · Making data public "to make it work"</p>
+      <p><code>public: double balance;</code> then <code>acct.balance = -1000000;</code></p>
+      <p class="small">Compiles fine, and every check in <code>withdraw()</code> is bypassed. <b>Fix:</b> keep it private and add the member function you actually need.</p>
+    </div>
+    <div class="pitfall"><p class="box-label">2 · Forgetting <code>public</code> in the base list</p>
+      <p><code>class Laptop : Device { … };</code> then <code>lap.turnOn();</code></p>
+      <p class="small">For a <code>class</code>, inheritance is <b>private</b> by default, so Device's public members become private in Laptop: <code style="white-space:normal">'void Device::turnOn()' is inaccessible within this context</code>. <b>Fix:</b> <code>: public Device</code></p>
+    </div>
+    <div class="pitfall"><p class="box-label">3 · Using a base's private member in the derived class</p>
+      <p><code>void show() { cout &lt;&lt; brand; }</code> inside Laptop</p>
+      <p class="small">g++: <code style="white-space:normal">'std::string Device::brand' is private within this context</code>. <b>Fix:</b> make it <code>protected</code>, or call a Device getter.</p>
+    </div>
+    <div class="pitfall" style="grid-column:1 / -1"><p class="box-label">4 · Object slicing (a teaser for Lab 14)</p>
+      <div class="grid-2 tight-gap" style="grid-template-columns:minmax(0,1.3fr) minmax(0,1fr)">
+<pre class="code no-ln compact" data-cpp>
+Laptop lap("Lenovo", 16);
+Device copy = lap;   // copies the Device part only
+Device* ptr = &amp;lap;
+lap.describe();
+copy.describe();
+ptr-&gt;describe();
+</pre>
+<pre class="console">Laptop: Lenovo, 16 GB
+Device: Lenovo
+Device: Lenovo</pre>
+      </div>
+      <p class="small" style="margin-top:.4rem"><code>copy</code> lost <code>ramGB</code> (it was "sliced off"). Even the pointer runs Device's version. Lab 14's <code>virtual</code> fixes the pointer case.</p>
+    </div>
+  </div>
+  <aside class="notes">
+    <p class="note-time">Suggested time: about 6 min</p>
+    <h4>Teaching tips</h4>
+    <ul>
+      <li>Messages are from g++ 13 (<code>-Wall -Wextra</code>). Pitfall 2 also prints <code>'Device' is not an accessible base of 'Laptop'</code>.</li>
+      <li>Pitfall 4 uses the classes from <code>devices.cpp</code>, simplified: Device has <code>brand</code>, Laptop adds <code>ramGB</code>, and each has its own <code>describe()</code>. The output shown is real.</li>
+      <li>Don't solve slicing today. Leave students with the question: "<code>ptr</code> points to a Laptop. Why does it run Device's function?" Lab 14 answers it.</li>
+      <li>For <code>struct</code>, inheritance is public by default, which is another reason pitfall 2 surprises people who switch between the two.</li>
+    </ul>
+    <h4>Common student pitfalls</h4>
+    <ul>
+      <li>"Fixing" pitfall 3 by making everything public. That trades a compile error for pitfall 1.</li>
+    </ul>
+    <h4>Ask the class</h4>
+    <ul>
+      <li>"Which of these four does the compiler catch, and which compile silently?" (2 and 3 are errors; 1 and 4 compile.)</li>
+    </ul>
+  </aside>
+</section>
+
+<!-- ========================= QUICK CHECK ========================= -->
+<section class="slide" id="l13-quick-check" data-title="Quick Check" data-section="Practice">
+  <header class="slide-head">
+    <p class="kicker">Lab 13 · Check your understanding</p>
+    <h2>Quick Check</h2>
+    <p class="lede">Answer on your own first, then click to reveal.</p>
+  </header>
+  <div class="qa-grid">
+    <details class="qa"><summary><span class="q-num">1</span><span class="q-text">Why make <code>balance</code> private instead of public?</span></summary><p>So every change must go through <code>deposit()</code> or <code>withdraw()</code>, which validate the amount. The object can never hold an invalid balance.</p></details>
+    <details class="qa"><summary><span class="q-num">2</span><span class="q-text">Balance is 5000. What does <code>acct.withdraw(7500)</code> return, and what is the balance afterward?</span></summary><p>It returns <code>false</code>, and the balance stays 5000 because the function returns before <code>balance -= amount</code>.</p></details>
+    <details class="qa"><summary><span class="q-num">3</span><span class="q-text">What does <code>const</code> promise in <code>double getBalance() const</code>?</span></summary><p>That the function won't change any data member. The compiler enforces it, and it lets the function be called on <code>const</code> objects and <code>const&amp;</code> parameters.</p></details>
+    <details class="qa"><summary><span class="q-num">4</span><span class="q-text">Can a <code>Laptop</code> member function use Device's <code>brand</code> directly if it is private? If it is protected?</span></summary><p>Private: no (compile error). Protected: yes. In both cases <code>main</code> still can't use it.</p></details>
+    <details class="qa"><summary><span class="q-num">5</span><span class="q-text"><code>GamingLaptop : public Laptop</code> and <code>Laptop : public Device</code>. In what order do the constructors and destructors run for <code>GamingLaptop g;</code>?</span></summary><p>Constructors: Device, Laptop, GamingLaptop. Destructors: GamingLaptop, Laptop, Device.</p></details>
+    <details class="qa"><summary><span class="q-num">6</span><span class="q-text">"A Smartphone has a Battery." Should <code>Smartphone</code> inherit from <code>Battery</code>?</span></summary><p>No. That's a <b>has-a</b> relationship, so Battery should be a data member of Smartphone. Inheritance is for <b>is-a</b>.</p></details>
+  </div>
+  <aside class="notes">
+    <p class="note-time">Suggested time: about 6 min</p>
+    <h4>Teaching tips</h4>
+    <ul>
+      <li>Think-pair-share as in Lab 12. Q2 and Q5 can be verified with the tracers on earlier slides.</li>
+      <li>Q6 is a design question with no code. Ask for two more has-a examples from the lab room.</li>
+    </ul>
+    <h4>Common student pitfalls</h4>
+    <ul>
+      <li>Q2: saying the balance becomes −2500. Remind them the check happens <em>before</em> the change.</li>
+      <li>Q5: reversing the destructor order.</li>
+    </ul>
+  </aside>
+</section>
+
+<!-- ========================= SEATWORK ========================= -->
+<section class="slide" id="l13-seatwork" data-title="Seatwork: SmartWatch" data-section="Practice">
+  <header class="slide-head">
+    <p class="kicker">Lab 13 · Seatwork</p>
+    <h2>Seatwork: A <code>SmartWatch</code> Device</h2>
+  </header>
+  <div class="story"><p class="task"><b>Instruction:</b> Using <code>Device</code> with <b>private</b> <code>brand</code> and <code>powerWatts</code>, write <code>SmartWatch</code> from the UML. <code>stepGoal</code> starts at 8000, and <code>setStepGoal()</code> accepts only 1000 to 50000. Redefine <code>describe()</code> to print <code>Watch: </code>, then the Device description, then the goal. In <code>main()</code>, create <code>SmartWatch w("Xiaomi", 2);</code>, try a goal of 500, then 10000, then call <code>describe()</code>.</p></div>
+  <div class="grid-2 align-start">
+    <div class="stack">
+      <div class="card" style="padding:.8rem"><svg class="fc uml" viewBox="0 0 323 414" style="max-width:323px" role="img" aria-label="UML diagram: SmartWatch inherits from Device. SmartWatch has private stepGoal (int), a constructor SmartWatch(b, w), setStepGoal returning bool, const getStepGoal, and its own describe.">
+<g class="uml-box">
+<rect x="23" y="6" width="277" height="160" rx="4" style="fill:var(--surface);stroke:var(--fc-proc);stroke-width:2"/>
+<rect x="23" y="6" width="277" height="40" rx="4" style="fill:var(--fc-proc-fill);stroke:var(--fc-proc);stroke-width:2"/>
+<text x="161" y="26" style="font-size:16px;font-weight:800">Device</text>
+<path d="M23 106 H300" style="stroke:var(--fc-proc);stroke-width:2"/>
+<text class="a-start" x="35" y="64" style="font-family:var(--font-mono);font-size:14px;font-weight:500"><tspan style="fill:var(--bad);font-weight:800">-</tspan> brand : string</text>
+<text class="a-start" x="35" y="88" style="font-family:var(--font-mono);font-size:14px;font-weight:500"><tspan style="fill:var(--bad);font-weight:800">-</tspan> powerWatts : int</text>
+<text class="a-start" x="35" y="124" style="font-family:var(--font-mono);font-size:14px;font-weight:500"><tspan style="fill:var(--ok);font-weight:800">+</tspan> Device(b : string, w : int)</text>
+<text class="a-start" x="35" y="148" style="font-family:var(--font-mono);font-size:14px;font-weight:500"><tspan style="fill:var(--ok);font-weight:800">+</tspan> describe() const : void</text>
+</g>
+<g class="uml-box">
+<rect x="6" y="222" width="311" height="184" rx="4" style="fill:var(--surface);stroke:var(--fc-proc);stroke-width:2"/>
+<rect x="6" y="222" width="311" height="40" rx="4" style="fill:var(--fc-proc-fill);stroke:var(--fc-proc);stroke-width:2"/>
+<text x="161" y="242" style="font-size:16px;font-weight:800">SmartWatch</text>
+<path d="M6 298 H317" style="stroke:var(--fc-proc);stroke-width:2"/>
+<text class="a-start" x="18" y="280" style="font-family:var(--font-mono);font-size:14px;font-weight:500"><tspan style="fill:var(--bad);font-weight:800">-</tspan> stepGoal : int</text>
+<text class="a-start" x="18" y="316" style="font-family:var(--font-mono);font-size:14px;font-weight:500"><tspan style="fill:var(--ok);font-weight:800">+</tspan> SmartWatch(b : string, w : int)</text>
+<text class="a-start" x="18" y="340" style="font-family:var(--font-mono);font-size:14px;font-weight:500"><tspan style="fill:var(--ok);font-weight:800">+</tspan> setStepGoal(goal : int) : bool</text>
+<text class="a-start" x="18" y="364" style="font-family:var(--font-mono);font-size:14px;font-weight:500"><tspan style="fill:var(--ok);font-weight:800">+</tspan> getStepGoal() const : int</text>
+<text class="a-start" x="18" y="388" style="font-family:var(--font-mono);font-size:14px;font-weight:500"><tspan style="fill:var(--ok);font-weight:800">+</tspan> describe() const : void</text>
+</g>
+<path class="fc-line plain" d="M161 222 V183"/>
+<polygon points="161,166 151,183 171,183" style="fill:var(--surface);stroke:var(--fc-line);stroke-width:2;stroke-linejoin:round"/>
+</svg></div>
+      <div class="card">
+        <h3 class="card-title">Need a hint?</h3>
+        <details class="hint"><summary>Hint 1</summary><p>The constructor must build the Device part: <code>SmartWatch(string b, int w) : Device(b, w), stepGoal(8000) {}</code></p></details>
+        <details class="hint"><summary>Hint 2</summary><p><code>brand</code> is private in Device, so SmartWatch can't print it. Call <code>Device::describe()</code> instead.</p></details>
+        <details class="hint"><summary>Hint 3</summary><p>In <code>main</code>, test the <code>bool</code>: <code>if (!w.setStepGoal(500)) { … }</code></p></details>
+      </div>
+    </div>
+    <div class="stack">
+    <figure class="codeblock"><figcaption>Expected output</figcaption><pre class="console">500 rejected, goal is still 8000
+10000 accepted
+Watch: Xiaomi, 2 W
+  Step goal: 10000</pre></figure>
+    <div class="card timer" data-timer data-minutes="15">
+      <h3 class="card-title">Seatwork timer</h3>
+      <p class="timer-display" aria-live="off">15:00</p>
+      <div class="timer-presets" role="group" aria-label="Timer presets">
+        <button type="button" class="btn ghost" data-min="10">10 min</button>
+        <button type="button" class="btn ghost" data-min="15">15 min</button>
+        <button type="button" class="btn ghost" data-min="20">20 min</button>
+      </div>
+      <div class="timer-actions">
+        <button type="button" class="btn primary" data-timer-act="toggle">Start</button>
+        <button type="button" class="btn" data-timer-act="reset">Reset</button>
+      </div>
+    </div>
+    </div>
+  </div>
+  <details class="answer">
+    <summary><span>Reveal answer</span></summary>
+    <div class="grid-2 align-start" style="margin-top:1rem;grid-template-columns:minmax(0,1.25fr) minmax(0,1fr)">
+      <figure class="codeblock">
+        <figcaption><code>smartwatch.cpp</code></figcaption>
+<pre class="code scroll compact" data-cpp>
+#include &lt;iostream&gt;
+#include &lt;string&gt;
+using namespace std;
+
+class Device {
+private:
+    string brand;
+    int powerWatts;
+
+public:
+    Device(string b, int w) : brand(b), powerWatts(w) {}
+
+    void describe() const {
+        cout &lt;&lt; brand &lt;&lt; ", " &lt;&lt; powerWatts &lt;&lt; " W" &lt;&lt; endl;
+    }
+};
+
+class SmartWatch : public Device {
+private:
+    int stepGoal;
+
+public:
+    SmartWatch(string b, int w)
+        : Device(b, w), stepGoal(8000) {}
+
+    bool setStepGoal(int goal) {
+        if (goal &lt; 1000 || goal &gt; 50000) {
+            return false;
+        }
+        stepGoal = goal;
+        return true;
+    }
+    int getStepGoal() const { return stepGoal; }
+
+    void describe() const {
+        cout &lt;&lt; "Watch: ";
+        Device::describe();
+        cout &lt;&lt; "  Step goal: " &lt;&lt; stepGoal &lt;&lt; endl;
+    }
+};
+
+int main() {
+    SmartWatch w("Xiaomi", 2);
+    if (!w.setStepGoal(500)) {
+        cout &lt;&lt; "500 rejected, goal is still "
+             &lt;&lt; w.getStepGoal() &lt;&lt; endl;
+    }
+    if (w.setStepGoal(10000)) {
+        cout &lt;&lt; "10000 accepted" &lt;&lt; endl;
+    }
+    w.describe();
+    return 0;
+}
+</pre>
+      </figure>
+      <div class="stack">
+        <figure class="codeblock"><figcaption>Output</figcaption><pre class="console">500 rejected, goal is still 8000
+10000 accepted
+Watch: Xiaomi, 2 W
+  Step goal: 10000</pre></figure>
+        <div class="concept"><p class="box-label">What this answer uses</p><ul><li><b>Encapsulation:</b> private <code>stepGoal</code>, validating setter, <code>const</code> getter.</li><li><b>Inheritance:</b> <code>: public Device</code> and the base constructor call.</li><li><b>Redefining:</b> <code>describe()</code> reuses <code>Device::describe()</code>.</li></ul></div>
+      </div>
+    </div>
+  </details>
+  <aside class="notes">
+    <p class="note-time">Suggested time: about 20 min (15 working, 5 review)</p>
+    <h4>Running the seatwork</h4>
+    <ul>
+      <li>Students may start from <code>devices.cpp</code> but must change <code>protected:</code> back to <code>private:</code> as the instruction says. That forces them to use <code>Device::describe()</code>.</li>
+      <li>Walk around and check three things: <code>: public Device</code>, the base constructor in the initializer list, and that the setter checks <em>before</em> assigning.</li>
+      <li>Before revealing, have one student show their output on the projector and compare it character by character (note the two leading spaces before <code>Step goal</code>).</li>
+    </ul>
+    <h4>Common student pitfalls</h4>
+    <ul>
+      <li>Error <code>no matching function for call to 'Device::Device()'</code>: the Device constructor call is missing.</li>
+      <li>Infinite recursion: writing <code>describe();</code> instead of <code>Device::describe();</code> inside SmartWatch's <code>describe()</code>.</li>
+      <li>Checking <code>goal &lt; 1000 &amp;&amp; goal &gt; 50000</code>, which is never true.</li>
+    </ul>
+    <h4>Ask the class</h4>
+    <ul>
+      <li>"Why does the goal stay 8000 after the failed call?" (The setter returns before assigning.)</li>
+    </ul>
+  </aside>
+</section>
+
+<!-- ========================= LAB EXERCISE 13 · PROBLEM 1 ========================= -->
+<!-- LOCKED-ACTIVITY:START lab-13 -->
+<section class="slide locked-slide" id="l13-lab-a" data-title="Laboratory Exercise No. 13 (locked)" data-section="Lab Exercise & Wrap-up" data-locked="lab-13">
+  <header class="slide-head">
+    <p class="kicker">Laboratory Exercise No. 13</p>
+    <h2>This lab activity is locked</h2>
+    <p class="lede">It opens when your instructor releases it. Enter the passphrase your instructor gives you.</p>
+  </header>
+  <div class="lock-card">
+    <svg class="lock-icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="10.5" width="14" height="10" rx="2"/><path d="M8 10.5V7.5a4 4 0 0 1 8 0v3M12 14.5v2.5"/></svg>
+    <h3>Laboratory Exercise No. 13</h3>
+    <form class="lock-form" autocomplete="off">
+      <label class="sr-only" for="unlock-lab-13">Passphrase</label>
+      <input id="unlock-lab-13" type="password" placeholder="Passphrase" autocomplete="off" spellcheck="false">
+      <button type="submit" class="btn primary">Unlock</button>
+    </form>
+    <p class="lock-msg" aria-live="polite"></p>
+    <p class="small muted">The activity is stored encrypted on this site and is unlocked in your browser. Once unlocked, it stays open on this device.</p>
+  </div>
+  <script type="application/json" class="locked-data">{"v":1,"iter":250000,"salt":"w6Habkk766KmwNX0VJol2A==","iv":"MdwuIWOktEGioB6B","data":"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"}</script>
+  <aside class="notes">
+    <p class="note-time">Locked activity (2 slides)</p>
+    <h4>Instructor</h4>
+    <ul>
+      <li>Type this lab's passphrase (private instructor package → <code>passwords.json</code>) to open the activity on the classroom PC. It stays unlocked on that browser until you press "Lock again".</li>
+      <li>To release the activity to students, announce or post the passphrase (e.g. in MS Teams).</li>
+      <li>To re-lock it for everyone, change the passphrase and rerun <code>node tools/lock-activities.js</code>.</li>
+    </ul>
+  </aside>
+</section>
+<!-- LOCKED-ACTIVITY:END lab-13 -->
+
+<!-- ========================= WRAP-UP ========================= -->
+<section class="slide" id="l13-wrap" data-title="Wrap-up" data-section="Lab Exercise & Wrap-up">
+  <header class="slide-head">
+    <p class="kicker">Wrap-up</p>
+    <h2>Protect, Then Reuse</h2>
+  </header>
+  <div class="table-wrap">
+    <table class="table compact">
+      <thead><tr><th scope="col">Idea</th><th scope="col">In one line</th><th scope="col">C++</th></tr></thead>
+      <tbody>
+        <tr><th scope="row">Encapsulation</th><td>Private data, public functions that validate</td><td><code>private: double balance;</code></td></tr>
+        <tr><th scope="row">Getter / setter</th><td>Read a value / change it only if valid</td><td><code>getGrade() const</code>, <code>bool setGrade(double)</code></td></tr>
+        <tr><th scope="row">Inheritance</th><td>Derived <i>is a</i> base and gets its members</td><td><code>class Laptop : public Device</code></td></tr>
+        <tr><th scope="row"><code>protected</code></th><td>Visible to derived classes, hidden from <code>main</code></td><td><code>protected: string brand;</code></td></tr>
+        <tr><th scope="row">Constructor chaining</th><td>Build the base part first</td><td><code>: Device(b, w), ramGB(ram)</code></td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="grid-3">
+    <div class="card"><h3 class="card-title">Exit ticket</h3><p>Write <code>class Tablet : public Device</code> with a private <code>screenInches</code> and a constructor that calls the Device constructor. Then list the constructor and destructor order for <code>Tablet t(…);</code>.</p></div>
+    <div class="card"><h3 class="card-title">Something to think about</h3>
+<pre class="code no-ln compact" data-cpp>
+Laptop lap("Lenovo", 65, 16);
+Device* d = &amp;lap;
+d-&gt;describe();
+</pre>
+      <p class="small" style="margin-top:.4rem">Today this prints <code>Lenovo, 65 W</code>: Device's version. What if a <code>Device*</code> could call the right <code>describe()</code> for a Laptop?</p>
+    </div>
+    <div class="card"><h3 class="card-title">Next: Lab No. 14</h3><p><b>Polymorphism</b>: <code>virtual</code> functions, base-class pointers, and abstract classes. One call, the right behavior for every kind of object.</p><p><a href="lab-14.html">Open Lab 14 →</a></p></div>
+  </div>
+  <aside class="notes">
+    <p class="note-time">Suggested time: about 4 min</p>
+    <h4>Teaching tips</h4>
+    <ul>
+      <li>Read the table as a recap; each row links back to a slide if someone asks.</li>
+      <li>End on the middle card. With today's code, <code>d-&gt;describe()</code> prints <code>Lenovo, 65 W</code> (Device's version) even though <code>d</code> points to a Laptop. Let students guess the fix before Lab 14.</li>
+      <li>Collect exit tickets. Missing <code>: Device(…)</code> or reversed destructor order means the student needs the order slide again.</li>
+    </ul>
+    <h4>Common student pitfalls</h4>
+    <ul>
+      <li>Leaving with "protected is better than private". The default is still private; protected is a deliberate choice.</li>
+    </ul>
+  </aside>
+</section>
+
+      </div>
+    </main>
+  </div>
+</body>
+</html>

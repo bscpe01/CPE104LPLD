@@ -1,0 +1,1652 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Lab 8 · Iteration Part 2: Nested Loops, break &amp; continue · CPE 104L</title>
+  <meta name="description" content="CPE 104L Programming Logic and Design, Lab No. 8: Logical Control Structures, Iteration Part 2. Nested loops, patterns, break and continue, prime numbers, and menu-driven programs in C++.">
+  <meta name="color-scheme" content="light dark">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%232f3410'/%3E%3Cpath d='M32 11 53 32 32 53 11 32Z' fill='none' stroke='%23f5c518' stroke-width='6' stroke-linejoin='round'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="../css/styles.css">
+  <script>
+    (function () { var d = document.documentElement; d.classList.add('js');
+      try { var t = localStorage.getItem('cpe104l.theme'); if (t === 'dark' || t === 'light') d.setAttribute('data-theme', t); } catch (e) {} })();
+  </script>
+  <script src="../js/course.js" defer></script>
+  <script src="../js/search-index.js" defer></script>
+  <script src="../js/script.js" defer></script>
+  <script src="../js/labs/lab-08.js" defer></script>
+</head>
+<body data-page="lab-08" data-root="../">
+  <svg class="svg-defs" aria-hidden="true" focusable="false"><defs><marker id="arrow" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="10" markerHeight="10" markerUnits="userSpaceOnUse" orient="auto"><path class="arrowhead" d="M0 0 L10 5 L0 10 Z"/></marker></defs></svg>
+  <div class="app" id="app">
+    <main class="stage" id="stage">
+      <div class="deck" id="deck" tabindex="-1">
+
+<!-- ========================= SLIDE 1 · TITLE ========================= -->
+<section class="slide" id="l8-title" data-title="Title &amp; ILOs" data-section="Introduction">
+  <div class="lab-title">
+    <div>
+      <div class="lab-badges"><span class="badge-lab">Lab No. 8</span><span class="badge-week">Week 8</span><span class="badge-co">CO1 · CO2</span></div>
+      <p class="kicker">CPE 104L · Programming Logic and Design</p>
+      <h1>Logical Control Structures <span>Iteration Part 2: Nested Loops, break &amp; continue</span></h1>
+      <p class="lede">Put a loop inside a loop, and learn to leave a loop early. With these two tools you can draw patterns, find primes, and build menu-driven programs.</p>
+      <ol class="roadmap" aria-label="Lab roadmap">
+        <li><a href="#l8-nested">Nested loops</a></li>
+        <li><a href="#l8-patterns">Patterns</a></li>
+        <li><a href="#l8-break">break &amp; continue</a></li>
+        <li><a href="#l8-prime">Loops + selection</a></li>
+        <li><a href="#l8-menu">Menu programs</a></li>
+        <li><a href="#l8-exercise">Lab Exercise No. 8</a></li>
+      </ol>
+    </div>
+    <div class="ilo-card">
+      <h2>Intended Learning Outcome</h2>
+      <ol>
+        <li>Construct nested loops and apply jump statements (break, continue) to solve complex iterative problems.</li>
+      </ol>
+      <div class="ilo-meta">
+        <span><b>Activities:</b> Incremental lab challenges · Laboratory activities</span>
+        <span><b>Assessment:</b> Lab Exercise No. 8 · 5-Level Lab Rubric</span>
+      </div>
+    </div>
+  </div>
+  <aside class="notes">
+    <p class="note-time">Suggested time: about 3 min</p>
+    <h4>Teaching tips</h4>
+    <ul>
+      <li>This is the last lab before the <b>Midterm Practical Exam (Week 9)</b>. Say it up front: nested loops, break/continue, and menu programs are typical exam material.</li>
+      <li>The lab is built as <em>incremental challenges</em>: each example adds one idea to the previous one (one loop → two loops → leave early → combine with if/switch).</li>
+      <li>Have Code::Blocks, Dev-C++, VS Code, or Codechum open. Students should type and run every main example, not just watch.</li>
+    </ul>
+    <h4>Common student pitfalls</h4>
+    <ul>
+      <li>Students who are still shaky on single loops (Lab 7) will struggle with nested loops. Use the review slide to find them early and pair them with a stronger classmate.</li>
+    </ul>
+    <h4>Ask the class</h4>
+    <ul>
+      <li>"Where have you seen a grid of things that a program might draw row by row?" (seat plans, calendars, multiplication tables, game boards).</li>
+    </ul>
+  </aside>
+</section>
+
+<!-- ========================= SLIDE 2 · REVIEW ========================= -->
+<section class="slide" id="l8-review" data-title="From Lab 7: One Loop" data-section="Introduction">
+  <header class="slide-head">
+    <p class="kicker">Lab 8 · Review</p>
+    <h2>From Lab 7: One Loop at a Time</h2>
+    <p class="lede">You can already repeat a block of code. Today the block itself will contain another loop.</p>
+  </header>
+  <div class="grid-2 align-start">
+    <div class="stack">
+      <div class="table-wrap">
+        <table class="table compact">
+          <caption>The three C++ loops</caption>
+          <thead><tr><th scope="col">Loop</th><th scope="col">Tests the condition</th><th scope="col">Use it when</th></tr></thead>
+          <tbody>
+            <tr><th scope="row"><code>for</code></th><td>Before each pass</td><td>You know how many times (counting)</td></tr>
+            <tr><th scope="row"><code>while</code></th><td>Before each pass</td><td>You repeat until something happens (sentinel)</td></tr>
+            <tr><th scope="row"><code>do-while</code></th><td>After each pass</td><td>The body must run at least once (menus, input checks)</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="concept"><p class="box-label">Loop vocabulary</p>
+        <ul>
+          <li><b>Counter</b>: <code>count++</code> counts passes or matches.</li>
+          <li><b>Accumulator</b>: <code>sum += x</code> builds a running total.</li>
+          <li><b>Sentinel</b>: a special value (like <code>-1</code>) that means "stop".</li>
+        </ul>
+      </div>
+    </div>
+    <div class="stack">
+      <div class="practice"><p class="box-label">Warm-up (1 minute)</p><p>What does this print?</p></div>
+<pre class="code" data-cpp>
+for (int i = 1; i &lt;= 5; i++) {
+    cout &lt;&lt; i * i &lt;&lt; " ";
+}
+</pre>
+      <details class="answer">
+        <summary><span>Reveal answer</span></summary>
+<pre class="console">1 4 9 16 25 </pre>
+        <p class="small">The loop runs 5 times. Each pass prints <code>i * i</code> and a space.</p>
+      </details>
+      <div class="note-box"><p class="box-label">Today's question</p><p>What happens when the body of a loop <b>is another loop</b>? And how do you stop a loop <b>in the middle</b> of a pass?</p></div>
+    </div>
+  </div>
+  <aside class="notes">
+    <p class="note-time">Suggested time: about 5 min</p>
+    <h4>Teaching tips</h4>
+    <ul>
+      <li>Give one minute for the warm-up, then ask a volunteer to trace it aloud: i = 1 → 1, i = 2 → 4, and so on.</li>
+      <li>Point out the trailing space after 25. It is invisible on screen but it is there, which matters later for exact-output checkers like Codechum.</li>
+      <li>Keep the table visible while you ask: "Which loop would you use for a menu?" (do-while, which is the last example today.)</li>
+    </ul>
+    <h4>Common student pitfalls</h4>
+    <ul>
+      <li>Answering <code>1 2 3 4 5</code> (ignoring <code>i * i</code>) or writing <code>i ^ 2</code>. Remind them that <code>^</code> is XOR in C++, not a power.</li>
+      <li>Confusing counter and accumulator: a counter adds 1, an accumulator adds a value.</li>
+    </ul>
+    <h4>Ask the class</h4>
+    <ul>
+      <li>"How would you change the loop to print only the odd squares?" (an <code>if</code> inside the loop, or step by 2.)</li>
+    </ul>
+  </aside>
+</section>
+
+<!-- ========================= SLIDE 3 · NESTED LOOPS ========================= -->
+<section class="slide" id="l8-nested" data-title="Nested Loops" data-section="Nested Loops">
+  <header class="slide-head">
+    <p class="kicker">Lab 8 · Nested loops</p>
+    <h2>A Loop Inside a Loop</h2>
+    <p class="lede">The <b>inner loop runs completely</b> (from start to finish) during <b>each single pass</b> of the outer loop.</p>
+  </header>
+  <div class="grid-2 align-start">
+    <div class="stack">
+      <figure class="codeblock">
+        <figcaption><code>nested.cpp</code></figcaption>
+<pre class="code compact" data-cpp>
+#include &lt;iostream&gt;
+using namespace std;
+
+int main() {
+    for (int i = 1; i &lt;= 3; i++) {      // outer: rows
+        for (int j = 1; j &lt;= 4; j++) {  // inner: cols
+            cout &lt;&lt; "(" &lt;&lt; i &lt;&lt; "," &lt;&lt; j &lt;&lt; ") ";
+        }
+        cout &lt;&lt; endl;   // after the inner loop ends
+    }
+    return 0;
+}
+</pre>
+      </figure>
+      <div class="concept"><p class="box-label">Key concept</p><p>3 outer passes × 4 inner passes = <b>12</b> pairs. The <code>endl</code> sits <em>after</em> the inner loop, so it runs once per row.</p></div>
+    </div>
+    <div class="stack">
+      <figure class="codeblock">
+        <figcaption>Output</figcaption>
+<pre class="console">(1,1) (1,2) (1,3) (1,4) 
+(2,1) (2,2) (2,3) (2,4) 
+(3,1) (3,2) (3,3) (3,4) </pre>
+      </figure>
+      <div class="table-wrap">
+        <table class="table compact trace-table">
+          <caption>Trace: j starts over at 1 for every new i</caption>
+          <thead><tr><th scope="col">i</th><th scope="col">i &lt;= 3?</th><th scope="col">j takes</th><th scope="col">row printed</th></tr></thead>
+          <tbody>
+            <tr><td>1</td><td>true</td><td>1, 2, 3, 4</td><td>(1,1) … (1,4)</td></tr>
+            <tr class="is-hl"><td>2</td><td>true</td><td>1, 2, 3, 4</td><td>(2,1) … (2,4)</td></tr>
+            <tr><td>3</td><td>true</td><td>1, 2, 3, 4</td><td>(3,1) … (3,4)</td></tr>
+            <tr><td>4</td><td>false</td><td>(no inner loop)</td><td>(loop ends)</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="small">Each inner loop stops when j reaches 5 (<code>5 &lt;= 4</code> is false).</p>
+    </div>
+  </div>
+  <aside class="notes">
+    <p class="note-time">Suggested time: about 8 min</p>
+    <h4>Teaching tips</h4>
+    <ul>
+      <li>Analogy: a clock. The minute hand (inner loop) goes all the way around once for every single step of the hour hand (outer loop). Or a jeepney odometer: the right digit rolls 0–9 before the next digit moves once.</li>
+      <li>Trace the first row slowly on the board, then ask the class to predict row 2 before you reveal it. The highlighted row in the table is the "predict" row.</li>
+      <li>Have students change <code>j &lt;= 4</code> to <code>j &lt;= 2</code> and re-run. Then swap the two loops. What changes? (3 rows of 4 becomes 4 rows of 3.)</li>
+    </ul>
+    <h4>Common student pitfalls</h4>
+    <ul>
+      <li>Expecting j to continue from 5 on the second row. It restarts at 1 because <code>int j = 1</code> runs every time the inner loop starts.</li>
+      <li>Putting <code>endl</code> inside the inner loop, which prints every pair on its own line.</li>
+      <li>Missing braces: without <code>{ }</code> around the outer body, only the inner loop repeats and <code>endl</code> runs once.</li>
+    </ul>
+    <h4>Ask the class</h4>
+    <ul>
+      <li>"How many times does the inner <code>cout</code> run if the outer loop goes to 10 and the inner to 7?" (70.)</li>
+    </ul>
+  </aside>
+</section>
+
+<!-- ========================= SLIDE 4 · PATTERNS ========================= -->
+<section class="slide" id="l8-patterns" data-title="Pattern Printing" data-section="Nested Loops">
+  <header class="slide-head">
+    <p class="kicker">Lab 8 · Patterns</p>
+    <h2>Pattern Printing: Rows and Columns</h2>
+    <p class="lede">The <b>outer loop</b> picks the row. The <b>inner loop</b> prints what goes in that row. Only the inner loop's condition changes from pattern to pattern.</p>
+  </header>
+  <div class="grid-2 align-start">
+    <div class="tabs" data-tabs>
+      <div class="tablist" role="tablist" aria-label="Pattern programs">
+        <button type="button" role="tab" data-tab="rect" aria-selected="true">Rectangle</button>
+        <button type="button" role="tab" data-tab="tri">Right triangle</button>
+        <button type="button" role="tab" data-tab="inv">Inverted</button>
+        <button type="button" role="tab" data-tab="num">Number triangle</button>
+      </div>
+      <div class="tabpanel" role="tabpanel" data-panel="rect">
+<pre class="code" data-cpp>
+#include &lt;iostream&gt;
+using namespace std;
+
+int main() {
+    int rows = 3, cols = 6;
+    for (int i = 1; i &lt;= rows; i++) {
+        for (int j = 1; j &lt;= cols; j++) {
+            cout &lt;&lt; "*";
+        }
+        cout &lt;&lt; endl;
+    }
+    return 0;
+}
+</pre>
+<pre class="console" style="margin-top:.6rem">******
+******
+******</pre>
+      </div>
+      <div class="tabpanel" role="tabpanel" data-panel="tri">
+<pre class="code" data-cpp>
+#include &lt;iostream&gt;
+using namespace std;
+
+int main() {
+    int n = 4;
+    for (int i = 1; i &lt;= n; i++) {
+        for (int j = 1; j &lt;= i; j++) {
+            cout &lt;&lt; "*";
+        }
+        cout &lt;&lt; endl;
+    }
+    return 0;
+}
+</pre>
+<pre class="console" style="margin-top:.6rem">*
+**
+***
+****</pre>
+      </div>
+      <div class="tabpanel" role="tabpanel" data-panel="inv">
+<pre class="code" data-cpp>
+#include &lt;iostream&gt;
+using namespace std;
+
+int main() {
+    int n = 4;
+    for (int i = 1; i &lt;= n; i++) {
+        for (int j = 1; j &lt;= n - i + 1; j++) {
+            cout &lt;&lt; "*";
+        }
+        cout &lt;&lt; endl;
+    }
+    return 0;
+}
+</pre>
+<pre class="console" style="margin-top:.6rem">****
+***
+**
+*</pre>
+      </div>
+      <div class="tabpanel" role="tabpanel" data-panel="num">
+<pre class="code" data-cpp>
+#include &lt;iostream&gt;
+using namespace std;
+
+int main() {
+    int n = 4;
+    for (int i = 1; i &lt;= n; i++) {
+        for (int j = 1; j &lt;= i; j++) {
+            cout &lt;&lt; j;
+        }
+        cout &lt;&lt; endl;
+    }
+    return 0;
+}
+</pre>
+<pre class="console" style="margin-top:.6rem">1
+12
+123
+1234</pre>
+      </div>
+    </div>
+    <div class="stack">
+      <div class="table-wrap">
+        <table class="table compact">
+          <caption>Same outer loop, different inner loop</caption>
+          <thead><tr><th scope="col">Pattern</th><th scope="col">Row i prints</th><th scope="col">Inner loop condition</th></tr></thead>
+          <tbody>
+            <tr><th scope="row">Rectangle</th><td><code>cols</code> stars (same every row)</td><td><code>j &lt;= cols</code></td></tr>
+            <tr><th scope="row">Right triangle</th><td><code>i</code> stars</td><td><code>j &lt;= i</code></td></tr>
+            <tr><th scope="row">Inverted</th><td><code>n - i + 1</code> stars</td><td><code>j &lt;= n - i + 1</code></td></tr>
+            <tr><th scope="row">Number triangle</th><td>the numbers 1 to <code>i</code></td><td><code>j &lt;= i</code>, print <code>j</code></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="concept"><p class="box-label">Key concept</p><p>When the inner loop's limit depends on <code>i</code>, every row can have a different length. That is how triangles are made.</p></div>
+    </div>
+  </div>
+  <aside class="notes">
+    <p class="note-time">Suggested time: about 10 min</p>
+    <h4>Teaching tips</h4>
+    <ul>
+      <li>Click through the tabs in order. Ask the class to predict each output <em>before</em> you open the next tab, using the table on the right.</li>
+      <li>For the inverted triangle, fill in a mini table on the board: i = 1 → 4 stars, i = 2 → 3, i = 3 → 2, i = 4 → 1. "The two numbers always add up to 5, so stars = 5 − i = n − i + 1."</li>
+      <li>Live: in a triangle tab, change <code>int n = 4;</code> to <code>8</code> and re-run. Only the size changes, because no other number in the loops is fixed.</li>
+      <li>An alternative for the inverted triangle is counting down: <code>for (int i = n; i &gt;= 1; i--)</code> with <code>j &lt;= i</code>. Both are correct; show it if someone asks.</li>
+    </ul>
+    <h4>Common student pitfalls</h4>
+    <ul>
+      <li>Printing <code>i</code> instead of <code>j</code> in the number triangle gives 1 / 22 / 333 / 4444.</li>
+      <li>Forgetting the <code>endl</code> after the inner loop prints everything on one line.</li>
+      <li>Using <code>j &lt; i</code>: the first row becomes empty.</li>
+    </ul>
+    <h4>Ask the class</h4>
+    <ul>
+      <li>"Which one-character change turns the number triangle into 1 / 22 / 333 / 4444?" (print <code>i</code> instead of <code>j</code>.)</li>
+    </ul>
+  </aside>
+</section>
+
+<!-- ========================= SLIDE 5 · TRACE THE TRIANGLE ========================= -->
+<section class="slide" id="l8-tri-trace" data-title="Trace: Right Triangle" data-section="Nested Loops">
+  <header class="slide-head">
+    <p class="kicker">Lab 8 · Trace it</p>
+    <h2>Trace It: The Triangle Grows Row by Row</h2>
+    <p class="lede">Step through and watch the Output panel. Each pass of the outer loop adds exactly one row.</p>
+  </header>
+  <div class="example-grid">
+    <div class="stack">
+      <figure class="codeblock">
+        <figcaption><code>triangle.cpp</code></figcaption>
+<pre class="code" id="l8-tri-code" data-cpp data-stdin="4">
+#include &lt;iostream&gt;
+using namespace std;
+
+int main() {
+    int rows;
+    cout &lt;&lt; "Enter number of rows: ";
+    cin &gt;&gt; rows;
+    for (int i = 1; i &lt;= rows; i++) {
+        for (int j = 1; j &lt;= i; j++) {
+            cout &lt;&lt; "*";
+        }
+        cout &lt;&lt; endl;
+    }
+    return 0;
+}
+</pre>
+      </figure>
+    </div>
+    <div class="stack">
+      <div class="tracer" data-trace="l8-tri" data-code="#l8-tri-code" data-speed="250">
+        <div class="tracer-inputs">
+          <label>rows <input type="number" data-var="rows" value="4" min="0" max="8" step="1"></label>
+        </div>
+      </div>
+      <figure class="codeblock">
+        <figcaption>Sample run (compiled program)</figcaption>
+<pre class="console">Enter number of rows: <span class="in">4</span>
+*
+**
+***
+****</pre>
+      </figure>
+    </div>
+  </div>
+  <aside class="notes">
+    <p class="note-time">Suggested time: about 6 min</p>
+    <h4>Teaching tips</h4>
+    <ul>
+      <li>Use <b>Step</b> for the first two rows so students see the inner test <code>j &lt;= i</code> fail and the <code>endl</code> run. Then switch to <b>Play</b> (Fast) for the rest.</li>
+      <li>Watch the Memory panel: <code>j</code> appears when the inner loop starts and disappears after it ends. A variable declared in a <code>for</code> header exists only inside that loop.</li>
+      <li>Try rows = 0. The outer test fails at once and nothing is printed, which is a good boundary case.</li>
+      <li>The tracer accepts 0 to 8 rows to keep the number of steps manageable.</li>
+    </ul>
+    <h4>Common student pitfalls</h4>
+    <ul>
+      <li>Thinking the inner loop "remembers" j from the last row. Point at the Memory panel when j resets to 1.</li>
+    </ul>
+    <h4>Ask the class</h4>
+    <ul>
+      <li>"For rows = 4, how many stars in total?" (1 + 2 + 3 + 4 = 10.) "For rows = 100?" (5050, the triangle formula on the next slides.)</li>
+    </ul>
+  </aside>
+</section>
+
+<!-- ========================= SLIDE 6 · DESIGN A PATTERN ========================= -->
+<section class="slide" id="l8-pattern-design" data-title="Designing a Pattern" data-section="Nested Loops">
+  <header class="slide-head">
+    <p class="kicker">Lab 8 · Patterns</p>
+    <h2>How to Design Any Pattern</h2>
+    <p class="lede">Don't guess the loop limits. Make a table of the rows, then find a formula in terms of the row number <code>i</code>.</p>
+  </header>
+  <div class="grid-2 align-start">
+    <div class="stack">
+      <div class="practice"><p class="box-label">The method</p>
+        <ol>
+          <li><b>Count the rows</b>: that is the outer loop, <code>i = 1</code> to <code>n</code>.</li>
+          <li><b>Split one row into parts</b> (for example, spaces, then stars).</li>
+          <li><b>Make a table</b>: how many of each part in rows 1, 2, 3, …?</li>
+          <li><b>Find the formula</b> for each column in terms of <code>i</code> and <code>n</code>.</li>
+          <li>Write <b>one inner loop per part</b>, then <code>endl</code>.</li>
+        </ol>
+      </div>
+      <div class="table-wrap">
+        <table class="table compact trace-table">
+          <caption>Pyramid with n = 4 (· = space)</caption>
+          <thead><tr><th scope="col">row i</th><th scope="col">1</th><th scope="col">2</th><th scope="col">3</th><th scope="col">4</th><th scope="col">formula</th></tr></thead>
+          <tbody>
+            <tr><th scope="row">looks like</th><td>···*</td><td>··***</td><td>·*****</td><td>*******</td><td></td></tr>
+            <tr><th scope="row">spaces</th><td>3</td><td>2</td><td>1</td><td>0</td><td><b>n − i</b></td></tr>
+            <tr><th scope="row">stars</th><td>1</td><td>3</td><td>5</td><td>7</td><td><b>2i − 1</b></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <div class="stack">
+<pre class="code compact" data-cpp>
+#include &lt;iostream&gt;
+using namespace std;
+
+int main() {
+    int n = 4;                      // height
+    for (int i = 1; i &lt;= n; i++) {
+        for (int s = 1; s &lt;= n - i; s++) {
+            cout &lt;&lt; " ";            // part 1: spaces
+        }
+        for (int k = 1; k &lt;= 2 * i - 1; k++) {
+            cout &lt;&lt; "*";            // part 2: stars
+        }
+        cout &lt;&lt; endl;
+    }
+    return 0;
+}
+</pre>
+<pre class="console">   *
+  ***
+ *****
+*******</pre>
+    </div>
+  </div>
+  <aside class="notes">
+    <p class="note-time">Suggested time: about 10 min</p>
+    <h4>Teaching tips</h4>
+    <ul>
+      <li>Build the table on the board <em>with</em> the class before showing the code. Ask: "As i goes up by 1, what happens to the spaces? To the stars?" Spaces go down by 1, stars go up by 2.</li>
+      <li>Check each formula on one row: row 3 → spaces 4 − 3 = 1, stars 2(3) − 1 = 5. ✓</li>
+      <li>This method works for every pattern in Lab Exercise No. 8, Problem 1. Tell students to include the table in their write-up, since it is part of "Problem Analysis" in the rubric.</li>
+    </ul>
+    <h4>Common student pitfalls</h4>
+    <ul>
+      <li>Printing trailing spaces after the stars. They are invisible, but automatic checkers (Codechum) may reject the output. Only the spaces <em>before</em> the stars are needed.</li>
+      <li>Writing <code>2 * i - 1</code> as <code>2i - 1</code>. C++ needs the <code>*</code>.</li>
+    </ul>
+    <h4>Ask the class</h4>
+    <ul>
+      <li>"How would you print the pyramid upside down?" (Count i down from n to 1, keeping the same formulas.)</li>
+    </ul>
+  </aside>
+</section>
+
+<!-- ========================= SLIDE 7 · MULTIPLICATION TABLE ========================= -->
+<section class="slide" id="l8-multtable" data-title="Multiplication Table with setw" data-section="Nested Loops">
+  <header class="slide-head">
+    <p class="kicker">Lab 8 · Grids</p>
+    <h2>A Multiplication Table with <code>setw</code></h2>
+    <p class="lede">A grid is a rectangle pattern of numbers. <code>setw</code> pads each number so the columns line up.</p>
+  </header>
+  <div class="code-pair">
+    <figure class="codeblock">
+      <figcaption><code>times_table.cpp</code></figcaption>
+<pre class="code compact" data-cpp>
+#include &lt;iostream&gt;
+#include &lt;iomanip&gt;
+using namespace std;
+
+int main() {
+    const int SIZE = 10;
+    cout &lt;&lt; "  x |";
+    for (int col = 1; col &lt;= SIZE; col++) {
+        cout &lt;&lt; setw(4) &lt;&lt; col;
+    }
+    cout &lt;&lt; endl;
+    for (int row = 1; row &lt;= SIZE; row++) {
+        cout &lt;&lt; setw(3) &lt;&lt; row &lt;&lt; " |";
+        for (int col = 1; col &lt;= SIZE; col++) {
+            cout &lt;&lt; setw(4) &lt;&lt; row * col;
+        }
+        cout &lt;&lt; endl;
+    }
+    return 0;
+}
+</pre>
+    </figure>
+    <div class="stack">
+      <figure class="codeblock">
+        <figcaption>Output</figcaption>
+<pre class="console">  x |   1   2   3   4   5   6   7   8   9  10
+  1 |   1   2   3   4   5   6   7   8   9  10
+  2 |   2   4   6   8  10  12  14  16  18  20
+  3 |   3   6   9  12  15  18  21  24  27  30
+  4 |   4   8  12  16  20  24  28  32  36  40
+  5 |   5  10  15  20  25  30  35  40  45  50
+  6 |   6  12  18  24  30  36  42  48  54  60
+  7 |   7  14  21  28  35  42  49  56  63  70
+  8 |   8  16  24  32  40  48  56  64  72  80
+  9 |   9  18  27  36  45  54  63  72  81  90
+ 10 |  10  20  30  40  50  60  70  80  90 100</pre>
+      </figure>
+      <div class="note-box"><p class="box-label">setw(4)</p>
+        <ul>
+          <li>Needs <code>#include &lt;iomanip&gt;</code>.</li>
+          <li>Right-aligns the <b>next</b> value in 4 characters: <code>7</code> prints as <code>···7</code>.</li>
+          <li>Affects only one value, so it is repeated inside the loop.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+  <aside class="notes">
+    <p class="note-time">Suggested time: about 7 min</p>
+    <h4>Teaching tips</h4>
+    <ul>
+      <li>Run it once <em>without</em> <code>setw</code> (just <code>cout &lt;&lt; row * col &lt;&lt; " "</code>) so students see the ragged columns, then add <code>setw</code> back.</li>
+      <li>The header row is a single loop; the body is a nested loop. Real programs often mix both.</li>
+      <li>Engineering link: the same layout prints sensor tables, resistor color-code charts, or voltage-current tables.</li>
+      <li><code>const int SIZE = 10;</code> means one change resizes the whole table. Try 12.</li>
+    </ul>
+    <h4>Common student pitfalls</h4>
+    <ul>
+      <li>Calling <code>setw</code> once before the loop and expecting it to apply to every number.</li>
+      <li>Forgetting <code>#include &lt;iomanip&gt;</code>: the error says <code>setw</code> was not declared.</li>
+      <li>Choosing a width that is too small: <code>setw(2)</code> cannot fit <code>100</code>, so that column shifts.</li>
+    </ul>
+    <h4>Ask the class</h4>
+    <ul>
+      <li>"How many times does <code>row * col</code> get computed?" (10 × 10 = 100.)</li>
+    </ul>
+  </aside>
+</section>
+
+<!-- ========================= SLIDE 8 · COUNTING THE WORK ========================= -->
+<section class="slide" id="l8-work" data-title="Counting the Work" data-section="Nested Loops">
+  <header class="slide-head">
+    <p class="kicker">Lab 8 · Efficiency</p>
+    <h2>Counting the Work: Nested Loops Multiply</h2>
+    <p class="lede">n outer passes × m inner passes = the inner body runs <b>n × m</b> times. That grows fast.</p>
+  </header>
+  <div class="grid-2 align-start">
+    <div class="stack">
+      <div class="table-wrap">
+        <table class="table compact">
+          <caption>How many times the innermost body runs</caption>
+          <thead><tr><th scope="col">Loop shape</th><th scope="col">Runs</th><th scope="col">n = 10</th><th scope="col">n = 1,000</th><th scope="col">n = 100,000</th></tr></thead>
+          <tbody>
+            <tr><th scope="row">One loop, 1 to n</th><td>n</td><td>10</td><td>1,000</td><td>100,000</td></tr>
+            <tr><th scope="row">Square, n × n</th><td>n²</td><td>100</td><td>1,000,000</td><td>10,000,000,000</td></tr>
+            <tr><th scope="row">Triangle, <code>j &lt;= i</code></th><td>n(n+1)/2</td><td>55</td><td>500,500</td><td>5,000,050,000</td></tr>
+            <tr><th scope="row">Prime test, <code>d * d &lt;= n</code></th><td>about √n</td><td>2</td><td>30</td><td>315</td></tr>
+          </tbody>
+        </table>
+      </div>
+<pre class="console">Enter n: <span class="in">1000</span>
+Square:   1000000
+Triangle: 500500</pre>
+      <div class="concept"><p class="box-label">Key concept</p><p>Before you nest loops, ask: <b>how many times will the inner body run?</b> Ten billion simple steps take a typical PC several seconds or more; a smarter loop limit (like √n) can save almost all of that.</p></div>
+    </div>
+    <div class="stack">
+<pre class="code compact" data-cpp data-stdin="1000">
+#include &lt;iostream&gt;
+using namespace std;
+
+int main() {
+    int n;
+    cout &lt;&lt; "Enter n: ";
+    cin &gt;&gt; n;
+    long long square = 0, triangle = 0;
+    for (int i = 1; i &lt;= n; i++) {
+        for (int j = 1; j &lt;= n; j++) {
+            square++;       // n * n times
+        }
+        for (int j = 1; j &lt;= i; j++) {
+            triangle++;     // 1 + 2 + ... + n times
+        }
+    }
+    cout &lt;&lt; "Square:   " &lt;&lt; square &lt;&lt; endl;
+    cout &lt;&lt; "Triangle: " &lt;&lt; triangle &lt;&lt; endl;
+    return 0;
+}
+</pre>
+    </div>
+  </div>
+  <aside class="notes">
+    <p class="note-time">Suggested time: about 5 min</p>
+    <h4>Teaching tips</h4>
+    <ul>
+      <li>This is intuition, not formal Big-O (that comes in later courses). The habit to build: <em>multiply the loop counts</em>.</li>
+      <li>The counters use <code>long long</code> because n² for n = 100,000 is 10 billion, which does not fit in a 4-byte <code>int</code> (max about 2.1 billion).</li>
+      <li>Live demo: run with 1000, then 30000 (900 million steps; it takes a moment), and let students feel the delay. Warn them before trying 100000.</li>
+      <li>The prime-test row is the worst case (n is prime). For most n, <code>break</code> stops the loop even sooner.</li>
+    </ul>
+    <h4>Common student pitfalls</h4>
+    <ul>
+      <li>Adding the loop counts instead of multiplying them (10 + 10 instead of 10 × 10).</li>
+      <li>Using <code>int</code> for huge counts and getting a negative number from overflow.</li>
+    </ul>
+    <h4>Ask the class</h4>
+    <ul>
+      <li>"Three nested loops, each 1 to 100: how many inner steps?" (1,000,000.)</li>
+    </ul>
+  </aside>
+</section>
+
+<!-- ========================= SLIDE 9 · BREAK ========================= -->
+<section class="slide" id="l8-break" data-title="The break Statement" data-section="Jump Statements">
+  <header class="slide-head">
+    <p class="kicker">Lab 8 · Jump statements</p>
+    <h2><code>break</code>: Leave the Loop Now</h2>
+    <p class="lede"><code>break</code> ends the <b>nearest</b> loop (or <code>switch</code>) at once. Execution continues right <b>after</b> that loop.</p>
+  </header>
+  <div class="example-grid">
+    <div class="stack">
+<pre class="code compact" data-cpp data-stdin="90 85 -1">
+#include &lt;iostream&gt;
+using namespace std;
+
+int main() {
+    int score, sum = 0, count = 0;
+    for (int i = 1; i &lt;= 5; i++) {
+        cout &lt;&lt; "Score " &lt;&lt; i &lt;&lt; " (-1 to stop): ";
+        cin &gt;&gt; score;
+        if (score == -1) {
+            break;          // leave the loop now
+        }
+        sum += score;
+        count++;
+    }
+    cout &lt;&lt; count &lt;&lt; " scores, total " &lt;&lt; sum &lt;&lt; endl;
+    return 0;
+}
+</pre>
+<pre class="console">Score 1 (-1 to stop): <span class="in">90</span>
+Score 2 (-1 to stop): <span class="in">85</span>
+Score 3 (-1 to stop): <span class="in">-1</span>
+2 scores, total 175</pre>
+    </div>
+    <figure class="card chart-card">
+      <figcaption>Two exits: the test and the break</figcaption>
+      <div class="chart-body">
+        <svg class="fc" viewBox="0 0 540 600" style="max-width:460px" role="img" aria-label="Flowchart: Start, set sum, count to 0 and i to 1. Decision i at most 5. Yes: input score, then decision score equals minus 1. Yes is the break: it jumps right to the path after the loop. No: add the score and count it, then i plus plus, and loop back to the i test. When i exceeds 5, No exits right. Both exits reach display count and sum, then End.">
+          <g class="fc-node"><rect class="s-terminal" x="130" y="10" width="140" height="40" rx="20"/><text x="200" y="30">Start</text></g>
+          <path class="fc-line" d="M200 50 V74"/>
+          <g class="fc-node"><rect class="s-process" x="60" y="74" width="280" height="44"/><text x="200" y="96">sum = 0, count = 0, i = 1</text></g>
+          <path class="fc-line" d="M200 118 V146"/>
+          <g class="fc-node"><polygon class="s-decision" points="200,146 290,186 200,226 110,186"/><text x="200" y="186">i &lt;= 5?</text></g>
+          <path class="fc-line" d="M200 226 V254"/><text class="fc-label a-start" x="210" y="240">Yes</text>
+          <g class="fc-node"><polygon class="s-io" points="118,254 302,254 282,298 98,298"/><text x="200" y="276">Input score</text></g>
+          <path class="fc-line" d="M200 298 V326"/>
+          <g class="fc-node"><polygon class="s-decision" points="200,326 305,366 200,406 95,366"/><text x="200" y="366">score == -1?</text></g>
+          <path class="fc-line" d="M200 406 V434"/><text class="fc-label a-start" x="210" y="420">No</text>
+          <g class="fc-node"><rect class="s-process" x="60" y="434" width="280" height="44"/><text x="200" y="456">sum += score; count++</text></g>
+          <path class="fc-line" d="M200 478 V504"/>
+          <g class="fc-node"><rect class="s-process" x="130" y="504" width="140" height="40"/><text x="200" y="524">i++</text></g>
+          <path class="fc-line" d="M130 524 H36 V132 H198"/>
+          <path class="fc-line" d="M290 186 H430 V470"/><text class="fc-label" x="330" y="172">No</text>
+          <path class="fc-line" d="M305 366 H428"/><text class="fc-label warn" style="font-size:14px" x="368" y="352">Yes: break</text>
+          <g class="fc-node"><polygon class="s-io" points="352,470 528,470 508,514 332,514"/><text x="430" y="492">Display count, sum</text></g>
+          <path class="fc-line" d="M430 514 V546"/>
+          <g class="fc-node"><rect class="s-terminal" x="370" y="546" width="120" height="40" rx="20"/><text x="430" y="566">End</text></g>
+        </svg>
+      </div>
+    </figure>
+  </div>
+  <aside class="notes">
+    <p class="note-time">Suggested time: about 8 min</p>
+    <h4>Teaching tips</h4>
+    <ul>
+      <li>The loop has <b>two exits</b>: the normal one (<code>i &lt;= 5</code> becomes false after 5 scores) and the early one (<code>break</code> on the sentinel -1).</li>
+      <li>Trace the red "break" arrow with your finger: it skips the rest of the body <em>and</em> the <code>i++</code>, and lands on the path after the loop.</li>
+      <li>Run it twice: once with <code>90 85 -1</code> (break exit) and once with five real scores (normal exit). Same output statement, two ways to reach it.</li>
+      <li>Connect to Lab 7: a sentinel loop with <code>while</code> must read before the loop and again at the bottom. <code>break</code> lets you read once, at the top.</li>
+    </ul>
+    <h4>Common student pitfalls</h4>
+    <ul>
+      <li>Placing <code>sum += score;</code> <em>before</em> the sentinel check, so the -1 is added to the total.</li>
+      <li>Thinking <code>break</code> exits an <code>if</code>. It does not: it exits the loop (or switch) that contains the <code>if</code>.</li>
+      <li>Overusing <code>break</code>: if a loop has several breaks, it becomes hard to follow. One clear early exit is fine.</li>
+    </ul>
+    <h4>Ask the class</h4>
+    <ul>
+      <li>"What prints if the first score typed is -1?" (<code>0 scores, total 0</code>.)</li>
+    </ul>
+  </aside>
+</section>
+
+<!-- ========================= SLIDE 10 · CONTINUE ========================= -->
+<section class="slide" id="l8-continue" data-title="The continue Statement" data-section="Jump Statements">
+  <header class="slide-head">
+    <p class="kicker">Lab 8 · Jump statements</p>
+    <h2><code>continue</code>: Skip to the Next Pass</h2>
+    <p class="lede"><code>continue</code> skips the <b>rest of the current pass</b>, but the loop keeps going with the next pass.</p>
+  </header>
+  <div class="example-grid">
+    <div class="stack">
+<pre class="code compact" data-cpp>
+#include &lt;iostream&gt;
+using namespace std;
+
+int main() {
+    for (int i = 1; i &lt;= 10; i++) {
+        if (i % 3 == 0) {
+            continue;       // skip the cout below
+        }
+        cout &lt;&lt; i &lt;&lt; " ";
+    }
+    cout &lt;&lt; endl;
+    return 0;
+}
+</pre>
+<pre class="console">1 2 4 5 7 8 10 </pre>
+      <div class="table-wrap">
+        <table class="table compact">
+          <thead><tr><th scope="col"></th><th scope="col"><code>break</code></th><th scope="col"><code>continue</code></th></tr></thead>
+          <tbody>
+            <tr><th scope="row">The loop</th><td><b>ends</b></td><td><b>keeps going</b></td></tr>
+            <tr><th scope="row">Jumps to</th><td>after the loop</td><td><code>for</code>: the update · <code>while</code>: the test</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <figure class="card chart-card">
+      <figcaption>Where continue jumps</figcaption>
+      <div class="chart-body">
+        <svg class="fc" viewBox="0 0 540 500" style="max-width:520px" role="img" aria-label="Flowchart: Start, i equals 1, decision i at most 10. Yes: decision i mod 3 equals 0. Yes is the continue: it jumps to i plus plus, skipping the display. No: display i, then i plus plus. i plus plus loops back to the i test. When i exceeds 10, No exits to End.">
+          <g class="fc-node"><rect class="s-terminal" x="130" y="10" width="140" height="40" rx="20"/><text x="200" y="30">Start</text></g>
+          <path class="fc-line" d="M200 50 V74"/>
+          <g class="fc-node"><rect class="s-process" x="130" y="74" width="140" height="40"/><text x="200" y="94">i = 1</text></g>
+          <path class="fc-line" d="M200 114 V144"/>
+          <g class="fc-node"><polygon class="s-decision" points="200,144 290,184 200,224 110,184"/><text x="200" y="184">i &lt;= 10?</text></g>
+          <path class="fc-line" d="M200 224 V254"/><text class="fc-label a-start" x="210" y="240">Yes</text>
+          <g class="fc-node"><polygon class="s-decision" points="200,254 305,294 200,334 95,294"/><text x="200" y="294">i % 3 == 0?</text></g>
+          <path class="fc-line" d="M200 334 V364"/><text class="fc-label a-start" x="210" y="350">No</text>
+          <g class="fc-node"><polygon class="s-io" points="128,364 292,364 272,408 108,408"/><text x="200" y="386">Display i</text></g>
+          <path class="fc-line" d="M200 408 V436"/>
+          <g class="fc-node"><rect class="s-process" x="130" y="436" width="140" height="40"/><text x="200" y="456">i++</text></g>
+          <path class="fc-line" d="M130 456 H40 V129 H198"/>
+          <path class="fc-line" d="M305 294 H390 V456 H272"/><text class="fc-label warn" style="font-size:14px" x="352" y="280">Yes: continue</text>
+          <path class="fc-line" d="M290 184 H470 V250"/><text class="fc-label" x="320" y="170">No</text>
+          <g class="fc-node"><rect class="s-terminal" x="410" y="250" width="120" height="40" rx="20"/><text x="470" y="270">End</text></g>
+        </svg>
+      </div>
+    </figure>
+  </div>
+  <aside class="notes">
+    <p class="note-time">Suggested time: about 7 min</p>
+    <h4>Teaching tips</h4>
+    <ul>
+      <li>Follow the red "continue" arrow: it skips <em>Display i</em> but still reaches <code>i++</code>. That is why a <code>for</code> loop with <code>continue</code> is safe.</li>
+      <li>Show the same result without <code>continue</code>: <code>if (i % 3 != 0) { cout &lt;&lt; i &lt;&lt; " "; }</code>. Both are fine; <code>continue</code> shines when there are many lines to skip (for example, "skip invalid sensor readings, then process the valid ones").</li>
+      <li>Preview the pitfall slide: in a <code>while</code> loop, <code>continue</code> jumps straight to the test and can skip your manual <code>i++</code>.</li>
+    </ul>
+    <h4>Common student pitfalls</h4>
+    <ul>
+      <li>Thinking <code>continue</code> means "continue with the next line". It means "continue with the next <em>pass</em>".</li>
+      <li>Mixing up the two: <code>break</code> prints 1 2 here (stops at 3); <code>continue</code> prints 1 2 4 5 7 8 10.</li>
+    </ul>
+    <h4>Ask the class</h4>
+    <ul>
+      <li>"Replace <code>continue</code> with <code>break</code>. What prints?" (<code>1 2 </code>.)</li>
+    </ul>
+  </aside>
+</section>
+
+<!-- ========================= SLIDE 11 · BREAK IN NESTED LOOPS ========================= -->
+<section class="slide" id="l8-break-nested" data-title="break Exits One Loop Only" data-section="Jump Statements">
+  <header class="slide-head">
+    <p class="kicker">Lab 8 · Jump statements</p>
+    <h2><code>break</code> Exits Only the Innermost Loop</h2>
+    <p class="lede">In nested loops, <code>break</code> leaves the loop it is written in. The outer loop keeps running.</p>
+  </header>
+  <div class="grid-2 align-start">
+    <div class="stack">
+<pre class="code compact" data-cpp>
+#include &lt;iostream&gt;
+using namespace std;
+
+int main() {
+    for (int i = 1; i &lt;= 3; i++) {
+        for (int j = 1; j &lt;= 5; j++) {
+            if (j == 3) {
+                break;      // ends the j-loop only
+            }
+            cout &lt;&lt; i &lt;&lt; j &lt;&lt; " ";
+        }
+        cout &lt;&lt; "| end of row " &lt;&lt; i &lt;&lt; endl;
+    }
+    return 0;
+}
+</pre>
+<pre class="console">11 12 | end of row 1
+21 22 | end of row 2
+31 32 | end of row 3</pre>
+    </div>
+    <div class="stack">
+      <figure class="codeblock">
+        <figcaption>Leave <b>both</b> loops: the outer test checks a flag</figcaption>
+<pre class="code compact" data-cpp>
+#include &lt;iostream&gt;
+using namespace std;
+
+int main() {
+    bool found = false;
+    for (int a = 1; a &lt;= 9 &amp;&amp; !found; a++) {
+        for (int b = 1; b &lt;= 9; b++) {
+            if (a * b == 24 &amp;&amp; a + b == 10) {
+                cout &lt;&lt; "Found: " &lt;&lt; a &lt;&lt; " x " &lt;&lt; b;
+                cout &lt;&lt; endl;
+                found = true;   // tell the outer loop
+                break;          // leave the inner loop
+            }
+        }
+    }
+    return 0;
+}
+</pre>
+      </figure>
+<pre class="console">Found: 4 x 6</pre>
+      <p class="small"><b>Why not <code>goto</code>?</b> It can jump anywhere and leads to hard-to-follow "spaghetti code". Structured programs avoid it; a flag like this is the clean way out.</p>
+    </div>
+  </div>
+  <aside class="notes">
+    <p class="note-time">Suggested time: about 7 min</p>
+    <h4>Teaching tips</h4>
+    <ul>
+      <li>Left program: each row stops at j = 3, but "end of row" still prints and the next row starts. Proof that only the inner loop ended.</li>
+      <li>Right program: the flag <code>found</code> is set just before the <code>break</code>. The outer condition <code>a &lt;= 9 &amp;&amp; !found</code> then fails, so both loops end.</li>
+      <li>Remove <code>&amp;&amp; !found</code> live: the program prints both <code>4 x 6</code> and <code>6 x 4</code>, because the outer loop kept searching.</li>
+      <li>On goto: Dijkstra's 1968 letter "Go To Statement Considered Harmful" started the structured programming movement. Later (Lab 11) a function with <code>return</code> is another clean way out of nested loops.</li>
+    </ul>
+    <h4>Common student pitfalls</h4>
+    <ul>
+      <li>Writing two <code>break</code>s in a row, expecting the second to exit the outer loop. The second one never runs.</li>
+      <li>Setting the flag but not testing it in the outer loop's condition.</li>
+    </ul>
+    <h4>Ask the class</h4>
+    <ul>
+      <li>"In the left program, how many pairs print if the test is <code>j == 1</code>?" (None; each row prints only "| end of row i".)</li>
+    </ul>
+  </aside>
+</section>
+
+<!-- ========================= SLIDE 12 · PRIME CHECK ========================= -->
+<section class="slide" id="l8-prime" data-title="Prime Check (trace)" data-section="Loops + Selection">
+  <header class="slide-head">
+    <p class="kicker">Lab 8 · Loops + selection</p>
+    <h2>Is It Prime? Trial Division with <code>break</code></h2>
+    <p class="lede">A prime has exactly two divisors, 1 and itself. Test d = 2 up to √n and <code>break</code> on the first divisor.</p>
+  </header>
+  <div class="example-grid">
+    <div class="stack">
+<pre class="code compact" id="l8-prime-code" data-cpp data-stdin="91">
+#include &lt;iostream&gt;
+using namespace std;
+
+int main() {
+    int n;
+    cout &lt;&lt; "Enter a positive integer: ";
+    cin &gt;&gt; n;
+    bool isPrime = (n &gt;= 2);    // 0 and 1 are not
+    for (int d = 2; d * d &lt;= n; d++) {
+        if (n % d == 0) {
+            isPrime = false;    // found a divisor
+            break;              // stop testing
+        }
+    }
+    if (isPrime) {
+        cout &lt;&lt; n &lt;&lt; " is prime." &lt;&lt; endl;
+    } else {
+        cout &lt;&lt; n &lt;&lt; " is not prime." &lt;&lt; endl;
+    }
+    return 0;
+}
+</pre>
+    </div>
+    <div class="stack">
+      <div class="tracer" data-trace="l8-prime" data-code="#l8-prime-code" data-speed="800">
+        <div class="tracer-inputs">
+          <label>n <input type="number" data-var="n" value="91" step="1"></label>
+        </div>
+      </div>
+      <div class="concept"><p class="box-label">Why stop at √n?</p><p>If n = a × b, the smaller factor is at most √n (91 = 7 × 13, and 7 ≤ 9.5). No divisor up to √n means no divisor at all. <code>d * d &lt;= n</code> needs no <code>sqrt()</code>.</p></div>
+      <figure class="codeblock">
+        <figcaption>Sample run (compiled program)</figcaption>
+<pre class="console">Enter a positive integer: <span class="in">91</span>
+91 is not prime.</pre>
+      </figure>
+    </div>
+  </div>
+  <aside class="notes">
+    <p class="note-time">Suggested time: about 10 min</p>
+    <h4>Teaching tips</h4>
+    <ul>
+      <li>Trace 91 first (a "looks prime but isn't" number: 7 × 13). Then 97 (prime: tests d = 2 to 9, then stops because 10 × 10 &gt; 97). Then 1 and 2 (boundary cases).</li>
+      <li>The flag <code>isPrime</code> starts as <code>n &gt;= 2</code>, which handles 0, 1, and negatives in one line.</li>
+      <li><code>d * d &lt;= n</code> equals <code>d &lt;= sqrt(n)</code> but needs no <code>&lt;cmath&gt;</code> and avoids floating-point rounding.</li>
+      <li>This is "loops + selection": an <code>if</code> inside a <code>for</code>, plus a flag checked after the loop.</li>
+    </ul>
+    <h4>Common student pitfalls</h4>
+    <ul>
+      <li>Printing "prime" inside the loop as soon as one d fails to divide n. You can only say "prime" <em>after</em> every d was tested, so the message goes after the loop.</li>
+      <li>Starting d at 1: every number is divisible by 1, so everything looks "not prime".</li>
+      <li>Treating 1 as prime. It has only one divisor.</li>
+    </ul>
+    <h4>Ask the class</h4>
+    <ul>
+      <li>"How many divisions for n = 10,007 (a prime)?" (d = 2 to 100, so 99 instead of about 10,000.)</li>
+    </ul>
+  </aside>
+</section>
+
+<!-- ========================= SLIDE 13 · PRIMES IN A RANGE ========================= -->
+<section class="slide" id="l8-primes-range" data-title="Primes in a Range" data-section="Loops + Selection">
+  <header class="slide-head">
+    <p class="kicker">Lab 8 · Loops + selection</p>
+    <h2>All Primes up to 100: Nest the Prime Check</h2>
+    <p class="lede">Wrap the prime check in an outer loop over the candidates. The inner <code>break</code> ends only the divisor search; the outer loop moves on to the next number.</p>
+  </header>
+  <div class="code-pair">
+    <figure class="codeblock">
+      <figcaption><code>primes_to_100.cpp</code></figcaption>
+<pre class="code compact scroll" data-cpp>
+#include &lt;iostream&gt;
+using namespace std;
+
+int main() {
+    const int LIMIT = 100;
+    int count = 0;
+    // outer loop: each candidate n
+    for (int n = 2; n &lt;= LIMIT; n++) {
+        bool isPrime = true;
+        // inner loop: trial division
+        for (int d = 2; d * d &lt;= n; d++) {
+            if (n % d == 0) {
+                isPrime = false;
+                break;      // ends the inner loop only
+            }
+        }
+        if (isPrime) {
+            cout &lt;&lt; n &lt;&lt; " ";
+            count++;
+            if (count % 10 == 0) {
+                cout &lt;&lt; endl;   // 10 per line
+            }
+        }
+    }
+    cout &lt;&lt; endl;
+    return 0;
+}
+</pre>
+    </figure>
+    <div class="stack">
+      <figure class="codeblock">
+        <figcaption>Output</figcaption>
+<pre class="console">2 3 5 7 11 13 17 19 23 29
+31 37 41 43 47 53 59 61 67 71
+73 79 83 89 97 </pre>
+      </figure>
+      <div class="concept"><p class="box-label">Read it as two layers</p>
+        <ul>
+          <li><b>Outer</b> loop: "for each candidate n from 2 to 100".</li>
+          <li><b>Inner</b> loop: "is n prime?" (the previous slide).</li>
+          <li><code>isPrime</code> is <b>reset to true</b> for every n.</li>
+          <li>A <b>counter</b> with <code>% 10</code> starts a new line every 10 primes.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+  <aside class="notes">
+    <p class="note-time">Suggested time: about 7 min</p>
+    <h4>Teaching tips</h4>
+    <ul>
+      <li>Show how the previous program was "wrapped": copy the prime check, change <code>cin &gt;&gt; n</code> into a <code>for</code> over n, and move the output into the <code>if (isPrime)</code>. This is the incremental-challenge style of the lab.</li>
+      <li>There are 25 primes below 100. A quick sanity check for any version students write.</li>
+      <li>The outer loop starts at 2, so <code>isPrime = true</code> is safe here (no need for <code>n &gt;= 2</code>).</li>
+    </ul>
+    <h4>Common student pitfalls</h4>
+    <ul>
+      <li>Declaring <code>bool isPrime = true;</code> <em>before</em> the outer loop: once a composite number sets it to false, every later number is reported as not prime.</li>
+      <li>Expecting the inner <code>break</code> to stop the whole program after the first composite number.</li>
+    </ul>
+    <h4>Ask the class</h4>
+    <ul>
+      <li>"What would you change to list the primes between two numbers typed by the user?" (read low and high; loop from low to high; keep the <code>n &gt;= 2</code> check.)</li>
+    </ul>
+  </aside>
+</section>
+
+<!-- ========================= SLIDE 14 · DIGITS ========================= -->
+<section class="slide" id="l8-digits" data-title="Digits: Sum and Reverse (trace)" data-section="Loops + Selection">
+  <header class="slide-head">
+    <p class="kicker">Lab 8 · Loops + arithmetic</p>
+    <h2>Taking a Number Apart: <code>% 10</code> and <code>/ 10</code></h2>
+    <p class="lede"><code>n % 10</code> gives the last digit. <code>n / 10</code> (integer division) removes it. Repeat until nothing is left.</p>
+  </header>
+  <div class="example-grid">
+    <div class="stack">
+<pre class="code compact" id="l8-digits-code" data-cpp data-stdin="4719">
+#include &lt;iostream&gt;
+using namespace std;
+
+int main() {
+    int n;
+    cout &lt;&lt; "Enter a positive integer: ";
+    cin &gt;&gt; n;
+    int temp = n, sum = 0, reversed = 0;
+    while (temp &gt; 0) {
+        int digit = temp % 10;      // last digit
+        sum += digit;
+        reversed = reversed * 10 + digit;
+        temp /= 10;                 // drop it
+    }
+    cout &lt;&lt; "Sum of digits: " &lt;&lt; sum &lt;&lt; endl;
+    cout &lt;&lt; "Reversed: " &lt;&lt; reversed &lt;&lt; endl;
+    return 0;
+}
+</pre>
+<pre class="console">Enter a positive integer: <span class="in">4719</span>
+Sum of digits: 21
+Reversed: 9174</pre>
+      <p class="small">Palindrome test: a number is a palindrome when <code>reversed == n</code> (try 12321).</p>
+    </div>
+    <div class="stack">
+      <div class="tracer" data-trace="l8-digits" data-code="#l8-digits-code" data-speed="800">
+        <div class="tracer-inputs">
+          <label>n <input type="number" data-var="n" value="4719" step="1"></label>
+        </div>
+      </div>
+      <div class="table-wrap">
+        <table class="table compact trace-table">
+          <caption>Desk check for n = 4719 (then temp is 0, so the loop ends)</caption>
+          <thead><tr><th scope="col">temp</th><th scope="col">digit</th><th scope="col">sum</th><th scope="col">reversed</th></tr></thead>
+          <tbody>
+            <tr><td>4719</td><td>9</td><td>9</td><td>9</td></tr>
+            <tr><td>471</td><td>1</td><td>10</td><td>91</td></tr>
+            <tr><td>47</td><td>7</td><td>17</td><td>917</td></tr>
+            <tr><td>4</td><td>4</td><td>21</td><td>9174</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+  <aside class="notes">
+    <p class="note-time">Suggested time: about 8 min</p>
+    <h4>Teaching tips</h4>
+    <ul>
+      <li>Do 4719 % 10 and 4719 / 10 on the board first. Many students forget that <code>/</code> on two <code>int</code>s truncates.</li>
+      <li><code>reversed * 10 + digit</code> "shifts left and appends", like typing a digit on a calculator.</li>
+      <li>We loop on <code>temp</code>, a copy, so <code>n</code> still holds the original for printing or for the palindrome check.</li>
+      <li>Try 1200 in the tracer: reversed is 21, because leading zeros of an <code>int</code> are not printed.</li>
+    </ul>
+    <h4>Common student pitfalls</h4>
+    <ul>
+      <li>Looping on <code>n</code> itself and then trying to compare <code>reversed == n</code> (n is already 0).</li>
+      <li>Using <code>double</code> for n: <code>%</code> needs integer operands and will not compile.</li>
+      <li>Forgetting <code>temp /= 10</code> causes an infinite loop.</li>
+    </ul>
+    <h4>Ask the class</h4>
+    <ul>
+      <li>"How would you count the digits instead of adding them?" (<code>count++</code> in place of <code>sum += digit</code>.)</li>
+    </ul>
+  </aside>
+</section>
+
+<!-- ========================= SLIDE 15 · GCD & PERFECT ========================= -->
+<section class="slide" id="l8-gcd-perfect" data-title="GCD and Perfect Numbers" data-section="Loops + Selection">
+  <header class="slide-head">
+    <p class="kicker">Lab 8 · Loops + selection</p>
+    <h2>Two Classics: GCD and Perfect Numbers</h2>
+    <p class="lede">Euclid's algorithm is a <code>while</code> loop that is over 2,000 years old. Perfect numbers need a nested loop with an accumulator that is reset for every n.</p>
+  </header>
+  <div class="tabs" data-tabs>
+    <div class="tablist" role="tablist" aria-label="Classic loop problems">
+      <button type="button" role="tab" data-tab="gcd" aria-selected="true">GCD (Euclid)</button>
+      <button type="button" role="tab" data-tab="perfect">Perfect numbers</button>
+    </div>
+    <div class="tabpanel" role="tabpanel" data-panel="gcd">
+      <div class="code-pair">
+<pre class="code" data-cpp data-stdin="48 18">
+#include &lt;iostream&gt;
+using namespace std;
+
+int main() {
+    int a, b;
+    cout &lt;&lt; "Enter two positive integers: ";
+    cin &gt;&gt; a &gt;&gt; b;
+    int x = a, y = b;
+    while (y != 0) {
+        int r = x % y;      // remainder
+        x = y;
+        y = r;
+    }
+    cout &lt;&lt; "GCD = " &lt;&lt; x &lt;&lt; endl;
+    return 0;
+}
+</pre>
+        <div class="stack">
+<pre class="console">Enter two positive integers: <span class="in">48 18</span>
+GCD = 6</pre>
+          <div class="table-wrap">
+            <table class="table compact trace-table">
+              <thead><tr><th scope="col">x</th><th scope="col">y</th><th scope="col">r = x % y</th></tr></thead>
+              <tbody>
+                <tr><td>48</td><td>18</td><td>12</td></tr>
+                <tr><td>18</td><td>12</td><td>6</td></tr>
+                <tr><td>12</td><td>6</td><td>0</td></tr>
+                <tr class="is-hl"><td>6</td><td>0</td><td>y == 0: stop, GCD = x</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="tabpanel" role="tabpanel" data-panel="perfect">
+      <div class="code-pair">
+<pre class="code" data-cpp>
+#include &lt;iostream&gt;
+using namespace std;
+
+int main() {
+    cout &lt;&lt; "Perfect numbers up to 10000:" &lt;&lt; endl;
+    for (int n = 2; n &lt;= 10000; n++) {
+        int sum = 0;            // reset for EVERY n
+        for (int d = 1; d &lt;= n / 2; d++) {
+            if (n % d == 0) {
+                sum += d;       // a proper divisor
+            }
+        }
+        if (sum == n) {
+            cout &lt;&lt; n &lt;&lt; endl;
+        }
+    }
+    return 0;
+}
+</pre>
+        <div class="stack">
+<pre class="console">Perfect numbers up to 10000:
+6
+28
+496
+8128</pre>
+          <div class="concept"><p class="box-label">Perfect number</p><p>Equal to the sum of its proper divisors: 6 = 1 + 2 + 3 and 28 = 1 + 2 + 4 + 7 + 14.</p></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <aside class="notes">
+    <p class="note-time">Suggested time: about 8 min</p>
+    <h4>Teaching tips</h4>
+    <ul>
+      <li>GCD: the idea is "replace (x, y) with (y, x % y) until y is 0". Fill the trace table with the class, then try 17 and 5 (GCD 1: the numbers are coprime).</li>
+      <li>Bonus: LCM = a / GCD × b. For 48 and 18: 48 / 6 × 18 = 144.</li>
+      <li>Perfect numbers: the inner loop only goes to <code>n / 2</code>, because no proper divisor is bigger than half of n. That halves the work.</li>
+      <li>The perfect-number program does about 25 million inner steps and still finishes in a fraction of a second. A good follow-up to the "counting the work" slide.</li>
+    </ul>
+    <h4>Common student pitfalls</h4>
+    <ul>
+      <li>GCD: overwriting <code>x</code> before computing the remainder (order matters: <code>r = x % y; x = y; y = r;</code>).</li>
+      <li>Perfect numbers: declaring <code>sum</code> outside the outer loop, so it keeps growing across numbers and no perfect number is found.</li>
+    </ul>
+    <h4>Ask the class</h4>
+    <ul>
+      <li>"Is 12 perfect?" (No. 1 + 2 + 3 + 4 + 6 = 16, so 12 is an <em>abundant</em> number.)</li>
+    </ul>
+  </aside>
+</section>
+
+<!-- ========================= SLIDE 16 · MENU ========================= -->
+<section class="slide" id="l8-menu" data-title="Menu-Driven Programs" data-section="Loops + Selection">
+  <header class="slide-head">
+    <p class="kicker">Lab 8 · do-while + switch</p>
+    <h2>Menu-Driven Programs: <code>do-while</code> + <code>switch</code></h2>
+    <p class="lede">Show the menu, read a choice, act on it, and <b>repeat until the user picks Exit</b>. The menu must appear at least once, which makes it a job for <code>do-while</code>.</p>
+  </header>
+  <div class="code-pair">
+    <figure class="codeblock">
+      <figcaption><code>load_wallet.cpp</code></figcaption>
+<pre class="code scroll" data-cpp data-stdin="2 120 3 4">
+#include &lt;iostream&gt;
+using namespace std;
+
+int main() {
+    double balance = 0, amount;
+    int choice;
+    do {
+        cout &lt;&lt; "[1] Balance  [2] Add load" &lt;&lt; endl;
+        cout &lt;&lt; "[3] Promo P50  [4] Exit" &lt;&lt; endl;
+        cout &lt;&lt; "Choice: ";
+        cin &gt;&gt; choice;
+        switch (choice) {
+            case 1:
+                cout &lt;&lt; "Balance: P" &lt;&lt; balance;
+                cout &lt;&lt; endl;
+                break;      // ends the switch only
+            case 2:
+                cout &lt;&lt; "Amount: P";
+                cin &gt;&gt; amount;
+                balance += amount;
+                cout &lt;&lt; "New balance: P" &lt;&lt; balance;
+                cout &lt;&lt; endl;
+                break;
+            case 3:
+                if (balance &gt;= 50) {
+                    balance -= 50;
+                    cout &lt;&lt; "Promo on! Balance: P";
+                    cout &lt;&lt; balance &lt;&lt; endl;
+                } else {
+                    cout &lt;&lt; "Not enough balance.";
+                    cout &lt;&lt; endl;
+                }
+                break;
+            case 4:
+                cout &lt;&lt; "Goodbye!" &lt;&lt; endl;
+                break;
+            default:
+                cout &lt;&lt; "Invalid choice." &lt;&lt; endl;
+        }
+        cout &lt;&lt; endl;
+    } while (choice != 4);      // until Exit
+    return 0;
+}
+</pre>
+    </figure>
+    <div class="stack">
+      <figure class="codeblock">
+        <figcaption>Sample run</figcaption>
+<pre class="console">[1] Balance  [2] Add load
+[3] Promo P50  [4] Exit
+Choice: <span class="in">2</span>
+Amount: P<span class="in">120</span>
+New balance: P120
+
+[1] Balance  [2] Add load
+[3] Promo P50  [4] Exit
+Choice: <span class="in">3</span>
+Promo on! Balance: P70
+
+[1] Balance  [2] Add load
+[3] Promo P50  [4] Exit
+Choice: <span class="in">4</span>
+Goodbye!</pre>
+      </figure>
+      <div class="pitfall"><p class="box-label">Two different breaks</p><p><code>break</code> inside a <code>case</code> ends the <b>switch</b> only. The <code>do-while</code> keeps looping until <code>choice != 4</code> is false.</p></div>
+    </div>
+  </div>
+  <aside class="notes">
+    <p class="note-time">Suggested time: about 10 min</p>
+    <h4>Teaching tips</h4>
+    <ul>
+      <li>Point out the skeleton, which students can reuse for the lab exercise: <code>do { show menu; read choice; switch (choice) { … } } while (choice != EXIT);</code></li>
+      <li><code>balance</code> is declared <em>before</em> the loop, so it survives from one menu pass to the next. Ask what happens if it were declared inside the <code>do { }</code>. (It would reset to 0 every pass.)</li>
+      <li>"P" is used instead of the peso sign because some Windows consoles show "₱" as garbage characters.</li>
+      <li>Run it live and type a letter instead of a number: <code>cin</code> fails and the loop can spin forever. Input validation for that case (<code>cin.fail()</code>) is beyond this lab; just mention it.</li>
+    </ul>
+    <h4>Common student pitfalls</h4>
+    <ul>
+      <li>Using <code>while</code> instead of <code>do-while</code> with an uninitialized <code>choice</code>: the first test reads a garbage value.</li>
+      <li>Forgetting <code>break</code> at the end of a case: execution falls through into the next case.</li>
+      <li>Writing <code>while (choice == 4)</code>: the program quits after one pass for every choice except Exit.</li>
+    </ul>
+    <h4>Ask the class</h4>
+    <ul>
+      <li>"How would you count how many promos were bought?" (a counter that increases inside case 3's <code>if</code>.)</li>
+    </ul>
+  </aside>
+</section>
+
+<!-- ========================= SLIDE 17 · PITFALLS ========================= -->
+<section class="slide" id="l8-pitfalls" data-title="Common Pitfalls" data-section="Practice">
+  <header class="slide-head">
+    <p class="kicker">Lab 8 · Debugging</p>
+    <h2>Four Classic Nested-Loop Bugs</h2>
+    <p class="lede">Each snippet compiles, yet each one is wrong. Spot the bug first.</p>
+  </header>
+  <div class="tabs" data-tabs>
+    <div class="tablist" role="tablist" aria-label="Nested-loop bugs">
+      <button type="button" role="tab" data-tab="b1" aria-selected="true">1 · Same variable</button>
+      <button type="button" role="tab" data-tab="b2">2 · No reset</button>
+      <button type="button" role="tab" data-tab="b3">3 · continue in while</button>
+      <button type="button" role="tab" data-tab="b4">4 · break in nested loops</button>
+    </div>
+    <div class="tabpanel" role="tabpanel" data-panel="b1">
+      <div class="grid-2 align-start">
+        <div class="pitfall"><p class="box-label">Bug 1 · Same loop variable twice</p>
+<pre class="code compact no-ln bad-code" data-cpp data-nocheck>
+int i;
+for (i = 1; i &lt;= 3; i++) {
+    for (i = 1; i &lt;= 4; i++) {  // BUG: i again
+        cout &lt;&lt; "*";
+    }
+    cout &lt;&lt; endl;
+}
+</pre>
+          <p style="margin-top:.6rem">Prints only <b>one row</b> of 4 stars. The inner loop leaves <code>i</code> at 5, so the outer test <code>6 &lt;= 3</code> fails.</p>
+        </div>
+        <details class="hint"><summary>Show the fix</summary>
+<pre class="code compact no-ln" data-cpp style="margin:0 .8rem .6rem">
+for (int i = 1; i &lt;= 3; i++) {
+    for (int j = 1; j &lt;= 4; j++) {
+        cout &lt;&lt; "*";
+    }
+    cout &lt;&lt; endl;
+}
+</pre>
+          <p>Give each loop its own variable: <code>i</code> for rows, <code>j</code> for columns.</p>
+        </details>
+      </div>
+    </div>
+    <div class="tabpanel" role="tabpanel" data-panel="b2">
+      <div class="grid-2 align-start">
+        <div class="pitfall"><p class="box-label">Bug 2 · Accumulator never reset</p>
+<pre class="code compact no-ln bad-code" data-cpp data-nocheck>
+int total = 0;          // BUG: reset only once
+for (int s = 1; s &lt;= 3; s++) {
+    for (int q = 1; q &lt;= 4; q++) {
+        cin &gt;&gt; score;
+        total += score;
+    }
+    cout &lt;&lt; "Total: " &lt;&lt; total &lt;&lt; endl;
+}
+</pre>
+          <p style="margin-top:.6rem">Student 2's total still includes student 1's scores, and student 3's includes both.</p>
+        </div>
+        <details class="hint"><summary>Show the fix</summary>
+<pre class="code compact no-ln" data-cpp style="margin:0 .8rem .6rem">
+for (int s = 1; s &lt;= 3; s++) {
+    int total = 0;          // reset per student
+    for (int q = 1; q &lt;= 4; q++) {
+        cin &gt;&gt; score;
+        total += score;
+    }
+    cout &lt;&lt; "Total: " &lt;&lt; total &lt;&lt; endl;
+}
+</pre>
+          <p>Reset the accumulator <b>inside</b> the outer loop, just before the inner loop starts.</p>
+        </details>
+      </div>
+    </div>
+    <div class="tabpanel" role="tabpanel" data-panel="b3">
+      <div class="grid-2 align-start">
+        <div class="pitfall"><p class="box-label">Bug 3 · continue skips the update</p>
+<pre class="code compact no-ln bad-code" data-cpp data-nocheck>
+int i = 1;
+while (i &lt;= 10) {
+    if (i % 3 == 0) {
+        continue;       // BUG: skips i++
+    }
+    cout &lt;&lt; i &lt;&lt; " ";
+    i++;
+}
+</pre>
+          <p style="margin-top:.6rem">Prints <code>1 2</code>, then <b>hangs</b>: at i = 3, <code>continue</code> jumps to the test and <code>i++</code> never runs again.</p>
+        </div>
+        <details class="hint"><summary>Show the fix</summary>
+<pre class="code compact no-ln" data-cpp style="margin:0 .8rem .6rem">
+for (int i = 1; i &lt;= 10; i++) {
+    if (i % 3 == 0) {
+        continue;       // for: i++ still runs
+    }
+    cout &lt;&lt; i &lt;&lt; " ";
+}
+</pre>
+          <p>In a <code>for</code> loop, <code>continue</code> still runs the update. (Or put <code>i++</code> before <code>continue</code> in the <code>while</code>.)</p>
+        </details>
+      </div>
+    </div>
+    <div class="tabpanel" role="tabpanel" data-panel="b4">
+      <div class="grid-2 align-start">
+        <div class="pitfall"><p class="box-label">Bug 4 · Expecting break to exit all loops</p>
+<pre class="code compact no-ln bad-code" data-cpp data-nocheck>
+for (int a = 1; a &lt;= 3; a++) {
+    for (int b = 1; b &lt;= 3; b++) {
+        if (a * b == 6) {
+            cout &lt;&lt; a &lt;&lt; "x" &lt;&lt; b &lt;&lt; " ";
+            break;      // ends the b-loop only
+        }
+    }
+}
+</pre>
+          <p style="margin-top:.6rem">Meant to print the first match only, but prints <code>2x3 3x2</code>: the outer loop kept going.</p>
+        </div>
+        <details class="hint"><summary>Show the fix</summary>
+<pre class="code compact no-ln" data-cpp style="margin:0 .8rem .6rem">
+bool found = false;
+for (int a = 1; a &lt;= 3 &amp;&amp; !found; a++) {
+    for (int b = 1; b &lt;= 3; b++) {
+        if (a * b == 6) {
+            cout &lt;&lt; a &lt;&lt; "x" &lt;&lt; b &lt;&lt; " ";
+            found = true;
+            break;
+        }
+    }
+}
+</pre>
+          <p>A flag in the outer condition stops the outer loop too. Prints <code>2x3</code> only.</p>
+        </details>
+      </div>
+    </div>
+  </div>
+  <aside class="notes">
+    <p class="note-time">Suggested time: about 8 min</p>
+    <h4>Teaching tips</h4>
+    <ul>
+      <li>Open one tab at a time. Give pairs 1 minute to find the bug and predict the output, then click "Show the fix".</li>
+      <li>Bug 1 can be worse: with an outer limit of 5 and an inner limit of 3, the inner loop always leaves i at 4, the outer i++ makes it 5, and the loop never ends.</li>
+      <li>Bug 3: if a program "freezes" with no output, suspect an infinite loop. Stop it with Ctrl+C (or the stop button in the IDE).</li>
+      <li>All four bugs compile without errors. The compiler checks grammar, not logic, which is why we trace and test.</li>
+    </ul>
+    <h4>Common student pitfalls</h4>
+    <ul>
+      <li>Declaring <code>for (int i …)</code> in both loops "fixes" bug 1 by accident (the inner i hides the outer one), but it is confusing to read. Use different names.</li>
+    </ul>
+    <h4>Ask the class</h4>
+    <ul>
+      <li>"Which of these bugs have you already met in Lab 7?" (Usually 3, the infinite loop.)</li>
+    </ul>
+  </aside>
+</section>
+
+<!-- ========================= SLIDE 18 · QUICK CHECK ========================= -->
+<section class="slide" id="l8-quick-check" data-title="Quick Check" data-section="Practice">
+  <header class="slide-head">
+    <p class="kicker">Lab 8 · Quick check</p>
+    <h2>Quick Check</h2>
+    <p class="lede">Answer on paper first, then click to reveal.</p>
+  </header>
+  <div class="qa-grid">
+    <details class="qa"><summary><span class="q-num">1</span><span class="q-text">How many stars? <code>for (int i = 1; i &lt;= 4; i++) for (int j = 1; j &lt;= 3; j++) cout &lt;&lt; "*";</code></span></summary><p><b>12</b>. The inner loop runs 3 times for each of the 4 outer passes: 4 × 3 = 12.</p></details>
+    <details class="qa"><summary><span class="q-num">2</span><span class="q-text">Output? <code>for (int i = 1; i &lt;= 5; i++) { if (i == 3) continue; cout &lt;&lt; i; }</code></span></summary><p><code>1245</code>. When i is 3, <code>continue</code> skips the <code>cout</code>, then the loop goes on with i = 4.</p></details>
+    <details class="qa"><summary><span class="q-num">3</span><span class="q-text">Same loop, but with <code>break</code> instead of <code>continue</code>. Output?</span></summary><p><code>12</code>. When i is 3, <code>break</code> ends the loop before anything else prints.</p></details>
+    <details class="qa"><summary><span class="q-num">4</span><span class="q-text">A <code>break</code> runs inside the <b>inner</b> loop of a nested loop. What happens next?</span></summary><p>Only the inner loop ends. The outer loop continues with its next pass (and the inner loop starts over then).</p></details>
+    <details class="qa"><summary><span class="q-num">5</span><span class="q-text">Why does the prime check only test divisors while <code>d * d &lt;= n</code>?</span></summary><p>If n = a × b, the smaller factor is at most √n. If no d up to √n divides n, no larger d can. It saves a lot of work (99 tests instead of about 10,000 for n = 10,007).</p></details>
+    <details class="qa"><summary><span class="q-num">6</span><span class="q-text">In a <code>do-while</code> menu, what does <code>break;</code> at the end of <code>case 1:</code> do?</span></summary><p>It ends the <code>switch</code> only. The <code>do-while</code> loop continues and shows the menu again.</p></details>
+  </div>
+  <aside class="notes">
+    <p class="note-time">Suggested time: about 6 min</p>
+    <h4>Teaching tips</h4>
+    <ul>
+      <li>Have students write answers 1–6 on a ¼ sheet first, then reveal one at a time and ask for a show of hands for each answer.</li>
+      <li>Questions 2 and 3 are a pair on purpose: the only difference is one keyword.</li>
+    </ul>
+    <h4>Common student pitfalls</h4>
+    <ul>
+      <li>Q1: answering 7 (4 + 3) instead of 12. Point back to the "counting the work" slide.</li>
+      <li>Q6: answering "it exits the program". That would need <code>return 0;</code> or the loop condition to fail.</li>
+    </ul>
+    <h4>Ask the class</h4>
+    <ul>
+      <li>"Which question was hardest?" Reteach that one with the matching tracer or flowchart.</li>
+    </ul>
+  </aside>
+</section>
+
+<!-- ========================= SLIDE 19 · SEATWORK ========================= -->
+<section class="slide" id="l8-seatwork" data-title="Seatwork: Armstrong Numbers" data-section="Practice">
+  <header class="slide-head">
+    <p class="kicker">Lab 8 · Seatwork</p>
+    <h2>Seatwork: Armstrong Numbers</h2>
+  </header>
+  <div class="story">
+    <p>A three-digit number is an <b>Armstrong number</b> if the sum of the <b>cubes</b> of its digits equals the number itself. Example: 153 = 1³ + 5³ + 3³ = 1 + 125 + 27.</p>
+    <p class="task"><b>Instruction:</b> Write a C++ program that prints every Armstrong number from <b>100 to 999</b>, one per line. Use a loop over the numbers with a digit-extracting loop inside it.</p>
+  </div>
+  <div class="grid-2 align-start">
+    <div class="card">
+      <h3 class="card-title">Need a hint?</h3>
+      <details class="hint"><summary>Hint 1</summary><p>Outer loop: <code>for (int n = 100; n &lt;= 999; n++)</code>. Inner loop: the <code>% 10</code> / <code>/ 10</code> loop from the digits slide.</p></details>
+      <details class="hint"><summary>Hint 2</summary><p>Work on a copy (<code>temp = n</code>) so you can still compare the result with <code>n</code>.</p></details>
+      <details class="hint"><summary>Hint 3</summary><p>Reset <code>sum = 0</code> for <b>every</b> n. A cube is <code>digit * digit * digit</code> (not <code>digit ^ 3</code>).</p></details>
+      <p class="small muted">Expected output: 4 numbers.</p>
+    </div>
+    <div class="card timer" data-timer data-minutes="10">
+      <h3 class="card-title">Seatwork timer</h3>
+      <p class="timer-display">10:00</p>
+      <div class="timer-presets" role="group" aria-label="Timer presets">
+        <button type="button" class="btn ghost" data-min="5">5 min</button>
+        <button type="button" class="btn ghost" data-min="10">10 min</button>
+        <button type="button" class="btn ghost" data-min="15">15 min</button>
+      </div>
+      <div class="timer-actions">
+        <button type="button" class="btn primary" data-timer-act="toggle">Start</button>
+        <button type="button" class="btn" data-timer-act="reset">Reset</button>
+      </div>
+    </div>
+  </div>
+  <details class="answer">
+    <summary><span>Reveal answer &amp; walkthrough</span></summary>
+    <div class="code-pair" style="margin-top:1rem">
+<pre class="code" data-cpp>
+#include &lt;iostream&gt;
+using namespace std;
+
+int main() {
+    cout &lt;&lt; "Armstrong numbers, 100 to 999:" &lt;&lt; endl;
+    for (int n = 100; n &lt;= 999; n++) {
+        int temp = n, sum = 0;      // reset for every n
+        while (temp &gt; 0) {
+            int digit = temp % 10;
+            sum += digit * digit * digit;   // cube
+            temp /= 10;
+        }
+        if (sum == n) {
+            cout &lt;&lt; n &lt;&lt; endl;
+        }
+    }
+    return 0;
+}
+</pre>
+      <div class="stack">
+<pre class="console">Armstrong numbers, 100 to 999:
+153
+370
+371
+407</pre>
+        <div class="concept"><p class="box-label">Walkthrough for 370</p><p>Digits 0, 7, 3 (last digit first). Cubes: 0 + 343 + 27 = 370 = n, so it prints.</p></div>
+        <p class="small">The same pattern (outer loop over numbers, inner loop over digits, accumulator reset per number) solves many "special number" problems.</p>
+      </div>
+    </div>
+  </details>
+  <aside class="notes">
+    <p class="note-time">Suggested time: about 15 min (10 working, 5 review)</p>
+    <h4>Running the seatwork</h4>
+    <ul>
+      <li>Start the 10-minute timer. Open hints one at a time only if many students are stuck.</li>
+      <li>Strong students: extend it to 4-digit numbers using the 4th power (answers: 1634, 8208, 9474).</li>
+      <li>Before revealing, ask a student to share their screen or read their output. If someone gets more than 4 numbers, debug their code together: it is usually a missing reset.</li>
+    </ul>
+    <h4>Common student pitfalls</h4>
+    <ul>
+      <li><code>int sum = 0;</code> placed before the outer loop: nothing (or nonsense) prints.</li>
+      <li>Destroying <code>n</code> in the digit loop (<code>n /= 10</code>) also breaks the outer loop: n becomes 0, so <code>n++</code> restarts it at 1 and the program never ends.</li>
+      <li><code>pow(digit, 3)</code> works but returns a <code>double</code>; multiplying is simpler and exact.</li>
+    </ul>
+    <h4>Ask the class</h4>
+    <ul>
+      <li>"How many times does the inner loop run in total?" (3 per number × 900 numbers = 2700.)</li>
+    </ul>
+  </aside>
+</section>
+
+<!-- ========================= SLIDE 20 · LAB EXERCISE ========================= -->
+<!-- LOCKED-ACTIVITY:START lab-08 -->
+<section class="slide locked-slide" id="l8-exercise" data-title="Laboratory Exercise No. 8 (locked)" data-section="Laboratory Exercise" data-locked="lab-08">
+  <header class="slide-head">
+    <p class="kicker">Laboratory Exercise No. 8</p>
+    <h2>This lab activity is locked</h2>
+    <p class="lede">It opens when your instructor releases it. Enter the passphrase your instructor gives you.</p>
+  </header>
+  <div class="lock-card">
+    <svg class="lock-icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="10.5" width="14" height="10" rx="2"/><path d="M8 10.5V7.5a4 4 0 0 1 8 0v3M12 14.5v2.5"/></svg>
+    <h3>Laboratory Exercise No. 8</h3>
+    <form class="lock-form" autocomplete="off">
+      <label class="sr-only" for="unlock-lab-08">Passphrase</label>
+      <input id="unlock-lab-08" type="password" placeholder="Passphrase" autocomplete="off" spellcheck="false">
+      <button type="submit" class="btn primary">Unlock</button>
+    </form>
+    <p class="lock-msg" aria-live="polite"></p>
+    <p class="small muted">The activity is stored encrypted on this site and is unlocked in your browser. Once unlocked, it stays open on this device.</p>
+  </div>
+  <script type="application/json" class="locked-data">{"v":1,"iter":250000,"salt":"G39ur93qFW8ETdvVfJp65A==","iv":"YeZA+K1OhfxWJyRT","data":"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"}</script>
+  <aside class="notes">
+    <p class="note-time">Locked activity (1 slide)</p>
+    <h4>Instructor</h4>
+    <ul>
+      <li>Type this lab's passphrase (private instructor package → <code>passwords.json</code>) to open the activity on the classroom PC. It stays unlocked on that browser until you press "Lock again".</li>
+      <li>To release the activity to students, announce or post the passphrase (e.g. in MS Teams).</li>
+      <li>To re-lock it for everyone, change the passphrase and rerun <code>node tools/lock-activities.js</code>.</li>
+    </ul>
+  </aside>
+</section>
+<!-- LOCKED-ACTIVITY:END lab-08 -->
+
+<!-- ========================= SLIDE 21 · WRAP-UP ========================= -->
+<section class="slide" id="l8-wrap-up" data-title="Wrap-up" data-section="Wrap-up">
+  <header class="slide-head">
+    <p class="kicker">Wrap-up</p>
+    <h2>Loops Inside Loops, and Ways Out</h2>
+  </header>
+  <div class="table-wrap">
+    <table class="table compact">
+      <thead><tr><th scope="col">Tool</th><th scope="col">What it does</th><th scope="col">Typical use</th></tr></thead>
+      <tbody>
+        <tr><th scope="row">Nested loops</th><td>Inner loop runs fully for each outer pass (n × m work)</td><td>Patterns, grids, tables, candidates × divisors</td></tr>
+        <tr><th scope="row"><code>break</code></th><td>Ends the nearest loop or switch now</td><td>Stop on a sentinel, first match found</td></tr>
+        <tr><th scope="row"><code>continue</code></th><td>Skips to the next pass of the nearest loop</td><td>Ignore invalid or unwanted values</td></tr>
+        <tr><th scope="row">Flag variable</th><td>Remembers "found" / "is prime" across passes</td><td>Decide after the loop; exit nested loops</td></tr>
+        <tr><th scope="row"><code>do-while</code> + <code>switch</code></th><td>Repeats a menu until Exit</td><td>Menu-driven programs</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="grid-3">
+    <div class="card"><h3 class="card-title">Exit ticket</h3><p>On a ¼ sheet, write the nested loops that print:</p><pre class="console" style="margin-top:.4rem">1
+22
+333</pre></div>
+    <div class="card"><h3 class="card-title">Week 9: Midterm Practical Exam</h3><p>Apply algorithmic design, flowcharts/pseudocode, and C++ control structures to solve a timed programming problem. Review Labs 1–8, especially the tracers.</p></div>
+    <div class="card"><h3 class="card-title">Next: Lab No. 9</h3><p><b>Arrays</b> (Week 10): store many values under one name and process them with the loops you know.</p><p><a href="lab-09.html">Open Lab 9 →</a></p></div>
+  </div>
+  <aside class="notes">
+    <p class="note-time">Suggested time: about 4 min</p>
+    <h4>Teaching tips</h4>
+    <ul>
+      <li>Exit ticket answer: outer <code>i</code> from 1 to 3, inner <code>j</code> from 1 to i, print <code>i</code> (not j), <code>endl</code> after the inner loop.</li>
+      <li>Midterm reminders: bring your own reviewer notes only if allowed, practice typing a full program from a blank file (without copy-paste), and practice reading compiler errors.</li>
+      <li>Announce the Lab Exercise No. 8 deadline and that the midterm is graded with the 5-Level Exam Rubric.</li>
+    </ul>
+    <h4>Common student pitfalls</h4>
+    <ul>
+      <li>Studying by reading code only. For a practical exam, students must <em>write</em> and <em>run</em> programs under time pressure.</li>
+    </ul>
+    <h4>Ask the class</h4>
+    <ul>
+      <li>"Which tool from today would you use to stop reading input when the user types 0?" (break, or a sentinel loop.)</li>
+    </ul>
+  </aside>
+</section>
+
+      </div>
+    </main>
+  </div>
+</body>
+</html>

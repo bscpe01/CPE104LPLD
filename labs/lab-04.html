@@ -1,0 +1,1254 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Lab 4 · Operators and Its Hierarchy · CPE 104L</title>
+  <meta name="description" content="CPE 104L Programming Logic and Design, Lab No. 4: Operators and Its Hierarchy. Arithmetic, assignment, relational, and logical operators in C++, integer division, increment and decrement, precedence and associativity.">
+  <meta name="color-scheme" content="light dark">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%232f3410'/%3E%3Cpath d='M32 11 53 32 32 53 11 32Z' fill='none' stroke='%23f5c518' stroke-width='6' stroke-linejoin='round'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="../css/styles.css">
+  <script>
+    (function () { var d = document.documentElement; d.classList.add('js');
+      try { var t = localStorage.getItem('cpe104l.theme'); if (t === 'dark' || t === 'light') d.setAttribute('data-theme', t); } catch (e) {} })();
+  </script>
+  <script src="../js/course.js" defer></script>
+  <script src="../js/search-index.js" defer></script>
+  <script src="../js/script.js" defer></script>
+  <script src="../js/labs/lab-04.js" defer></script>
+</head>
+<body data-page="lab-04" data-root="../">
+  <svg class="svg-defs" aria-hidden="true" focusable="false"><defs><marker id="arrow" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="10" markerHeight="10" markerUnits="userSpaceOnUse" orient="auto"><path class="arrowhead" d="M0 0 L10 5 L0 10 Z"/></marker></defs></svg>
+  <div class="app" id="app">
+    <main class="stage" id="stage">
+      <div class="deck" id="deck" tabindex="-1">
+<noscript><p class="noscript">JavaScript is off, so every slide is shown in one long page. Turn JavaScript on for slide navigation, speaker notes, and the live tracers.</p></noscript>
+
+<!-- ========================= SLIDE 1 · TITLE ========================= -->
+<section class="slide" id="l4-title" data-title="Title & ILOs" data-section="Introduction">
+  <div class="lab-title">
+    <div>
+      <div class="lab-badges"><span class="badge-lab">Lab No. 4</span><span class="badge-week">Week 5</span><span class="badge-co">CO1</span></div>
+      <p class="kicker">CPE 104L · Programming Logic and Design</p>
+      <h1>Operators and Its Hierarchy <span>Arithmetic, assignment, relational &amp; logical operators in C++</span></h1>
+      <p class="lede">Every formula you type becomes an expression, and C++ has strict rules about which part it computes first. Learn the rules and your program computes what you meant.</p>
+      <ol class="roadmap" aria-label="Lab roadmap">
+        <li><a href="#l4-bridge">Pseudocode → C++</a></li>
+        <li><a href="#l4-division">Integer division</a></li>
+        <li><a href="#l4-incdec">++ and --</a></li>
+        <li><a href="#l4-logical">Logical operators</a></li>
+        <li><a href="#l4-precedence">Precedence table</a></li>
+        <li><a href="#l4-lab-1">Lab Exercise No. 4</a></li>
+      </ol>
+    </div>
+    <div class="ilo-card">
+      <h2>Intended Learning Outcomes</h2>
+      <ol>
+        <li>Classify arithmetic, relational, logical, and assignment operators.</li>
+        <li>Evaluate complex expressions using operator precedence and associativity.</li>
+      </ol>
+      <div class="ilo-meta">
+        <span><b>Activities:</b> Code tracing exercises · Live coding demonstrations · Laboratory activities</span>
+        <span><b>Assessment:</b> Lab Exercise No. 4 · 5-Level Lab Rubric</span>
+      </div>
+    </div>
+  </div>
+  <aside class="notes">
+    <p class="note-time">Suggested time: about 3 min</p>
+    <h4>Teaching tips</h4>
+    <ul>
+      <li>Hook: write <code>7 / 2</code> on the board and ask what C++ prints. Most students say 3.5. The answer (3) is the first surprise of the day.</li>
+      <li>Read both ILOs aloud. ILO 1 is "name the family of each operator". ILO 2 is "predict the value of an expression before running it". Lab Exercise No. 4 checks both.</li>
+      <li>Have Codechum (or Code::Blocks / Dev-C++) open. Today is mostly live coding: type each example, predict the output, then run it.</li>
+    </ul>
+    <h4>Common student pitfalls</h4>
+    <ul>
+      <li>Assuming C++ math works exactly like a calculator. Integer division, <code>%</code> with negatives, and <code>^</code> all behave differently.</li>
+    </ul>
+    <h4>Ask the class</h4>
+    <ul>
+      <li>"In Lab 1, what did <code>10 + 6 / 2 * 3 - 4 % 3</code> give?" (18.) We'll check whether C++ agrees.</li>
+    </ul>
+  </aside>
+</section>
+
+<!-- ========================= SLIDE 2 · BRIDGE ========================= -->
+<section class="slide" id="l4-bridge" data-title="From Pseudocode to C++ Operators" data-section="Introduction">
+  <header class="slide-head">
+    <p class="kicker">Lab 4 · Review of Lab 1</p>
+    <h2>From Pseudocode Operators to C++</h2>
+    <p class="lede">Most Lab 1 operators carry over unchanged. A few change spelling, and those cause most first-week bugs.</p>
+  </header>
+  <div class="grid-2 align-start" style="grid-template-columns:minmax(0,1.25fr) minmax(0,1fr)">
+    <div class="table-wrap">
+      <table class="table compact">
+        <thead><tr><th scope="col">Meaning</th><th scope="col">Lab 1 pseudocode</th><th scope="col">C++</th><th scope="col">Watch out</th></tr></thead>
+        <tbody>
+          <tr><th scope="row">Assign a value</th><td><code>SET x = 5</code></td><td><code>x = 5;</code></td><td>One <code>=</code> <b>stores</b></td></tr>
+          <tr><th scope="row">Equal to</th><td><code>IF x = 5</code></td><td><code>x == 5</code></td><td>Two <code>==</code> <b>compare</b></td></tr>
+          <tr><th scope="row">Not equal to</th><td><code>&lt;&gt;</code></td><td><code>!=</code></td><td></td></tr>
+          <tr><th scope="row">Relational</th><td><code>&gt; &lt; &gt;= &lt;=</code></td><td><code>&gt; &lt; &gt;= &lt;=</code></td><td>Same</td></tr>
+          <tr><th scope="row">Arithmetic</th><td><code>+ - * /</code></td><td><code>+ - * /</code></td><td><code>int / int</code> drops the fraction</td></tr>
+          <tr><th scope="row">Remainder</th><td><code>%</code></td><td><code>%</code></td><td>Integers only</td></tr>
+          <tr><th scope="row">Power</th><td><code>**</code> or <code>^</code></td><td><code>pow(x, y)</code></td><td><code>^</code> is XOR in C++! Needs <code>&lt;cmath&gt;</code></td></tr>
+          <tr><th scope="row">Logical</th><td><code>AND OR NOT</code></td><td><code>&amp;&amp; || !</code></td><td></td></tr>
+          <tr><th scope="row">Grouping</th><td><code>( )</code></td><td><code>( )</code></td><td>Same: always first</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="stack">
+      <div class="concept"><p class="box-label">Key terms</p>
+        <p>An <b>operator</b> is a symbol that performs an operation on one or more <b>operands</b>. In <code>price * qty</code>, the operator is <code>*</code> and the operands are <code>price</code> and <code>qty</code>.</p>
+        <p>An <b>expression</b> combines operands and operators and produces <b>one value</b>.</p>
+      </div>
+      <div class="grid-2 tight-gap">
+        <div class="card"><h3 class="card-title">Arithmetic</h3><p><code>+ - * / %</code><br><span class="small muted">unary <code>-</code>, <code>++</code>, <code>--</code></span></p></div>
+        <div class="card"><h3 class="card-title">Assignment</h3><p><code>= += -= *= /= %=</code></p></div>
+        <div class="card"><h3 class="card-title">Relational</h3><p><code>== != &lt; &gt; &lt;= &gt;=</code></p></div>
+        <div class="card"><h3 class="card-title">Logical</h3><p><code>&amp;&amp; || !</code></p></div>
+      </div>
+    </div>
+  </div>
+  <aside class="notes">
+    <p class="note-time">Suggested time: about 5 min</p>
+    <h4>Teaching tips</h4>
+    <ul>
+      <li>The four cards are the four families in ILO 1. Ask students to copy them; the Quick Check and the exit ticket use the same classification.</li>
+      <li>Translate one Lab 1 line live: <code>IF x = 0 OR y &lt;&gt; 0</code> becomes <code>x == 0 || y != 0</code>, and <code>COMPUTE area = 3.1416 * r ^ 2</code> becomes <code>area = 3.1416 * pow(r, 2);</code>.</li>
+      <li>C++ also accepts the words <code>and</code>, <code>or</code>, <code>not</code> as alternative spellings, but the course (and most code you'll read) uses the symbols.</li>
+      <li>Increment and decrement (<code>++</code>, <code>--</code>) are usually grouped with arithmetic (Gaddis) or listed as their own unary operators (Malik). Either classification is accepted.</li>
+    </ul>
+    <h4>Common student pitfalls</h4>
+    <ul>
+      <li>Writing <code>x = 5</code> when they mean "is x equal to 5?".</li>
+      <li>Writing <code>r ^ 2</code> for r squared. It compiles, but it computes XOR.</li>
+      <li>Writing <code>&lt;&gt;</code> for "not equal". It doesn't compile in C++.</li>
+    </ul>
+    <h4>Ask the class</h4>
+    <ul>
+      <li>"Which family does <code>&gt;=</code> belong to? <code>%=</code>? <code>!</code>?" (Relational, assignment, logical.)</li>
+    </ul>
+  </aside>
+</section>
+
+<!-- ========================= SLIDE 3 · ARITHMETIC ========================= -->
+<section class="slide" id="l4-arith" data-title="Arithmetic Operators" data-section="Arithmetic & Assignment">
+  <header class="slide-head">
+    <p class="kicker">Lab 4 · Arithmetic operators</p>
+    <h2>The Arithmetic Operators</h2>
+    <p class="lede">Five binary operators (two operands) and one unary minus (one operand).</p>
+  </header>
+  <div class="grid-2 align-start">
+    <div class="stack">
+      <div class="table-wrap">
+        <table class="table compact">
+          <thead><tr><th scope="col">Operator</th><th scope="col">Meaning</th><th scope="col">With a = 17, b = 5</th><th scope="col">Result</th></tr></thead>
+          <tbody>
+            <tr><td><code>+</code></td><td>Addition</td><td><code>a + b</code></td><td>22</td></tr>
+            <tr><td><code>-</code></td><td>Subtraction</td><td><code>a - b</code></td><td>12</td></tr>
+            <tr><td><code>*</code></td><td>Multiplication</td><td><code>a * b</code></td><td>85</td></tr>
+            <tr><td><code>/</code></td><td>Division</td><td><code>a / b</code></td><td><b>3</b> (not 3.4)</td></tr>
+            <tr><td><code>%</code></td><td>Modulus (remainder)</td><td><code>a % b</code></td><td>2</td></tr>
+            <tr><td><code>-</code> (unary)</td><td>Negation</td><td><code>-a</code></td><td>−17</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="concept"><p class="box-label">Key concept</p>
+        <p>17 ÷ 5 = 3 remainder 2. With two <code>int</code> operands, <code>/</code> gives the <b>quotient</b> (3) and <code>%</code> gives the <b>remainder</b> (2).</p>
+      </div>
+      <figure class="codeblock">
+        <figcaption>Sample run</figcaption>
+<pre class="console">Enter two integers: <span class="in">17 5</span>
+a + b = 22
+a - b = 12
+a * b = 85
+a / b = 3
+a % b = 2
+-a    = -17</pre>
+      </figure>
+    </div>
+    <div class="stack">
+      <figure class="codeblock">
+        <figcaption><code>arithmetic.cpp</code></figcaption>
+<pre class="code" data-cpp data-stdin="17 5">
+#include &lt;iostream&gt;
+using namespace std;
+
+int main() {
+    int a, b;
+    cout &lt;&lt; "Enter two integers: ";
+    cin &gt;&gt; a &gt;&gt; b;
+    cout &lt;&lt; "a + b = " &lt;&lt; a + b &lt;&lt; endl;
+    cout &lt;&lt; "a - b = " &lt;&lt; a - b &lt;&lt; endl;
+    cout &lt;&lt; "a * b = " &lt;&lt; a * b &lt;&lt; endl;
+    cout &lt;&lt; "a / b = " &lt;&lt; a / b &lt;&lt; endl;
+    cout &lt;&lt; "a % b = " &lt;&lt; a % b &lt;&lt; endl;
+    cout &lt;&lt; "-a    = " &lt;&lt; -a &lt;&lt; endl;
+    return 0;
+}
+</pre>
+      </figure>
+    </div>
+  </div>
+  <aside class="notes">
+    <p class="note-time">Suggested time: about 6 min</p>
+    <h4>Teaching tips</h4>
+    <ul>
+      <li>Live-code it. Before each Run, ask the class to predict the six lines. Then run with <code>17 5</code>, <code>20 4</code>, and <code>5 17</code> (5 / 17 = 0 and 5 % 17 = 5 surprise many).</li>
+      <li><code>cout &lt;&lt; a + b</code> works without parentheses because <code>+</code> ranks above <code>&lt;&lt;</code> in the precedence table (coming up). Relational operators rank below <code>&lt;&lt;</code>, so they will need parentheses.</li>
+      <li>Everyday <code>%</code> uses: even/odd (<code>n % 2</code>), last digit (<code>n % 10</code>), wrapping around a clock (<code>hour % 12</code>).</li>
+    </ul>
+    <h4>Common student pitfalls</h4>
+    <ul>
+      <li>Reading <code>%</code> as "percent". It's the remainder.</li>
+      <li>Entering <code>0</code> for b. Integer division by zero is undefined behavior; on most PCs the program crashes ("Floating point exception"). We guard against it with <code>if</code> in Lab 6.</li>
+    </ul>
+    <h4>Ask the class</h4>
+    <ul>
+      <li>"What are <code>25 / 7</code> and <code>25 % 7</code>?" (3 and 4.) "And <code>7 % 25</code>?" (7.)</li>
+    </ul>
+  </aside>
+</section>
+
+<!-- ========================= SLIDE 4 · DIVISION ========================= -->
+<section class="slide" id="l4-division" data-title="Integer vs. Floating-Point Division" data-section="Arithmetic & Assignment">
+  <header class="slide-head">
+    <p class="kicker">Lab 4 · Arithmetic operators</p>
+    <h2>Integer vs. Floating-Point Division</h2>
+    <p class="lede">The <b>types of the operands</b>, not the variable that receives the result, decide which kind of division happens.</p>
+  </header>
+  <div class="code-pair">
+    <figure class="codeblock">
+      <figcaption><code>division.cpp</code></figcaption>
+<pre class="code" data-cpp>
+#include &lt;iostream&gt;
+#include &lt;cmath&gt;
+using namespace std;
+
+int main() {
+    cout &lt;&lt; "7 / 2        = " &lt;&lt; 7 / 2 &lt;&lt; endl;
+    cout &lt;&lt; "7.0 / 2      = " &lt;&lt; 7.0 / 2 &lt;&lt; endl;
+    cout &lt;&lt; "7 / 2.0      = " &lt;&lt; 7 / 2.0 &lt;&lt; endl;
+    cout &lt;&lt; "-7 / 2       = " &lt;&lt; -7 / 2 &lt;&lt; endl;
+    cout &lt;&lt; "7 % 3        = " &lt;&lt; 7 % 3 &lt;&lt; endl;
+    cout &lt;&lt; "-7 % 3       = " &lt;&lt; -7 % 3 &lt;&lt; endl;
+    cout &lt;&lt; "7 % -3       = " &lt;&lt; 7 % -3 &lt;&lt; endl;
+    cout &lt;&lt; "fmod(7.5, 2) = " &lt;&lt; fmod(7.5, 2) &lt;&lt; endl;
+    return 0;
+}
+</pre>
+    </figure>
+    <div class="stack">
+      <figure class="codeblock">
+        <figcaption>Output</figcaption>
+<pre class="console">7 / 2        = 3
+7.0 / 2      = 3.5
+7 / 2.0      = 3.5
+-7 / 2       = -3
+7 % 3        = 1
+-7 % 3       = -1
+7 % -3       = 1
+fmod(7.5, 2) = 1.5</pre>
+      </figure>
+      <div class="concept"><p class="box-label">Rules</p>
+        <ul>
+          <li><code>int / int</code> → <code>int</code>: the fraction is dropped, <b>truncated toward zero</b> (−3.5 → −3).</li>
+          <li>If either operand is a <code>double</code>, you get real division.</li>
+          <li>The sign of <code>a % b</code> follows <b>a</b>. Always: <code>(a / b) * b + a % b == a</code>.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+  <div class="pitfall" style="margin-top:1rem"><p class="box-label">Common pitfall</p>
+    <p><code>%</code> needs <b>integer</b> operands. <code>7.5 % 2</code> does not compile: <span class="small"><i>error: invalid operands of types 'double' and 'int' to binary 'operator%'</i></span>. For doubles, use <code>fmod(7.5, 2)</code> from <code>&lt;cmath&gt;</code>.</p>
+  </div>
+  <aside class="notes">
+    <p class="note-time">Suggested time: about 7 min</p>
+    <h4>Teaching tips</h4>
+    <ul>
+      <li>Cover the output and have students write their predictions for all 8 lines first. Collect a show of hands for <code>-7 / 2</code>: −3 or −4? C++ (since C++11) always truncates toward zero, so it's −3. Python's floor division (<code>-7 // 2</code>) gives −4, which is a good "languages differ" moment.</li>
+      <li>Verify the identity on the board for −7 and 3: <code>(-7 / 3) * 3 + (-7 % 3)</code> = (−2)(3) + (−1) = −7. ✔</li>
+      <li>A literal with a decimal point (<code>7.0</code>, <code>2.0</code>) is a <code>double</code>. That one dot changes the result.</li>
+    </ul>
+    <h4>Common student pitfalls</h4>
+    <ul>
+      <li>Thinking <code>double x = 7 / 2;</code> stores 3.5. The division happens first, with ints, so 3 is stored (as 3.0).</li>
+      <li>Expecting <code>%</code> to always be positive, as in math class. In C++, <code>-7 % 3</code> is −1, not 2.</li>
+      <li>Forgetting <code>#include &lt;cmath&gt;</code> for <code>fmod</code>. Some compilers still build it through another header; don't rely on that.</li>
+    </ul>
+    <h4>Ask the class</h4>
+    <ul>
+      <li>"What is <code>9 / 4 * 4</code>?" (8, not 9.) "What is <code>-9 % 4</code>?" (−1.)</li>
+    </ul>
+  </aside>
+</section>
+
+<!-- ========================= SLIDE 5 · TYPE CONVERSION ========================= -->
+<section class="slide" id="l4-casting" data-title="Type Conversion & static_cast" data-section="Arithmetic & Assignment">
+  <header class="slide-head">
+    <p class="kicker">Lab 4 · Mixed-type expressions</p>
+    <h2>Type Conversion and <code>static_cast</code></h2>
+    <p class="lede">When types mix, C++ converts values, sometimes automatically and sometimes only when you ask.</p>
+  </header>
+  <div class="grid-2 align-start" style="grid-template-columns:minmax(0,1fr) minmax(0,1.2fr)">
+    <div class="stack">
+      <div class="concept"><p class="box-label">Implicit conversion (automatic)</p>
+        <ul>
+          <li><b>Promotion:</b> in <code>int</code> op <code>double</code>, the int is converted to double first. <code>5 + 2.5</code> → 7.5.</li>
+          <li><b>On assignment:</b> the value is converted to the variable's type. <code>int n = 9.99;</code> stores <b>9</b>, with the fraction truncated and no error.</li>
+        </ul>
+      </div>
+      <div class="concept"><p class="box-label">Explicit conversion (a cast)</p>
+        <p class="syntax" style="margin:.2rem 0 .5rem">static_cast&lt;<i>type</i>&gt;(<i>expression</i>)</p>
+        <p><code>static_cast&lt;double&gt;(sum) / count</code> makes <code>sum</code> a double <b>before</b> dividing, so the division is real division.</p>
+      </div>
+      <div class="pitfall"><p class="box-label">Common pitfall</p>
+        <p>Triangle area <code>1 / 2 * base * height</code> is always <b>0</b>, because <code>1 / 2</code> is integer division. Write <code>0.5 * base * height</code>.</p>
+      </div>
+    </div>
+    <div class="stack">
+      <figure class="codeblock">
+        <figcaption><code>conversion.cpp</code></figcaption>
+<pre class="code" data-cpp>
+#include &lt;iostream&gt;
+using namespace std;
+
+int main() {
+    int sum = 85 + 90 + 78;   // 253
+    int count = 3;
+    double wrong = sum / count;   // int / int first!
+    double right = static_cast&lt;double&gt;(sum) / count;
+    cout &lt;&lt; "wrong = " &lt;&lt; wrong &lt;&lt; endl;
+    cout &lt;&lt; "right = " &lt;&lt; right &lt;&lt; endl;
+
+    int b = 10, h = 5;        // triangle base, height
+    cout &lt;&lt; "1 / 2 * b * h = " &lt;&lt; 1 / 2 * b * h &lt;&lt; endl;
+    cout &lt;&lt; "0.5 * b * h   = " &lt;&lt; 0.5 * b * h &lt;&lt; endl;
+    cout &lt;&lt; "5 + 2.5       = " &lt;&lt; 5 + 2.5 &lt;&lt; endl;
+    return 0;
+}
+</pre>
+      </figure>
+      <figure class="codeblock">
+        <figcaption>Output</figcaption>
+<pre class="console">wrong = 84
+right = 84.3333
+1 / 2 * b * h = 0
+0.5 * b * h   = 25
+5 + 2.5       = 7.5</pre>
+      </figure>
+    </div>
+  </div>
+  <aside class="notes">
+    <p class="note-time">Suggested time: about 7 min</p>
+    <h4>Teaching tips</h4>
+    <ul>
+      <li>Ask: "Why does <code>wrong</code> show 84 even though it is a <code>double</code>?" Because <code>253 / 3</code> is computed with ints (84), and only then stored as 84.0. The receiving variable's type comes too late.</li>
+      <li>Placement matters: <code>static_cast&lt;double&gt;(sum / count)</code> is still 84, because the integer division happens inside the parentheses first.</li>
+      <li>Older books (and Gaddis/Malik) also show the C-style cast <code>(double) sum</code>, and some decks use the functional form <code>double(sum)</code> or <code>int(9.99)</code> (Lab 3 notes mention these). For these simple number types all three do the same thing; <code>static_cast</code> is the modern, easier-to-search form.</li>
+      <li>84.3333 has 6 significant digits, which is the default for <code>cout</code>. Lab 5 shows how to print exactly 2 decimals.</li>
+    </ul>
+    <h4>Common student pitfalls</h4>
+    <ul>
+      <li>Casting the result instead of an operand: <code>static_cast&lt;double&gt;(sum / count)</code>.</li>
+      <li>Expecting <code>int n = 9.99;</code> to round to 10. It truncates to 9, and g++ gives no warning with <code>-Wall</code>.</li>
+    </ul>
+    <h4>Ask the class</h4>
+    <ul>
+      <li>"Give two different fixes for <code>1 / 2 * base * height</code>." (<code>0.5 * base * height</code>, <code>base * height / 2.0</code>, or <code>1.0 / 2 * base * height</code>.)</li>
+    </ul>
+  </aside>
+</section>
+
+<!-- ========================= SLIDE 6 · ASSIGNMENT ========================= -->
+<section class="slide" id="l4-assign" data-title="Assignment & Compound Assignment" data-section="Arithmetic & Assignment">
+  <header class="slide-head">
+    <p class="kicker">Lab 4 · Assignment operators</p>
+    <h2>Assignment and Compound Assignment</h2>
+    <p class="lede"><code>=</code> evaluates the right side, then stores the value in the variable on the left. It is an instruction, not an equation.</p>
+  </header>
+  <div class="grid-2 align-start">
+    <div class="stack">
+      <div class="table-wrap">
+        <table class="table compact">
+          <thead><tr><th scope="col">Operator</th><th scope="col">Example</th><th scope="col">Same as</th><th scope="col">x becomes</th></tr></thead>
+          <tbody>
+            <tr><td><code>+=</code></td><td><code>x += 5;</code></td><td><code>x = x + 5;</code></td><td>20 → 25</td></tr>
+            <tr><td><code>-=</code></td><td><code>x -= 3;</code></td><td><code>x = x - 3;</code></td><td>25 → 22</td></tr>
+            <tr><td><code>*=</code></td><td><code>x *= 2;</code></td><td><code>x = x * 2;</code></td><td>22 → 44</td></tr>
+            <tr><td><code>/=</code></td><td><code>x /= 5;</code></td><td><code>x = x / 5;</code></td><td>44 → 8</td></tr>
+            <tr><td><code>%=</code></td><td><code>x %= 3;</code></td><td><code>x = x % 3;</code></td><td>8 → 2</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="concept"><p class="box-label">Key concept</p>
+        <ul>
+          <li>The whole right side is computed first: <code>x *= y + 1</code> means <code>x = x * (y + 1)</code>.</li>
+          <li>Assignment groups <b>right to left</b>: <code>a = b = 0;</code> is <code>a = (b = 0);</code></li>
+          <li>The left side must be a variable. <code>5 = x;</code> does not compile.</li>
+        </ul>
+      </div>
+      <figure class="codeblock">
+        <figcaption>Output</figcaption>
+<pre class="console">x += 5  -&gt; 25
+x -= 3  -&gt; 22
+x *= 2  -&gt; 44
+x /= 5  -&gt; 8
+x %= 3  -&gt; 2
+x *= y + 1 -&gt; 10</pre>
+      </figure>
+    </div>
+    <div class="stack">
+      <figure class="codeblock">
+        <figcaption><code>compound.cpp</code></figcaption>
+<pre class="code" data-cpp>
+#include &lt;iostream&gt;
+using namespace std;
+
+int main() {
+    int x = 20;
+    x += 5;     // x = x + 5
+    cout &lt;&lt; "x += 5  -&gt; " &lt;&lt; x &lt;&lt; endl;
+    x -= 3;     // x = x - 3
+    cout &lt;&lt; "x -= 3  -&gt; " &lt;&lt; x &lt;&lt; endl;
+    x *= 2;     // x = x * 2
+    cout &lt;&lt; "x *= 2  -&gt; " &lt;&lt; x &lt;&lt; endl;
+    x /= 5;     // x = x / 5  (integer division)
+    cout &lt;&lt; "x /= 5  -&gt; " &lt;&lt; x &lt;&lt; endl;
+    x %= 3;     // x = x % 3
+    cout &lt;&lt; "x %= 3  -&gt; " &lt;&lt; x &lt;&lt; endl;
+    int y = 4;
+    x *= y + 1; // x = x * (y + 1), NOT x * y + 1
+    cout &lt;&lt; "x *= y + 1 -&gt; " &lt;&lt; x &lt;&lt; endl;
+    return 0;
+}
+</pre>
+      </figure>
+    </div>
+  </div>
+  <aside class="notes">
+    <p class="note-time">Suggested time: about 5 min</p>
+    <h4>Teaching tips</h4>
+    <ul>
+      <li>Read <code>x = x + 5</code> aloud as "x <b>gets</b> x plus 5" or "store x + 5 into x". Mathematically it's impossible; as an instruction it's natural.</li>
+      <li>Each line in the table continues from the previous value, exactly like the program. Run it and compare.</li>
+      <li>Compound assignment is shorter and avoids typos in long names: <code>total_energy_kwh += reading;</code></li>
+      <li>The last line (<code>x *= y + 1</code> → 2 × 5 = 10) is the trap worth stopping on. A student who expands it as <code>x * y + 1</code> gets 9.</li>
+    </ul>
+    <h4>Common student pitfalls</h4>
+    <ul>
+      <li>Writing <code>=+</code> instead of <code>+=</code>. <code>x =+ 5;</code> compiles as <code>x = +5;</code> and silently stores 5.</li>
+      <li>Putting a space inside the operator: <code>x + = 5;</code> is a syntax error.</li>
+    </ul>
+    <h4>Ask the class</h4>
+    <ul>
+      <li>"If <code>x = 7</code>, what is x after <code>x %= 4; x *= x;</code>?" (3, then 9.)</li>
+    </ul>
+  </aside>
+</section>
+
+<!-- ========================= SLIDE 7 · INCREMENT / DECREMENT ========================= -->
+<section class="slide" id="l4-incdec" data-title="Increment & Decrement: Prefix vs Postfix" data-section="Arithmetic & Assignment">
+  <header class="slide-head">
+    <p class="kicker">Lab 4 · Unary operators</p>
+    <h2>Increment <code>++</code> and Decrement <code>--</code></h2>
+    <p class="lede">Both add or subtract 1. The position (before or after the variable) decides <b>which value the expression uses</b>.</p>
+  </header>
+  <div class="example-grid">
+    <div class="stack">
+<pre class="code" id="l4-incdec-code" data-cpp>
+#include &lt;iostream&gt;
+using namespace std;
+
+int main() {
+    int a = 5;
+    int b = a++;    // use a, THEN add 1
+    int c = ++a;    // add 1, THEN use a
+    cout &lt;&lt; "a = " &lt;&lt; a &lt;&lt; endl;
+    cout &lt;&lt; "b = " &lt;&lt; b &lt;&lt; endl;
+    cout &lt;&lt; "c = " &lt;&lt; c &lt;&lt; endl;
+    int d = a--;    // use a, THEN subtract 1
+    int e = --a;    // subtract 1, THEN use a
+    cout &lt;&lt; "d = " &lt;&lt; d &lt;&lt; ", e = " &lt;&lt; e
+         &lt;&lt; ", a = " &lt;&lt; a &lt;&lt; endl;
+    return 0;
+}
+</pre>
+      <div class="table-wrap">
+        <table class="table compact">
+          <thead><tr><th scope="col">Form</th><th scope="col">Name</th><th scope="col">What happens</th></tr></thead>
+          <tbody>
+            <tr><td><code>++a</code> / <code>--a</code></td><td>Prefix</td><td>Change a <b>first</b>, then use the new value</td></tr>
+            <tr><td><code>a++</code> / <code>a--</code></td><td>Postfix</td><td>Use the current value, <b>then</b> change a</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <div class="stack">
+      <div class="tracer" data-trace="l4-incdec" data-code="#l4-incdec-code" data-title="Trace it: prefix vs postfix"></div>
+      <div class="pitfall"><p class="box-label">Common pitfall</p>
+        <ul>
+          <li>Changing the same variable twice in one expression, e.g. <code>x = a++ + a++;</code>, is <b>undefined behavior</b>. Different compilers may print different answers.</li>
+          <li>Alone on a line, <code>count++;</code> and <code>++count;</code> do the same thing.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+  <aside class="notes">
+    <p class="note-time">Suggested time: about 8 min</p>
+    <h4>Teaching tips</h4>
+    <ul>
+      <li>Press <b>Step</b> slowly on lines 6 and 7. Each takes two steps so students see the order: postfix copies first, then changes a; prefix changes a first, then copies.</li>
+      <li>Memory hook: read left to right. In <code>++a</code> you see <code>++</code> first, so the increment comes first. In <code>a++</code> you see <code>a</code> first, so its value is used first.</li>
+      <li>Prefix/postfix only matters when the expression's value is used (assigned, printed, or combined). Loops in Lab 7 use <code>i++</code> alone, where it makes no difference.</li>
+    </ul>
+    <h4>Common student pitfalls</h4>
+    <ul>
+      <li>Thinking <code>b = a++</code> gives b the new value.</li>
+      <li>Forgetting that <code>a</code> itself still changes in both forms.</li>
+      <li>Writing <code>a+ +</code> or <code>a + 1++</code>. Only variables can be incremented.</li>
+    </ul>
+    <h4>Ask the class</h4>
+    <ul>
+      <li>"With <code>int n = 10;</code>, what does <code>cout &lt;&lt; n++ &lt;&lt; endl;</code> print, and what is n afterward?" (10, then n is 11.)</li>
+    </ul>
+  </aside>
+</section>
+
+<!-- ========================= SLIDE 8 · RELATIONAL ========================= -->
+<section class="slide" id="l4-relational" data-title="Relational Operators & bool" data-section="Relational & Logical">
+  <header class="slide-head">
+    <p class="kicker">Lab 4 · Relational operators</p>
+    <h2>Relational Operators Produce <code>bool</code></h2>
+    <p class="lede">A comparison asks a yes/no question. The answer is <code>true</code> or <code>false</code>, which <code>cout</code> prints as <b>1</b> or <b>0</b>.</p>
+  </header>
+  <div class="grid-2 align-start">
+    <div class="stack">
+      <div class="table-wrap">
+        <table class="table compact">
+          <thead><tr><th scope="col">Operator</th><th scope="col">Meaning</th><th scope="col">x = 7, y = 10</th><th scope="col">Value</th></tr></thead>
+          <tbody>
+            <tr><td><code>==</code></td><td>equal to</td><td><code>x == y</code></td><td>false (0)</td></tr>
+            <tr><td><code>!=</code></td><td>not equal to</td><td><code>x != y</code></td><td>true (1)</td></tr>
+            <tr><td><code>&lt;</code></td><td>less than</td><td><code>x &lt; y</code></td><td>true (1)</td></tr>
+            <tr><td><code>&gt;</code></td><td>greater than</td><td><code>x &gt; y</code></td><td>false (0)</td></tr>
+            <tr><td><code>&lt;=</code></td><td>less than or equal to</td><td><code>x &lt;= 7</code></td><td>true (1)</td></tr>
+            <tr><td><code>&gt;=</code></td><td>greater than or equal to</td><td><code>x &gt;= y</code></td><td>false (0)</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="pitfall"><p class="box-label">Common pitfall</p>
+        <ul>
+          <li><code>cout &lt;&lt; x &lt; y;</code> does not compile. <code>&lt;&lt;</code> ranks <b>above</b> <code>&lt;</code>, so C++ reads it as <code>(cout &lt;&lt; x) &lt; y</code>. Write <code>cout &lt;&lt; (x &lt; y);</code></li>
+          <li><code>=&lt;</code> and <code>=&gt;</code> are not operators. The <code>=</code> always comes second.</li>
+        </ul>
+      </div>
+    </div>
+    <div class="stack">
+      <figure class="codeblock">
+        <figcaption><code>relational.cpp</code></figcaption>
+<pre class="code" data-cpp>
+#include &lt;iostream&gt;
+using namespace std;
+
+int main() {
+    int x = 7, y = 10;
+    cout &lt;&lt; (x == y) &lt;&lt; " " &lt;&lt; (x != y) &lt;&lt; endl;
+    cout &lt;&lt; (x &lt; y) &lt;&lt; " " &lt;&lt; (x &gt;= y) &lt;&lt; endl;
+    cout &lt;&lt; boolalpha;   // print words, not 1/0
+    cout &lt;&lt; (x &lt; y) &lt;&lt; " " &lt;&lt; (x &gt;= y) &lt;&lt; endl;
+    bool passed = x * 10 &gt;= 75;   // 70 &gt;= 75
+    cout &lt;&lt; "passed = " &lt;&lt; passed &lt;&lt; endl;
+    return 0;
+}
+</pre>
+      </figure>
+      <figure class="codeblock">
+        <figcaption>Output</figcaption>
+<pre class="console">0 1
+1 0
+true false
+passed = false</pre>
+      </figure>
+    </div>
+  </div>
+  <aside class="notes">
+    <p class="note-time">Suggested time: about 6 min</p>
+    <h4>Teaching tips</h4>
+    <ul>
+      <li>Connect to Lab 3: <code>bool</code> is 1 byte and holds <code>true</code> or <code>false</code>. Relational expressions are where bools come from.</li>
+      <li><code>boolalpha</code> is "sticky": once sent to <code>cout</code>, every later bool prints as a word until <code>noboolalpha</code>.</li>
+      <li>In <code>x * 10 &gt;= 75</code> no parentheses are needed: arithmetic ranks above relational, so it is <code>(x * 10) &gt;= 75</code>.</li>
+      <li>Preview Lab 6: these expressions become the conditions in <code>if (score &gt;= 75)</code>.</li>
+    </ul>
+    <h4>Common student pitfalls</h4>
+    <ul>
+      <li>Using <code>=</code> to compare. <code>x = y</code> assigns; it doesn't compare.</li>
+      <li>Comparing doubles with <code>==</code>: <code>0.1 + 0.2 == 0.3</code> is <b>false</b> because of binary rounding. Compare with a tolerance instead (e.g. <code>fabs(a - b) &lt; 1e-9</code>).</li>
+      <li>Characters compare by code: <code>'A' &lt; 'a'</code> is true (65 &lt; 97).</li>
+    </ul>
+    <h4>Ask the class</h4>
+    <ul>
+      <li>"What does <code>cout &lt;&lt; (5 != 5);</code> print?" (0.) "With boolalpha?" (false.)</li>
+    </ul>
+  </aside>
+</section>
+
+<!-- ========================= SLIDE 9 · LOGICAL ========================= -->
+<section class="slide" id="l4-logical" data-title="Logical Operators & Short-Circuit" data-section="Relational & Logical">
+  <header class="slide-head">
+    <p class="kicker">Lab 4 · Logical operators</p>
+    <h2>Logical Operators and Short-Circuit Evaluation</h2>
+    <p class="lede"><code>&amp;&amp;</code> (AND), <code>||</code> (OR), and <code>!</code> (NOT) combine conditions, just like Lab 1's AND, OR, NOT.</p>
+  </header>
+  <div class="grid-2 align-start">
+    <div class="stack">
+      <div class="table-wrap">
+        <table class="table compact trace-table">
+          <caption>Truth table</caption>
+          <thead><tr><th scope="col">A</th><th scope="col">B</th><th scope="col">A &amp;&amp; B</th><th scope="col">A || B</th><th scope="col">!A</th></tr></thead>
+          <tbody>
+            <tr><td>false</td><td>false</td><td>false</td><td>false</td><td>true</td></tr>
+            <tr><td>false</td><td>true</td><td>false</td><td>true</td><td>true</td></tr>
+            <tr><td>true</td><td>false</td><td>false</td><td>true</td><td>false</td></tr>
+            <tr><td>true</td><td>true</td><td><b>true</b></td><td>true</td><td>false</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="concept"><p class="box-label">Short-circuit evaluation</p>
+        <ul>
+          <li>C++ evaluates the <b>left</b> operand first.</li>
+          <li><code>&amp;&amp;</code> stops at the first <b>false</b>; <code>||</code> stops at the first <b>true</b>. The right side is <b>never run</b>.</li>
+          <li>So <code>b != 0 &amp;&amp; a / b &gt; 2</code> is safe even when b is 0.</li>
+        </ul>
+      </div>
+      <div class="note-box"><p class="box-label">CpE connection</p><p>These are the same truth tables as the AND, OR, and NOT <b>logic gates</b> you will build in digital logic design.</p></div>
+    </div>
+    <div class="stack">
+      <figure class="codeblock">
+        <figcaption><code>logical.cpp</code></figcaption>
+<pre class="code" data-cpp>
+#include &lt;iostream&gt;
+using namespace std;
+
+int main() {
+    int a = 9, b = 0;
+    cout &lt;&lt; boolalpha;
+    // b != 0 is false, so a / b is never computed
+    cout &lt;&lt; (b != 0 &amp;&amp; a / b &gt; 2) &lt;&lt; endl;
+    b = 3;
+    cout &lt;&lt; (b != 0 &amp;&amp; a / b &gt; 2) &lt;&lt; endl;
+    double temp = 38.2;   // body temperature (C)
+    cout &lt;&lt; (temp &lt; 36.0 || temp &gt; 37.5) &lt;&lt; endl;
+    cout &lt;&lt; !(temp &gt; 37.5) &lt;&lt; endl;
+    return 0;
+}
+</pre>
+      </figure>
+      <figure class="codeblock">
+        <figcaption>Output</figcaption>
+<pre class="console">false
+true
+true
+false</pre>
+      </figure>
+    </div>
+  </div>
+  <aside class="notes">
+    <p class="note-time">Suggested time: about 8 min</p>
+    <h4>Teaching tips</h4>
+    <ul>
+      <li>Same wording as Lab 1: AND is false if <b>any</b> part is false; OR is true if <b>any</b> part is true.</li>
+      <li>Demo the short-circuit: swap the operands to <code>a / b &gt; 2 &amp;&amp; b != 0</code> and run with b = 0. The division now happens first, and the program typically crashes ("Floating point exception"). Order matters!</li>
+      <li>Line 12 is a range check: "abnormal temperature" means outside 36.0–37.5 °C. Ask what the opposite (normal) condition is: <code>temp &gt;= 36.0 &amp;&amp; temp &lt;= 37.5</code>. That is De Morgan's law in action.</li>
+      <li><code>!</code> ranks very high, so <code>!(temp &gt; 37.5)</code> needs its parentheses. Without them, <code>!temp &gt; 37.5</code> means <code>(!temp) &gt; 37.5</code>, which is nonsense.</li>
+    </ul>
+    <h4>Common student pitfalls</h4>
+    <ul>
+      <li>Writing a single <code>&amp;</code> or <code>|</code>. Those are <b>bitwise</b> operators: they compile, never short-circuit, and can give surprising results.</li>
+      <li>Writing <code>temp &lt; 36.0 || &gt; 37.5</code>. Each side of <code>||</code> must be a complete condition.</li>
+    </ul>
+    <h4>Ask the class</h4>
+    <ul>
+      <li>"Write a condition that is true when age is from 13 to 19." (<code>age &gt;= 13 &amp;&amp; age &lt;= 19</code>.)</li>
+    </ul>
+  </aside>
+</section>
+
+<!-- ========================= SLIDE 10 · PRECEDENCE TABLE ========================= -->
+<section class="slide" id="l4-precedence" data-title="Precedence & Associativity Table" data-section="Precedence & Tracing">
+  <header class="slide-head">
+    <p class="kicker">Lab 4 · The hierarchy · ILO 2</p>
+    <h2>Operator Precedence and Associativity</h2>
+    <p class="lede"><b>Precedence</b>: which operator goes first. <b>Associativity</b>: which side goes first on a tie.</p>
+  </header>
+  <div class="grid-2 align-start" style="grid-template-columns:minmax(0,1.5fr) minmax(0,1fr)">
+    <div class="table-wrap">
+      <table class="table compact prec-table">
+        <caption>Highest precedence first (operators used in this course)</caption>
+        <thead><tr><th scope="col">#</th><th scope="col">Operators</th><th scope="col">Kind</th><th scope="col">Associativity</th></tr></thead>
+        <tbody>
+          <tr><td>1</td><td><code>a++</code> <code>a--</code> <code>f(x)</code></td><td>Postfix, function call</td><td>left → right</td></tr>
+          <tr><td>2</td><td><code>++a</code> <code>--a</code> <code>-a</code> <code>+a</code> <code>!</code></td><td>Prefix, unary, NOT</td><td><b>right → left</b></td></tr>
+          <tr><td>3</td><td><code>*</code> <code>/</code> <code>%</code></td><td>Multiplicative</td><td>left → right</td></tr>
+          <tr><td>4</td><td><code>+</code> <code>-</code></td><td>Additive</td><td>left → right</td></tr>
+          <tr><td>5</td><td><code>&lt;&lt;</code> <code>&gt;&gt;</code></td><td>Stream (shift)</td><td>left → right</td></tr>
+          <tr><td>6</td><td><code>&lt;</code> <code>&lt;=</code> <code>&gt;</code> <code>&gt;=</code></td><td>Relational</td><td>left → right</td></tr>
+          <tr><td>7</td><td><code>==</code> <code>!=</code></td><td>Equality</td><td>left → right</td></tr>
+          <tr><td>8</td><td><code>&amp;&amp;</code></td><td>Logical AND</td><td>left → right</td></tr>
+          <tr><td>9</td><td><code>||</code></td><td>Logical OR</td><td>left → right</td></tr>
+          <tr><td>10</td><td><code>?:</code> <code>=</code> <code>+=</code> <code>-=</code> <code>*=</code> <code>/=</code> <code>%=</code></td><td>Ternary, assignment</td><td><b>right → left</b></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="stack">
+      <div class="card">
+        <h3 class="card-title">Associativity in action</h3>
+        <ul class="op-list">
+          <li><code>20 - 5 - 3</code> → <code>(20 - 5) - 3</code> = <b>12</b>, not 18</li>
+          <li><code>100 / 10 / 2</code> → <code>(100 / 10) / 2</code> = <b>5</b>, not 20</li>
+          <li><code>a = b = c = 0</code> → <code>a = (b = (c = 0))</code></li>
+          <li><code>!x &amp;&amp; y</code> → <code>(!x) &amp;&amp; y</code></li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3 class="card-title">Precedence in action</h3>
+        <ul class="op-list">
+          <li><code>x + y * 2</code> → <code>x + (y * 2)</code></li>
+          <li><code>a &gt; 0 &amp;&amp; b &gt; 0 || c &gt; 0</code> →<br><code>((a &gt; 0) &amp;&amp; (b &gt; 0)) || (c &gt; 0)</code></li>
+          <li><code>cout &lt;&lt; a + b</code> → <code>cout &lt;&lt; (a + b)</code> ✔</li>
+        </ul>
+      </div>
+      <p class="callout tip"><b>Parentheses <code>( )</code> beat everything.</b> When in doubt, add them. They cost nothing and make your intent obvious.</p>
+    </div>
+  </div>
+  <aside class="notes">
+    <p class="note-time">Suggested time: about 8 min</p>
+    <h4>Teaching tips</h4>
+    <ul>
+      <li>Big picture first: <b>unary → arithmetic → stream → relational → equality → AND → OR → assignment</b>. Assignment is last because the whole right side must be computed before anything is stored.</li>
+      <li>Mnemonic used in many C/C++ courses: <b>"PUMAS REBL TAC"</b> (Postfix, Unary, Multiplicative, Additive, Shift, Relational, Equality, Bitwise, Logical, Ternary, Assignment, Comma). We skip bitwise and comma in this course.</li>
+      <li><code>static_cast&lt;T&gt;(x)</code> sits at level 1 with function calls. A C-style cast <code>(double) x</code> sits at level 2.</li>
+      <li>The ternary operator <code>?:</code> is covered in Lab 6.</li>
+      <li>This table leaves out operators students haven't met yet (<code>::</code>, <code>[]</code>, <code>.</code>, <code>-&gt;</code>, bitwise <code>&amp; ^ |</code>, comma). The complete table is on cppreference.com under "C++ Operator Precedence".</li>
+      <li>Precedence decides <b>grouping</b>, not always the order in which operands run. For example, <code>&amp;&amp;</code> and <code>||</code> always run their left side first (short-circuit).</li>
+    </ul>
+    <h4>Common student pitfalls</h4>
+    <ul>
+      <li>Applying strict "PEMDAS": thinking addition always comes before subtraction. <code>+</code> and <code>-</code> share one level and go left to right.</li>
+      <li>Assuming <code>&amp;&amp;</code> and <code>||</code> have equal precedence. <code>&amp;&amp;</code> binds tighter.</li>
+    </ul>
+    <h4>Ask the class</h4>
+    <ul>
+      <li>"Which runs first in <code>total = price * qty + fee</code>?" (<code>*</code>, then <code>+</code>, then <code>=</code>.)</li>
+    </ul>
+  </aside>
+</section>
+
+<!-- ========================= SLIDE 11 · EVALUATE BY HAND ========================= -->
+<section class="slide" id="l4-eval" data-title="Evaluating Expressions Step by Step" data-section="Precedence & Tracing">
+  <header class="slide-head">
+    <p class="kicker">Lab 4 · Code tracing · ILO 2</p>
+    <h2>Evaluate It by Hand, Step by Step</h2>
+    <p class="lede">Find the highest-precedence operator, compute it, rewrite the expression, and repeat.</p>
+  </header>
+  <div class="tabs" data-tabs>
+    <div class="tablist" role="tablist" aria-label="Expressions to evaluate">
+      <button type="button" role="tab" data-tab="a" aria-selected="true">A · Arithmetic</button>
+      <button type="button" role="tab" data-tab="b">B · Relational + logical</button>
+      <button type="button" role="tab" data-tab="c">C · Assignment + ++</button>
+    </div>
+    <div class="tabpanel" role="tabpanel" data-panel="a">
+      <div class="grid-2 align-start">
+        <div class="card reveal" data-reveal>
+          <p class="eyebrow">Evaluate step by step</p>
+          <p class="expr"><code>10 + 6 / 2 * 3 - 4 % 3</code></p>
+          <ol class="reveal-steps" style="font-variant-ligatures:none;font-feature-settings:'liga' 0,'calt' 0">
+            <li data-step><code>6 / 2 = 3</code> <span>→ 10 + 3 * 3 - 4 % 3</span></li>
+            <li data-step><code>3 * 3 = 9</code> <span>→ 10 + 9 - 4 % 3</span></li>
+            <li data-step><code>4 % 3 = 1</code> <span>→ 10 + 9 - 1</span></li>
+            <li data-step><code>10 + 9 = 19</code> <span>→ 19 - 1</span></li>
+            <li data-step class="final"><code>19 - 1 = 18</code> <span>Answer: 18</span></li>
+          </ol>
+          <div class="reveal-actions">
+            <button type="button" class="btn primary" data-reveal-next>Show next step</button>
+            <button type="button" class="btn ghost" data-reveal-reset>Reset</button>
+          </div>
+        </div>
+        <div class="stack">
+          <div class="card soft">
+            <h3 class="card-title">Fully parenthesized</h3>
+            <p><code>(10 + ((6 / 2) * 3)) - (4 % 3)</code></p>
+            <p class="small muted"><code>*</code> <code>/</code> <code>%</code> share level 3 and go left to right, then <code>+</code> <code>-</code> share level 4 and go left to right.</p>
+          </div>
+          <div class="note-box"><p class="box-label">Same as Lab 1?</p><p>Yes: C++ also gives <b>18</b>. Now change 6 to 7: <code>10 + 7 / 2 * 3 - 4 % 3</code> is <b>still 18</b> in C++, because <code>7 / 2</code> is 3. On a calculator it would be 19.5.</p></div>
+        </div>
+      </div>
+    </div>
+    <div class="tabpanel" role="tabpanel" data-panel="b">
+      <div class="grid-2 align-start">
+        <div class="card reveal" data-reveal>
+          <p class="eyebrow">Evaluate step by step</p>
+          <p class="expr"><code>5 + 3 &gt;= 2 * 4 &amp;&amp; !(7 % 2 == 0)</code></p>
+          <ol class="reveal-steps" style="font-variant-ligatures:none;font-feature-settings:'liga' 0,'calt' 0">
+            <li data-step><code>7 % 2 = 1</code> <span>→ 5 + 3 &gt;= 2 * 4 &amp;&amp; !(1 == 0)</span></li>
+            <li data-step><code>1 == 0</code> is false <span>→ 5 + 3 &gt;= 2 * 4 &amp;&amp; !false</span></li>
+            <li data-step><code>!false = true</code> <span>→ 5 + 3 &gt;= 2 * 4 &amp;&amp; true</span></li>
+            <li data-step><code>2 * 4 = 8</code> <span>→ 5 + 3 &gt;= 8 &amp;&amp; true</span></li>
+            <li data-step><code>5 + 3 = 8</code> <span>→ 8 &gt;= 8 &amp;&amp; true</span></li>
+            <li data-step><code>8 &gt;= 8</code> is true <span>→ true &amp;&amp; true</span></li>
+            <li data-step class="final"><code>true &amp;&amp; true</code> <span>Answer: true (cout prints 1)</span></li>
+          </ol>
+          <div class="reveal-actions">
+            <button type="button" class="btn primary" data-reveal-next>Show next step</button>
+            <button type="button" class="btn ghost" data-reveal-reset>Reset</button>
+          </div>
+        </div>
+        <div class="stack">
+          <div class="card soft">
+            <h3 class="card-title">Fully parenthesized</h3>
+            <p><code>((5 + 3) &gt;= (2 * 4)) &amp;&amp; (!((7 % 2) == 0))</code></p>
+            <p class="small muted">Order of levels: <code>( )</code>, then <code>!</code>, then <code>* %</code>, <code>+</code>, <code>&gt;=</code>, <code>==</code>, and finally <code>&amp;&amp;</code>.</p>
+          </div>
+          <div class="note-box"><p class="box-label">Precedence vs. evaluation order</p><p>Precedence only decides the <b>grouping</b>. When the program runs, <code>&amp;&amp;</code> computes its <b>left</b> side first (short-circuit). The answer is the same either way.</p></div>
+        </div>
+      </div>
+    </div>
+    <div class="tabpanel" role="tabpanel" data-panel="c">
+      <div class="grid-2 align-start">
+        <div class="card reveal" data-reveal>
+          <p class="eyebrow">Evaluate step by step · start with x = 4, y = 3</p>
+          <p class="expr"><code>x += y++ * 2</code></p>
+          <ol class="reveal-steps" style="font-variant-ligatures:none;font-feature-settings:'liga' 0,'calt' 0">
+            <li data-step><code>y++</code> gives the old y, <b>3</b> <span>(y becomes 4) → x += 3 * 2</span></li>
+            <li data-step><code>3 * 2 = 6</code> <span>→ x += 6</span></li>
+            <li data-step><code>x = x + 6 = 4 + 6</code> <span>→ x = 10</span></li>
+            <li data-step class="final"><code>x = 10, y = 4</code> <span>Answer: x is 10, y is 4</span></li>
+          </ol>
+          <div class="reveal-actions">
+            <button type="button" class="btn primary" data-reveal-next>Show next step</button>
+            <button type="button" class="btn ghost" data-reveal-reset>Reset</button>
+          </div>
+        </div>
+        <div class="stack">
+          <div class="card soft">
+            <h3 class="card-title">Fully parenthesized</h3>
+            <p><code>x += ((y++) * 2)</code></p>
+            <p class="small muted">Postfix <code>++</code> is level 1, <code>*</code> is level 3, and <code>+=</code> is level 10, so the assignment happens last.</p>
+          </div>
+          <div class="note-box"><p class="box-label">Try the prefix version</p><p>With <code>x += ++y * 2</code> (again x = 4, y = 3): y becomes 4 first, 4 × 2 = 8, so x = <b>12</b> and y = 4.</p></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <aside class="notes">
+    <p class="note-time">Suggested time: about 10 min</p>
+    <h4>Teaching tips</h4>
+    <ul>
+      <li>Use the tabs one at a time. For each, give students 60 seconds to work it on paper first, then click <b>Show next step</b> while they check.</li>
+      <li>Technique to teach: underline the operator you apply at each step, and copy the <b>whole</b> rewritten expression on a new line, like the reveal. Lab Exercise Part 3 asks for exactly this format.</li>
+      <li>In tab B, the order shown (parentheses first) is the hand-evaluation order. The compiled program evaluates <code>5 + 3 &gt;= 2 * 4</code> first and would skip the right side if it were false. Same answer, as long as there are no side effects.</li>
+      <li>Verify each in Codechum: <code>cout &lt;&lt; (5 + 3 &gt;= 2 * 4 &amp;&amp; !(7 % 2 == 0));</code> prints 1.</li>
+    </ul>
+    <h4>Common student pitfalls</h4>
+    <ul>
+      <li>Doing <code>10 + 6</code> first (strict left to right).</li>
+      <li>In B, applying <code>!</code> only to <code>7</code>. The parentheses make it apply to the whole comparison.</li>
+      <li>In C, using the new y (4) in the multiplication.</li>
+    </ul>
+    <h4>Ask the class</h4>
+    <ul>
+      <li>"Evaluate <code>12 - 4 * 3 / 2 % 5</code>." (4 * 3 = 12, 12 / 2 = 6, 6 % 5 = 1, 12 - 1 = <b>11</b>.)</li>
+    </ul>
+  </aside>
+</section>
+
+<!-- ========================= SLIDE 12 · TRACE A FULL PROGRAM ========================= -->
+<section class="slide" id="l4-trace-expr" data-title="Trace It: A Program of Mixed Expressions" data-section="Precedence & Tracing">
+  <header class="slide-head">
+    <p class="kicker">Lab 4 · Code tracing</p>
+    <h2>Trace It: A Program of Mixed Expressions</h2>
+    <p class="lede">Predict every output line on paper, then step through and check your work.</p>
+  </header>
+  <div class="example-grid">
+    <div class="stack">
+<pre class="code" id="l4-expr-code" data-cpp data-stdin="7 4">
+#include &lt;iostream&gt;
+using namespace std;
+
+int main() {
+    int x, y;
+    cout &lt;&lt; "Enter x and y: ";
+    cin &gt;&gt; x &gt;&gt; y;
+    int r1 = x + y * 2 - x % 3;
+    int r2 = (x + y) / 2;
+    double r3 = static_cast&lt;double&gt;(x + y) / 2;
+    bool r4 = x &gt; y || (y % 2 == 0 &amp;&amp; x != 0);
+    x += y++ * 2;
+    cout &lt;&lt; "r1 = " &lt;&lt; r1 &lt;&lt; endl;
+    cout &lt;&lt; "r2 = " &lt;&lt; r2 &lt;&lt; endl;
+    cout &lt;&lt; "r3 = " &lt;&lt; r3 &lt;&lt; endl;
+    cout &lt;&lt; "r4 = " &lt;&lt; r4 &lt;&lt; endl;
+    cout &lt;&lt; "x = " &lt;&lt; x &lt;&lt; ", y = " &lt;&lt; y &lt;&lt; endl;
+    return 0;
+}
+</pre>
+      <figure class="codeblock">
+        <figcaption>Sample run</figcaption>
+<pre class="console">Enter x and y: <span class="in">7 4</span>
+r1 = 14
+r2 = 5
+r3 = 5.5
+r4 = 1
+x = 15, y = 5</pre>
+      </figure>
+    </div>
+    <div class="stack">
+      <div class="tracer" data-trace="l4-expr" data-code="#l4-expr-code" data-speed="1400">
+        <div class="tracer-inputs">
+          <label>x <input type="number" data-var="x" value="7" step="1"></label>
+          <label>y <input type="number" data-var="y" value="4" step="1"></label>
+        </div>
+      </div>
+      <div class="note-box"><p class="box-label">Why the parentheses on line 11?</p><p>Without them, the meaning is the same (<code>&amp;&amp;</code> binds tighter than <code>||</code>), but g++ <code>-Wall</code> warns <i>"suggest parentheses around '&amp;&amp;' within '||'"</i>. Add them for clarity.</p></div>
+    </div>
+  </div>
+  <aside class="notes">
+    <p class="note-time">Suggested time: about 10 min</p>
+    <h4>Teaching tips</h4>
+    <ul>
+      <li>Give students 3 minutes with 7 and 4 on paper. Then press <b>Step</b>; each status line explains which operator goes first.</li>
+      <li>Then try inputs that change the story: <b>3 8</b> (x &gt; y is false, so <code>||</code> must check the right side), <b>3 7</b> (r4 false, and r2 = 5 while r3 = 5.0 prints as <code>5</code>), and <b>-7 2</b> (negative <code>%</code>: −7 % 3 = −1).</li>
+      <li>Point out line 15: a double holding 5.5 prints as <code>5.5</code>, and 5.0 prints as <code>5</code>. Default <code>cout</code> drops trailing zeros.</li>
+    </ul>
+    <h4>Common student pitfalls</h4>
+    <ul>
+      <li>For r1, computing <code>x + y</code> first (7 + 4 = 11, 11 × 2 = 22 …).</li>
+      <li>For r4, expecting the output <code>true</code>. Without <code>boolalpha</code>, a bool prints as 1 or 0.</li>
+      <li>On line 12, forgetting that y changes too (it prints 5, not 4).</li>
+    </ul>
+    <h4>Ask the class</h4>
+    <ul>
+      <li>"Which variable would change if line 12 were <code>x += ++y * 2</code>?" (Both still change, but x becomes 7 + 10 = 17.)</li>
+    </ul>
+  </aside>
+</section>
+
+<!-- ========================= SLIDE 13 · DIGIT EXTRACTION ========================= -->
+<section class="slide" id="l4-digits" data-title="Digit Extraction with / and %" data-section="Precedence & Tracing">
+  <header class="slide-head">
+    <p class="kicker">Lab 4 · CpE application</p>
+    <h2>Splitting a Number into Digits with <code>/</code> and <code>%</code></h2>
+    <p class="lede">A three-digit 7-segment display needs each digit separately. Integer <code>/</code> removes digits from the right; <code>% 10</code> keeps only the last digit.</p>
+  </header>
+  <div class="example-grid" style="grid-template-columns:minmax(0,1.12fr) minmax(0,1fr)">
+    <div class="stack">
+<pre class="code" id="l4-digits-code" data-cpp data-stdin="472">
+#include &lt;iostream&gt;
+using namespace std;
+
+int main() {
+    int reading;
+    cout &lt;&lt; "Enter a 3-digit reading: ";
+    cin &gt;&gt; reading;
+    int hundreds = reading / 100;
+    int tens = (reading / 10) % 10;
+    int ones = reading % 10;
+    int reversed = ones * 100 + tens * 10 + hundreds;
+    cout &lt;&lt; "Hundreds: " &lt;&lt; hundreds &lt;&lt; endl;
+    cout &lt;&lt; "Tens    : " &lt;&lt; tens &lt;&lt; endl;
+    cout &lt;&lt; "Ones    : " &lt;&lt; ones &lt;&lt; endl;
+    cout &lt;&lt; "Reversed: " &lt;&lt; reversed &lt;&lt; endl;
+    return 0;
+}
+</pre>
+      <div class="table-wrap">
+        <table class="table compact">
+          <thead><tr><th scope="col">Expression</th><th scope="col">With 472</th><th scope="col">Idea</th></tr></thead>
+          <tbody>
+            <tr><td><code>n / 100</code></td><td>4</td><td>drop the last 2 digits</td></tr>
+            <tr><td><code>(n / 10) % 10</code></td><td>47 % 10 = 7</td><td>drop 1, keep the last</td></tr>
+            <tr><td><code>n % 10</code></td><td>2</td><td>keep the last digit</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <div class="stack">
+      <div class="tracer" data-trace="l4-digits" data-code="#l4-digits-code">
+        <div class="tracer-inputs">
+          <label>reading <input type="number" data-var="reading" value="472" step="1"></label>
+        </div>
+      </div>
+      <figure class="codeblock">
+        <figcaption>Sample run</figcaption>
+<pre class="console">Enter a 3-digit reading: <span class="in">472</span>
+Hundreds: 4
+Tens    : 7
+Ones    : 2
+Reversed: 274</pre>
+      </figure>
+    </div>
+  </div>
+  <aside class="notes">
+    <p class="note-time">Suggested time: about 7 min</p>
+    <h4>Teaching tips</h4>
+    <ul>
+      <li>Real use: a microcontroller driving three 7-segment digits must send each digit separately. The same <code>/</code> and <code>%</code> trick splits seconds into minutes and seconds (the seatwork) and pesos into bills (the lab exercise).</li>
+      <li>Trace 472, then 905 (tens = 0, reversed = 509), then 120 (reversed = 21: the leading zero of "021" disappears, because an int has no leading zeros).</li>
+      <li>General pattern: the k-th digit from the right is <code>(n / 10<sup>k</sup>) % 10</code>.</li>
+    </ul>
+    <h4>Common student pitfalls</h4>
+    <ul>
+      <li>Writing <code>reading / 10 % 10</code> without parentheses. It still works (same level, left to right), but the parentheses show the intent.</li>
+      <li>Using <code>double reading</code>. Then <code>%</code> won't compile and <code>/</code> keeps the fraction.</li>
+      <li>Entering a 4-digit number like 1472: "hundreds" becomes 14. The program assumes valid input. Checking it needs <code>if</code> (Lab 6).</li>
+    </ul>
+    <h4>Ask the class</h4>
+    <ul>
+      <li>"How do you get the sum of the digits of 472?" (<code>hundreds + tens + ones</code> = 13.)</li>
+    </ul>
+  </aside>
+</section>
+
+<!-- ========================= SLIDE 14 · PITFALLS ========================= -->
+<section class="slide" id="l4-pitfalls" data-title="Common Operator Pitfalls" data-section="Precedence & Tracing">
+  <header class="slide-head">
+    <p class="kicker">Lab 4 · Debugging</p>
+    <h2>Common Operator Pitfalls</h2>
+    <p class="lede">Each of these compiles (some with a warning) but gives the wrong answer. Read the warnings!</p>
+  </header>
+  <div class="table-wrap">
+    <table class="table compact">
+      <thead><tr><th scope="col">You write</th><th scope="col">What C++ actually does</th><th scope="col">Write this instead</th></tr></thead>
+      <tbody>
+        <tr><td><code>if (x = 5)</code></td><td>Assigns 5 to x, and the condition is always true. <span class="small muted">g++ warns: "suggest parentheses around assignment used as truth value"</span></td><td><code>if (x == 5)</code></td></tr>
+        <tr><td><code>double avg = sum / count;</code> <span class="small muted">(both <code>int</code>)</span></td><td>Integer division first: 253 / 3 → <b>84</b></td><td><code>static_cast&lt;double&gt;(sum) / count</code></td></tr>
+        <tr><td><code>int big = 50000 * 50000;</code></td><td><b>Overflow</b>: an <code>int</code> holds at most 2,147,483,647. Undefined behavior; on most PCs it wraps to −1794967296.</td><td><code>long long big = 50000LL * 50000;</code></td></tr>
+        <tr><td><code>area = side ^ 2;</code></td><td><code>^</code> is bitwise <b>XOR</b>: with side = 5, you get <b>7</b></td><td><code>side * side</code> or <code>pow(side, 2)</code></td></tr>
+        <tr><td><code>bool ok = 0 &lt; x &lt; 10;</code></td><td><code>(0 &lt; x)</code> is 0 or 1, which is always &lt; 10, so it is <b>always true</b> (x = 25 gives true)</td><td><code>x &gt; 0 &amp;&amp; x &lt; 10</code></td></tr>
+        <tr><td><code>f = 9 / 5 * c + 32;</code></td><td><code>9 / 5</code> is 1, so f = c + 32</td><td><code>f = 9.0 / 5 * c + 32;</code> or <code>c * 9 / 5 + 32</code> (c is double)</td></tr>
+        <tr><td><code>a &gt; 0 &amp; b &gt; 0</code></td><td>Single <code>&amp;</code> / <code>|</code> are <b>bitwise</b> operators: no short-circuit</td><td><code>a &gt; 0 &amp;&amp; b &gt; 0</code></td></tr>
+      </tbody>
+    </table>
+  </div>
+  <aside class="notes">
+    <p class="note-time">Suggested time: about 6 min</p>
+    <h4>Teaching tips</h4>
+    <ul>
+      <li>Every row was checked with g++ 13 using <code>-Wall -Wextra</code>. Rows 1, 3, 5, and 7 produce warnings; rows 2, 4, and 6 are completely silent. Tell students to turn warnings on in their IDE (Code::Blocks: Settings → Compiler → "Enable all common compiler warnings").</li>
+      <li>Live-demo row 4: <code>cout &lt;&lt; (5 ^ 2);</code> prints 7. In binary, 101 XOR 010 = 111.</li>
+      <li>Row 3: <code>INT_MAX</code> from <code>&lt;climits&gt;</code> is 2147483647 on all common compilers (int is 4 bytes). <code>long long</code> is 8 bytes on every common platform. Plain <code>long</code> is 8 bytes on 64-bit Linux/macOS but only 4 on Windows, so it is not a safe fix.</li>
+      <li>Row 6 previews Lab 5 (temperature conversion).</li>
+    </ul>
+    <h4>Common student pitfalls</h4>
+    <ul>
+      <li>Ignoring yellow warnings because "it compiled". In this lab, most warnings point at a real logic bug.</li>
+      <li>Fixing overflow with <code>long long big = 50000 * 50000;</code>. The multiplication is still done in <code>int</code> before it is stored; one operand must be <code>long long</code> (<code>50000LL</code>).</li>
+    </ul>
+    <h4>Ask the class</h4>
+    <ul>
+      <li>"Which row would break a payroll program that computes the average salary?" (Row 2.)</li>
+    </ul>
+  </aside>
+</section>
+
+<!-- ========================= SLIDE 15 · QUICK CHECK ========================= -->
+<section class="slide" id="l4-quick-check" data-title="Quick Check" data-section="Practice">
+  <header class="slide-head">
+    <p class="kicker">Lab 4 · Quick check</p>
+    <h2>Quick Check</h2>
+    <p class="lede">Answer on paper first, then click to reveal.</p>
+  </header>
+  <div class="qa-grid">
+    <details class="qa"><summary><span class="q-num">1</span><span class="q-text">What are <code>17 / 5</code> and <code>17 % 5</code>?</span></summary><p><b>3</b> and <b>2</b>. Both operands are int, so <code>/</code> gives the quotient and <code>%</code> the remainder.</p></details>
+    <details class="qa"><summary><span class="q-num">2</span><span class="q-text">After <code>double d = 7 / 2;</code>, what does <code>cout &lt;&lt; d;</code> print?</span></summary><p><b>3</b>. The int division happens before the value is stored. Fix: <code>7.0 / 2</code>.</p></details>
+    <details class="qa"><summary><span class="q-num">3</span><span class="q-text">With <code>int a = 3;</code>, what are b and a after <code>int b = a++ * 2;</code>? After <code>int b = ++a * 2;</code> (starting again from 3)?</span></summary><p>Postfix: <b>b = 6, a = 4</b>. Prefix: <b>b = 8, a = 4</b>.</p></details>
+    <details class="qa"><summary><span class="q-num">4</span><span class="q-text">What does <code>cout &lt;&lt; (3 &gt; 2 &gt; 1);</code> print?</span></summary><p><b>0</b>. Left to right: <code>3 &gt; 2</code> is true (1), then <code>1 &gt; 1</code> is false. Write <code>3 &gt; 2 &amp;&amp; 2 &gt; 1</code>.</p></details>
+    <details class="qa"><summary><span class="q-num">5</span><span class="q-text">Evaluate <code>!(5 &gt; 3) || 4 % 2 == 0</code>. Which operator is applied last?</span></summary><p><code>!(true)</code> is false; <code>4 % 2 == 0</code> is true; false || true = <b>true</b>. <code>||</code> is applied last (lowest precedence here).</p></details>
+    <details class="qa"><summary><span class="q-num">6</span><span class="q-text">What do <code>2 ^ 3</code> and <code>pow(2, 3)</code> give? Name the family of <code>%=</code>, <code>!=</code>, and <code>!</code>.</span></summary><p><code>2 ^ 3</code> = <b>1</b> (10 XOR 11 = 01); <code>pow(2, 3)</code> = <b>8</b>. <code>%=</code> is assignment, <code>!=</code> is relational, <code>!</code> is logical.</p></details>
+  </div>
+  <aside class="notes">
+    <p class="note-time">Suggested time: about 6 min</p>
+    <h4>Teaching tips</h4>
+    <ul>
+      <li>Use as a think-pair-share: 2 minutes alone, 1 minute with a seatmate, then reveal. Count hands for each wrong answer to see which slide to revisit.</li>
+      <li>Q4 is a favorite trick question; it previews the "chained comparison" pitfall that shows up in Lab 6 conditions.</li>
+      <li>Q6 covers ILO 1 (classification).</li>
+    </ul>
+    <h4>Common student pitfalls</h4>
+    <ul>
+      <li>Q2: answering 3.5 because d is a double.</li>
+      <li>Q3: forgetting that a changes to 4 in both versions.</li>
+    </ul>
+    <h4>Ask the class</h4>
+    <ul>
+      <li>"Which question would you have gotten wrong at the start of today?"</li>
+    </ul>
+  </aside>
+</section>
+
+<!-- ========================= SLIDE 16 · SEATWORK ========================= -->
+<section class="slide" id="l4-seatwork" data-title="Seatwork: Uptime in h:m:s" data-section="Practice">
+  <header class="slide-head">
+    <p class="kicker">Lab 4 · Seatwork</p>
+    <h2>Seatwork: Server Uptime in Hours, Minutes, Seconds</h2>
+  </header>
+  <div class="story">
+    <p>A Raspberry Pi in the CpE laboratory logs its <b>uptime in seconds</b>. A number like 7384 is hard to read, so the lab technician wants it in hours, minutes, and seconds.</p>
+    <p class="task"><b>Instruction:</b> Write a C++ program that reads the total seconds (an <code>int</code>) and displays it as hours, minutes, and seconds using only <code>/</code> and <code>%</code>. Example: <code>7384 s = 2 h 3 min 4 s</code>.</p>
+  </div>
+  <div class="grid-2 align-start">
+    <div class="card">
+      <h3 class="card-title">Need a hint?</h3>
+      <details class="hint"><summary>Hint 1</summary><p>1 hour = 3600 seconds and 1 minute = 60 seconds. How many whole hours are in 7384 s? Use <code>/</code>.</p></details>
+      <details class="hint"><summary>Hint 2</summary><p>What is left after removing the hours? That is <code>total_seconds % 3600</code>. Divide that by 60 for the minutes.</p></details>
+      <details class="hint"><summary>Hint 3</summary><p>The leftover seconds are simply <code>total_seconds % 60</code>. Check: 2 × 3600 + 3 × 60 + 4 = 7384.</p></details>
+    </div>
+    <div class="card timer" data-timer data-minutes="10">
+      <h3 class="card-title">Seatwork timer</h3>
+      <p class="timer-display" aria-live="off">10:00</p>
+      <div class="timer-presets" role="group" aria-label="Timer presets">
+        <button type="button" class="btn ghost" data-min="5">5 min</button>
+        <button type="button" class="btn ghost" data-min="10">10 min</button>
+        <button type="button" class="btn ghost" data-min="15">15 min</button>
+      </div>
+      <div class="timer-actions">
+        <button type="button" class="btn primary" data-timer-act="toggle">Start</button>
+        <button type="button" class="btn" data-timer-act="reset">Reset</button>
+      </div>
+    </div>
+  </div>
+  <details class="answer">
+    <summary><span>Reveal answer</span></summary>
+    <div class="code-pair" style="margin-top:1rem">
+      <figure class="codeblock">
+        <figcaption><code>uptime.cpp</code></figcaption>
+<pre class="code" data-cpp data-stdin="7384">
+#include &lt;iostream&gt;
+using namespace std;
+
+int main() {
+    int total_seconds;
+    cout &lt;&lt; "Enter uptime in seconds: ";
+    cin &gt;&gt; total_seconds;
+    int hours = total_seconds / 3600;
+    int minutes = (total_seconds % 3600) / 60;
+    int seconds = total_seconds % 60;
+    cout &lt;&lt; total_seconds &lt;&lt; " s = " &lt;&lt; hours &lt;&lt; " h "
+         &lt;&lt; minutes &lt;&lt; " min " &lt;&lt; seconds &lt;&lt; " s" &lt;&lt; endl;
+    return 0;
+}
+</pre>
+      </figure>
+      <div class="stack">
+        <figure class="codeblock">
+          <figcaption>Sample runs</figcaption>
+<pre class="console">Enter uptime in seconds: <span class="in">7384</span>
+7384 s = 2 h 3 min 4 s</pre>
+<pre class="console">Enter uptime in seconds: <span class="in">86399</span>
+86399 s = 23 h 59 min 59 s</pre>
+        </figure>
+        <div class="card soft">
+          <h3 class="card-title">Hand check for 7384</h3>
+          <p class="small">7384 / 3600 = <b>2</b> · 7384 % 3600 = 184 · 184 / 60 = <b>3</b> · 7384 % 60 = <b>4</b></p>
+        </div>
+      </div>
+    </div>
+  </details>
+  <aside class="notes">
+    <p class="note-time">Suggested time: about 15 min (10 working, 5 review)</p>
+    <h4>Running the seatwork</h4>
+    <ul>
+      <li>Start the 10-minute timer. Students code it in Codechum and test with 7384, 3600 (1 h 0 min 0 s), 59, and 86399.</li>
+      <li>Open the hints one at a time only if many students are stuck after 4 minutes.</li>
+      <li>Before revealing, ask a student to show a different but correct solution, e.g. computing <code>remaining = total_seconds % 3600;</code> first, or using <code>%=</code>. Both are fine.</li>
+      <li>The long <code>cout</code> statement continues on the next line. A statement ends at the semicolon, not at the line break.</li>
+    </ul>
+    <h4>Common student pitfalls</h4>
+    <ul>
+      <li><code>minutes = total_seconds / 60;</code> gives 123 (total minutes), not the minutes left over after the hours.</li>
+      <li>Declaring <code>double total_seconds</code>. Then <code>%</code> won't compile.</li>
+      <li>Hard-coding 7384 instead of reading it with <code>cin</code>.</li>
+    </ul>
+    <h4>Ask the class</h4>
+    <ul>
+      <li>"How would you add days?" (<code>days = total / 86400</code>, then work with <code>total % 86400</code>.)</li>
+    </ul>
+  </aside>
+</section>
+
+<!-- ========================= SLIDE 17 · LAB EXERCISE PART 1 ========================= -->
+<!-- LOCKED-ACTIVITY:START lab-04 -->
+<section class="slide locked-slide" id="l4-lab-1" data-title="Laboratory Exercise No. 4 (locked)" data-section="Lab No. 4 & Wrap-up" data-locked="lab-04">
+  <header class="slide-head">
+    <p class="kicker">Laboratory Exercise No. 4</p>
+    <h2>This lab activity is locked</h2>
+    <p class="lede">It opens when your instructor releases it. Enter the passphrase your instructor gives you.</p>
+  </header>
+  <div class="lock-card">
+    <svg class="lock-icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="10.5" width="14" height="10" rx="2"/><path d="M8 10.5V7.5a4 4 0 0 1 8 0v3M12 14.5v2.5"/></svg>
+    <h3>Laboratory Exercise No. 4</h3>
+    <form class="lock-form" autocomplete="off">
+      <label class="sr-only" for="unlock-lab-04">Passphrase</label>
+      <input id="unlock-lab-04" type="password" placeholder="Passphrase" autocomplete="off" spellcheck="false">
+      <button type="submit" class="btn primary">Unlock</button>
+    </form>
+    <p class="lock-msg" aria-live="polite"></p>
+    <p class="small muted">The activity is stored encrypted on this site and is unlocked in your browser. Once unlocked, it stays open on this device.</p>
+  </div>
+  <script type="application/json" class="locked-data">{"v":1,"iter":250000,"salt":"FItT92w3sHVK/ZaDBDzv7g==","iv":"Pcspokxzt09/658l","data":"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"}</script>
+  <aside class="notes">
+    <p class="note-time">Locked activity (2 slides)</p>
+    <h4>Instructor</h4>
+    <ul>
+      <li>Type this lab's passphrase (private instructor package → <code>passwords.json</code>) to open the activity on the classroom PC. It stays unlocked on that browser until you press "Lock again".</li>
+      <li>To release the activity to students, announce or post the passphrase (e.g. in MS Teams).</li>
+      <li>To re-lock it for everyone, change the passphrase and rerun <code>node tools/lock-activities.js</code>.</li>
+    </ul>
+  </aside>
+</section>
+<!-- LOCKED-ACTIVITY:END lab-04 -->
+
+<!-- ========================= SLIDE 19 · WRAP-UP ========================= -->
+<section class="slide" id="l4-wrap-up" data-title="Wrap-up" data-section="Lab No. 4 & Wrap-up">
+  <header class="slide-head">
+    <p class="kicker">Wrap-up</p>
+    <h2>Operators: What to Remember</h2>
+  </header>
+  <div class="grid-2 align-start">
+    <div class="card">
+      <h3 class="card-title">Key takeaways</h3>
+      <ul class="tight">
+        <li>Four families: <b>arithmetic</b>, <b>assignment</b>, <b>relational</b>, <b>logical</b>.</li>
+        <li><code>int / int</code> drops the fraction (toward zero); <code>%</code> needs ints and takes the sign of the left operand.</li>
+        <li>Cast an <b>operand</b>, not the result: <code>static_cast&lt;double&gt;(sum) / count</code>.</li>
+        <li>Prefix changes first; postfix uses the old value first.</li>
+        <li>Relational and logical results are <code>bool</code>: 1/0, or true/false with <code>boolalpha</code>.</li>
+        <li>Order: unary → <code>* / %</code> → <code>+ -</code> → <code>&lt;&lt;</code> → relational → equality → <code>&amp;&amp;</code> → <code>||</code> → assignment. Parentheses win.</li>
+      </ul>
+    </div>
+    <div class="stack">
+      <div class="card"><h3 class="card-title">Exit ticket</h3><p>On a ¼ sheet: what does this print, and why?</p><p><code>cout &lt;&lt; 9 / 2 * 2.0 &lt;&lt; " " &lt;&lt; 9 % 4 * -1;</code></p></div>
+      <div class="card"><h3 class="card-title">Next: Lab No. 5</h3><p><b>Logical Control Structures: Sequential</b>. You'll turn pseudocode and flowcharts into full C++ programs that solve engineering formulas, using <code>&lt;cmath&gt;</code> and formatted output.</p><p><a href="lab-05.html">Open Lab 5 →</a></p></div>
+    </div>
+  </div>
+  <aside class="notes">
+    <p class="note-time">Suggested time: about 3 min</p>
+    <h4>Teaching tips</h4>
+    <ul>
+      <li>Exit ticket answer: <code>9 / 2</code> is 4, 4 × 2.0 = 8.0, which prints as <code>8</code>; <code>9 % 4</code> is 1, and 1 × −1 = −1. Output: <code>8 -1</code>.</li>
+      <li>Collect the tickets. Anyone who wrote 9 for the first part needs a quick review of integer division before Lab 5, where every formula depends on it.</li>
+      <li>Remind students to bring their Lab Exercise No. 4 questions to the MS Teams channel.</li>
+    </ul>
+    <h4>Common student pitfalls</h4>
+    <ul>
+      <li>Expecting <code>8.0</code> to print with a decimal point. Default <code>cout</code> drops it; Lab 5's <code>fixed</code> and <code>setprecision</code> control that.</li>
+    </ul>
+  </aside>
+</section>
+
+      </div>
+    </main>
+  </div>
+</body>
+</html>

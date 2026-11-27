@@ -1,0 +1,1597 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Lab 15 · Debugging Techniques · CPE 104L</title>
+  <meta name="description" content="CPE 104L Programming Logic and Design, Lab No. 15: Debugging Techniques. Error types, reading g++ messages, warnings, trace tables, debuggers, assert, and test cases. BS Computer Engineering, Bulacan State University.">
+  <meta name="color-scheme" content="light dark">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%232f3410'/%3E%3Cpath d='M32 11 53 32 32 53 11 32Z' fill='none' stroke='%23f5c518' stroke-width='6' stroke-linejoin='round'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="../css/styles.css">
+  <script>
+    (function () { var d = document.documentElement; d.classList.add('js');
+      try { var t = localStorage.getItem('cpe104l.theme'); if (t === 'dark' || t === 'light') d.setAttribute('data-theme', t); } catch (e) {} })();
+  </script>
+  <script src="../js/course.js" defer></script>
+  <script src="../js/search-index.js" defer></script>
+  <script src="../js/script.js" defer></script>
+  <script src="../js/labs/lab-15.js" defer></script>
+</head>
+<body data-page="lab-15" data-root="../">
+  <svg class="svg-defs" aria-hidden="true" focusable="false"><defs><marker id="arrow" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="10" markerHeight="10" markerUnits="userSpaceOnUse" orient="auto"><path class="arrowhead" d="M0 0 L10 5 L0 10 Z"/></marker></defs></svg>
+  <div class="app" id="app">
+    <main class="stage" id="stage">
+      <div class="deck" id="deck" tabindex="-1">
+<noscript><p class="noscript">JavaScript is off, so every slide is shown in one long page. Turn JavaScript on for slide navigation, speaker notes, and the live tracers.</p></noscript>
+
+<!-- ========================= SLIDE 1 · TITLE ========================= -->
+<section class="slide" id="l15-title" data-title="Title & ILOs" data-section="Introduction">
+  <div class="lab-title">
+    <div>
+      <div class="lab-badges"><span class="badge-lab">Lab No. 15</span><span class="badge-week">Week 16</span><span class="badge-co">CO2</span></div>
+      <p class="kicker">CPE 104L · Programming Logic and Design</p>
+      <h1>Debugging Techniques <span>Find it, fix it, prove it</span></h1>
+      <p class="lede">Every programmer writes bugs. Good programmers find them quickly, fix the cause, and prove the fix with tests.</p>
+      <ol class="roadmap" aria-label="Lab roadmap">
+        <li><a href="#l15-error-types">Error types</a></li>
+        <li><a href="#l15-reading-errors">Read g++ messages</a></li>
+        <li><a href="#l15-process">Debugging process</a></li>
+        <li><a href="#l15-debugger">Debugger</a></li>
+        <li><a href="#l15-tests">Test cases</a></li>
+        <li><a href="#l15-gallery-1">Bug gallery</a></li>
+        <li><a href="#l15-exercise">Lab Exercise 15</a></li>
+      </ol>
+    </div>
+    <div class="ilo-card">
+      <h2>Intended Learning Outcomes</h2>
+      <ol>
+        <li>Identify syntax, runtime, and logical errors in C++ programs.</li>
+        <li>Apply systematic debugging techniques, watches, and test cases to verify program correctness.</li>
+      </ol>
+      <div class="ilo-meta">
+        <span><b>Activities:</b> Code debugging exercises · Error identification · Laboratory activities</span>
+        <span><b>Assessment:</b> Lab Exercise No. 15 · 5-Level Lab Rubric</span>
+      </div>
+    </div>
+  </div>
+  <aside class="notes">
+    <p class="note-time">Suggested time: about 3 min</p>
+    <h4>Teaching tips</h4>
+    <ul>
+      <li>Hook: "Who has stared at a program that 'should work' for an hour?" Today turns that guessing into a method.</li>
+      <li>This lab maps directly to CO2 (analyze, test, and debug through code tracing and test cases) and to the rubric criterion <em>Program Functionality, Testing &amp; Debugging</em> (×8, the heaviest).</li>
+      <li>Have an IDE with a debugger ready (Code::Blocks, VS Code, or Dev-C++) for the live debugger demo.</li>
+    </ul>
+    <h4>Common student pitfalls</h4>
+    <ul>
+      <li>Believing debugging means "change things until it works". By the end of the lab they should be able to name the steps they follow.</li>
+    </ul>
+  </aside>
+</section>
+
+<!-- ========================= SLIDE 2 · WHAT IS A BUG ========================= -->
+<section class="slide" id="l15-bug" data-title="What Is a Bug?" data-section="Introduction">
+  <header class="slide-head">
+    <p class="kicker">Lab 15 · Introduction</p>
+    <h2>What Is a Bug, and Why Find It Early?</h2>
+  </header>
+  <div class="grid-2 align-start" style="grid-template-columns:minmax(0,1fr) minmax(0,1.15fr)">
+    <div class="stack">
+      <div class="concept big"><p class="box-label">Key concept</p><p>A <b>bug</b> is any difference between what a program <b>should</b> do (the specification) and what it <b>actually</b> does. <b>Debugging</b> is finding the cause and removing it.</p></div>
+      <div class="note-box"><p class="box-label">History</p><p class="small">In 1947, operators of the Harvard Mark II computer found a moth stuck in a relay and taped it into the logbook as the "first actual case of bug being found". Engineers already called defects "bugs"; this page made the word famous.</p></div>
+      <p class="small muted">Recall the <a href="lab-01.html#pdc">program development cycle</a> from Lab 1: bugs are introduced while coding, but you pay for them when you find them.</p>
+    </div>
+    <div class="stack">
+      <h3 class="card-title" style="margin:0">The later you find a bug, the more it costs</h3>
+      <div class="table-wrap">
+        <table class="table compact">
+          <thead><tr><th scope="col">Found while…</th><th scope="col">How you notice</th><th scope="col">Effort to fix</th></tr></thead>
+          <tbody>
+            <tr><th scope="row">Planning (Lab 1)</th><td>Desk-checking the flowchart or pseudocode</td><td>₱ · erase one step</td></tr>
+            <tr><th scope="row">Compiling</th><td>The compiler points to a line</td><td>₱₱ · minutes</td></tr>
+            <tr><th scope="row">Testing</th><td>A test case gives the wrong output</td><td>₱₱₱ · trace, fix, re-test</td></tr>
+            <tr><th scope="row">After release</th><td>Users (or a device in the field) fail</td><td>₱₱₱₱ · recalls, patches, lost trust</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="small muted">The ₱ signs are relative, not measured costs.</p>
+      <div class="practice"><p class="box-label">Today's habit</p><p>Test while you code, not after. Every small step you compile and run is a bug you catch at the cheap end of this table.</p></div>
+    </div>
+  </div>
+  <aside class="notes">
+    <p class="note-time">Suggested time: about 5 min</p>
+    <h4>Teaching tips</h4>
+    <ul>
+      <li>CpE angle: a firmware bug in a device that has already shipped may need a recall or a field update. Compare that with fixing a flowchart on paper.</li>
+      <li>The moth logbook page (Sept. 9, 1947) is kept at the Smithsonian's National Museum of American History. It is a good story, but the word "bug" is older; Edison used it in the 1870s.</li>
+      <li>Connect to the rubric: "executes cleanly without logical or runtime errors and produces exact outputs across all normal, boundary, and edge test cases."</li>
+    </ul>
+    <h4>Common student pitfalls</h4>
+    <ul>
+      <li>Writing the whole program, then compiling it for the first time. Fifty errors at once is discouraging. Compile and run every few lines.</li>
+    </ul>
+    <h4>Ask the class</h4>
+    <ul>
+      <li>"What is the most annoying bug you have met so far in this course?" Write a few on the board; most will appear in today's bug gallery.</li>
+    </ul>
+  </aside>
+</section>
+
+<!-- ========================= SLIDE 3 · ERROR TYPES ========================= -->
+<section class="slide" id="l15-error-types" data-title="Four Kinds of Errors" data-section="Error types">
+  <header class="slide-head">
+    <p class="kicker">Lab 15 · Error types · ILO 1</p>
+    <h2>Four Kinds of Errors</h2>
+    <p class="lede">Knowing <b>which kind</b> of error you have tells you where to look and which tool helps.</p>
+  </header>
+  <div class="table-wrap">
+    <table class="table">
+      <thead><tr><th scope="col">Type</th><th scope="col">When it shows up</th><th scope="col">Who reports it</th><th scope="col">What you see</th><th scope="col">Typical causes</th></tr></thead>
+      <tbody>
+        <tr><th scope="row">Syntax / compile-time</th><td>While compiling</td><td>The compiler</td><td><code>file:line:col: error: …</code>; no program is built</td><td>Missing <code>;</code> or <code>}</code>, misspelled name, wrong types</td></tr>
+        <tr><th scope="row">Linker</th><td>After compiling, while linking the pieces</td><td>The linker (<code>ld</code>)</td><td><code>undefined reference to …</code></td><td>A function declared (prototype) but never defined, or defined with a different name</td></tr>
+        <tr><th scope="row">Runtime</th><td>While the program runs</td><td>The operating system</td><td>A crash, a freeze, or garbage values</td><td>Integer division by zero, out-of-bounds array, null pointer, infinite loop</td></tr>
+        <tr><th scope="row">Logic</th><td>While the program runs</td><td><b>Nobody</b>: only your tests</td><td>Wrong output, <b>no message at all</b></td><td><code>=</code> vs <code>==</code>, integer division, wrong formula or condition</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="grid-3">
+    <div class="card soft"><h3 class="card-title">Easiest to fix</h3><p class="small">Syntax and linker errors: the tools tell you the file and often the line.</p></div>
+    <div class="card soft"><h3 class="card-title">Harder</h3><p class="small">Runtime errors: you know <i>that</i> it failed, but you must find <i>where</i>.</p></div>
+    <div class="card soft"><h3 class="card-title">Hardest</h3><p class="small">Logic errors: the program looks fine. Only a test with a known expected answer reveals them.</p></div>
+  </div>
+  <aside class="notes">
+    <p class="note-time">Suggested time: about 5 min</p>
+    <h4>Teaching tips</h4>
+    <ul>
+      <li>The syllabus ILO names three kinds (syntax, runtime, logical). Linker errors are a fourth, practical kind students meet once they use prototypes (Lab 11).</li>
+      <li>Have students classify errors they have seen this semester into the four rows.</li>
+      <li>Out-of-bounds access is <b>undefined behavior</b>: it may crash, print garbage, or seem to work. It is not guaranteed to produce an error.</li>
+    </ul>
+    <h4>Common student pitfalls</h4>
+    <ul>
+      <li>Thinking "it compiles" means "it works". Compiling only rules out the first two rows.</li>
+    </ul>
+    <h4>Ask the class</h4>
+    <ul>
+      <li>"A program prints Average = 84 when the answer is 84.3333. Which row?" (Logic.)</li>
+    </ul>
+  </aside>
+</section>
+
+<!-- ========================= SLIDE 4 · ONE EXAMPLE OF EACH ========================= -->
+<section class="slide" id="l15-error-examples" data-title="One Example of Each" data-section="Error types">
+  <header class="slide-head">
+    <p class="kicker">Lab 15 · Error types</p>
+    <h2>One Example of Each (Real g++ Output)</h2>
+  </header>
+  <div class="tabs" data-tabs>
+    <div class="tablist" role="tablist" aria-label="Error examples">
+      <button type="button" role="tab" data-tab="syn" aria-selected="true">Syntax</button>
+      <button type="button" role="tab" data-tab="lnk">Linker</button>
+      <button type="button" role="tab" data-tab="run">Runtime</button>
+      <button type="button" role="tab" data-tab="log">Logic</button>
+    </div>
+    <div class="tabpanel" role="tabpanel" data-panel="syn">
+      <div class="code-pair">
+        <figure class="codeblock"><figcaption><code>grade.cpp</code></figcaption>
+<pre class="code bad-code" data-cpp data-nocheck>
+#include &lt;iostream&gt;
+using namespace std;
+
+int main() {
+    int grade;
+    cout &lt;&lt; "Enter grade: ";
+    cin &gt;&gt; grade;
+    if (grade &gt;= 75) {
+        cout &lt;&lt; "Passed" &lt;&lt; endl;
+    else {
+        cout &lt;&lt; "Failed" &lt;&lt; endl;
+    }
+    return 0;
+}
+</pre></figure>
+        <div class="stack">
+          <figure class="codeblock"><figcaption>g++ output</figcaption>
+<pre class="console">grade.cpp: In function 'int main()':
+grade.cpp:10:5: error: expected '}' before 'else'
+grade.cpp:8:22: note: to match this '{'</pre></figure>
+          <p>The <code>if</code> block is never closed. The <b>note</b> points to the <code>{</code> that has no partner. Fix: put <code>}</code> before <code>else</code> on line 10.</p>
+        </div>
+      </div>
+    </div>
+    <div class="tabpanel" role="tabpanel" data-panel="lnk">
+      <div class="code-pair">
+        <figure class="codeblock"><figcaption><code>convert.cpp</code></figcaption>
+<pre class="code bad-code" data-cpp data-nocheck>
+#include &lt;iostream&gt;
+using namespace std;
+
+double celsiusToFahrenheit(double c);    // prototype only
+
+int main() {
+    cout &lt;&lt; celsiusToFahrenheit(37.0) &lt;&lt; endl;
+    return 0;
+}
+</pre></figure>
+        <div class="stack">
+          <figure class="codeblock"><figcaption>g++ output</figcaption>
+<pre class="console">/usr/bin/ld: /tmp/ccEtdbJl.o: in function `main':
+convert.cpp:(.text+0x15): undefined reference to `celsiusToFahrenheit(double)'
+collect2: error: ld returned 1 exit status</pre></figure>
+          <p>Compiling worked: the prototype promised the function exists. The <b>linker</b> then could not find its body. Fix: write the definition (with exactly the same name and parameter types).</p>
+        </div>
+      </div>
+    </div>
+    <div class="tabpanel" role="tabpanel" data-panel="run">
+      <div class="code-pair">
+        <figure class="codeblock"><figcaption><code>divide.cpp</code></figcaption>
+<pre class="code bad-code" data-cpp data-stdin="253 3">
+#include &lt;iostream&gt;
+using namespace std;
+
+int main() {
+    int total, count;
+    cout &lt;&lt; "Enter total and count: ";
+    cin &gt;&gt; total &gt;&gt; count;
+    cout &lt;&lt; "Average = " &lt;&lt; total / count &lt;&lt; endl;
+    return 0;
+}
+</pre></figure>
+        <div class="stack">
+          <figure class="codeblock"><figcaption>Two runs (Linux terminal)</figcaption>
+<pre class="console">Enter total and count: <span class="in">253 3</span>
+Average = 84
+<span class="muted-out">$ ./divide</span>
+Enter total and count: <span class="in">253 0</span>
+Floating point exception</pre></figure>
+          <ul class="tight">
+            <li>Integer division by zero crashes. (On Windows, Code::Blocks reports something like <code>Process returned -1073741676 (0xC0000094)</code>.)</li>
+            <li>Other runtime errors: null pointer → <code>Segmentation fault</code>; out-of-bounds index → undefined behavior; infinite loop → the program never ends (press <kbd>Ctrl</kbd>+<kbd>C</kbd>).</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <div class="tabpanel" role="tabpanel" data-panel="log">
+      <div class="code-pair">
+        <figure class="codeblock"><figcaption><code>quiz.cpp</code></figcaption>
+<pre class="code bad-code" data-cpp data-stdin="85 90 78">
+#include &lt;iostream&gt;
+using namespace std;
+
+int main() {
+    int q1, q2, q3;
+    cout &lt;&lt; "Enter 3 quiz scores: ";
+    cin &gt;&gt; q1 &gt;&gt; q2 &gt;&gt; q3;
+    double average = (q1 + q2 + q3) / 3;
+    cout &lt;&lt; "Average = " &lt;&lt; average &lt;&lt; endl;
+    return 0;
+}
+</pre></figure>
+        <div class="stack">
+          <figure class="codeblock"><figcaption>Output (expected 84.3333)</figcaption>
+<pre class="console">Enter 3 quiz scores: <span class="in">85 90 78</span>
+Average = 84</pre></figure>
+          <p>No error, no warning, wrong answer. <code>(q1 + q2 + q3) / 3</code> is <code>int / int</code>, so the decimals are dropped <b>before</b> the result is stored in the <code>double</code>. Fix: divide by <code>3.0</code>.</p>
+          <p class="callout tip">Only a test with a known expected answer catches a logic error.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+  <aside class="notes">
+    <p class="note-time">Suggested time: about 8 min</p>
+    <h4>Teaching tips</h4>
+    <ul>
+      <li>All outputs are real (g++ 13 on Linux, trimmed). Run one or two live in your IDE so students see the same messages in their own tools.</li>
+      <li>Linker: the temporary file name (<code>/tmp/cc….o</code>) changes every time; only the "undefined reference" line matters.</li>
+      <li>Runtime: the terminal may also print "(core dumped)". Floating-point division by zero does <b>not</b> crash; it gives <code>inf</code> or <code>nan</code>.</li>
+      <li>The logic example is Lab 2's average program with <code>int</code> instead of <code>double</code>.</li>
+    </ul>
+    <h4>Common student pitfalls</h4>
+    <ul>
+      <li>Fixing a linker error by deleting the prototype. That turns it into a compile error ("not declared in this scope").</li>
+      <li>Thinking <code>double average = …</code> makes the whole expression use doubles. The right side is computed first, with its own types.</li>
+    </ul>
+    <h4>Ask the class</h4>
+    <ul>
+      <li>"How would you change <code>divide.cpp</code> so it never crashes?" (Check <code>count != 0</code> before dividing and print a message.)</li>
+    </ul>
+  </aside>
+</section>
+
+<!-- ========================= SLIDE 5 · READING ERROR MESSAGES ========================= -->
+<section class="slide" id="l15-reading-errors" data-title="Reading g++ Error Messages" data-section="Error types">
+  <header class="slide-head">
+    <p class="kicker">Lab 15 · Compiler messages</p>
+    <h2>Reading a g++ Error Message</h2>
+  </header>
+  <div class="grid-2 align-start">
+    <div class="stack">
+      <figure class="codeblock"><figcaption><code>total.cpp</code></figcaption>
+<pre class="code bad-code" data-cpp data-nocheck>
+#include &lt;iostream&gt;
+using namespace std;
+
+int main() {
+    int total = 0
+    for (int i = 1; i &lt;= 5; i++) {
+        total += i;
+    }
+    cout &lt;&lt; "Total = " &lt;&lt; total &lt;&lt; endl;
+    return 0;
+}
+</pre></figure>
+      <figure class="codeblock"><figcaption>g++ output</figcaption>
+<pre class="console">total.cpp: In function 'int main()':
+total.cpp:6:5: error: expected ',' or ';' before 'for'
+    6 |     for (int i = 1; i &lt;= 5; i++) {
+      |     ^~~
+total.cpp:6:21: error: 'i' was not declared in this scope
+    6 |     for (int i = 1; i &lt;= 5; i++) {
+      |                     ^</pre></figure>
+    </div>
+    <div class="stack">
+      <div class="table-wrap">
+        <table class="table compact">
+          <caption>Anatomy of <code>total.cpp:6:5: error: expected ',' or ';' before 'for'</code></caption>
+          <tbody>
+            <tr><th scope="row"><code>total.cpp</code></th><td>File name</td></tr>
+            <tr><th scope="row"><code>6</code></th><td>Line number</td></tr>
+            <tr><th scope="row"><code>5</code></th><td>Column (character position)</td></tr>
+            <tr><th scope="row"><code>error</code></th><td>Kind: <b>error</b> (must fix), <b>warning</b> (should fix), <b>note</b> (extra info)</td></tr>
+            <tr><th scope="row">message</th><td>What the compiler expected or could not understand</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="pitfall"><p class="box-label">Look one line up</p><p>The mistake is at the <b>end of line 5</b> (missing <code>;</code>). g++ only noticed when it reached <code>for</code> on line 6. When the reported line looks fine, check the line <b>before</b> it.</p></div>
+      <div class="concept"><p class="box-label">Fix the first error first</p><p>The second error ("<code>'i' was not declared</code>") is only a side effect of the first. Add the <code>;</code>, recompile, and both disappear.</p></div>
+    </div>
+  </div>
+  <aside class="notes">
+    <p class="note-time">Suggested time: about 6 min</p>
+    <h4>Teaching tips</h4>
+    <ul>
+      <li>Real g++ 13 output. The caret line (<code>^~~</code>) underlines the exact spot g++ is complaining about.</li>
+      <li>In Code::Blocks the same messages appear in the "Build messages" tab, and double-clicking one jumps to the line. In VS Code they appear in the Terminal/Problems panel.</li>
+      <li>Ask a student to read the first message aloud, slowly, and translate it into plain words.</li>
+    </ul>
+    <h4>Common student pitfalls</h4>
+    <ul>
+      <li>Starting from the <b>last</b> message in a long list. The last ones are often consequences of the first.</li>
+      <li>Ignoring the column number. It tells you exactly where on the line to look.</li>
+    </ul>
+    <h4>Ask the class</h4>
+    <ul>
+      <li>"After adding the semicolon, how many errors remain?" (Zero.)</li>
+    </ul>
+  </aside>
+</section>
+
+<!-- ========================= SLIDE 6 · CASCADE ========================= -->
+<section class="slide" id="l15-cascade" data-title="One Mistake, Many Messages" data-section="Error types">
+  <header class="slide-head">
+    <p class="kicker">Lab 15 · Compiler messages</p>
+    <h2>One Mistake, Many Messages</h2>
+    <p class="lede">One missing line can produce a screen full of errors. Read the first one, fix it, and recompile.</p>
+  </header>
+  <div class="grid-2 align-start">
+    <div class="stack">
+      <figure class="codeblock"><figcaption><code>ohm.cpp</code></figcaption>
+<pre class="code bad-code" data-cpp data-nocheck>
+#include &lt;iostream&gt;
+
+int main() {
+    double voltage, resistance;
+    cout &lt;&lt; "Enter voltage and resistance: ";
+    cin &gt;&gt; voltage &gt;&gt; resistance;
+    cout &lt;&lt; "Current = " &lt;&lt; voltage / resistance &lt;&lt; endl;
+    return 0;
+}
+</pre></figure>
+      <div class="card">
+        <h3 class="card-title">Read the hints</h3>
+        <p class="small">g++ often suggests the fix. From a program with a typo:</p>
+<pre class="console">average.cpp:9:9: error: 'totl' was not declared in this scope; did you mean 'total'?</pre>
+      </div>
+    </div>
+    <div class="stack">
+      <figure class="codeblock"><figcaption>g++ output (notes trimmed)</figcaption>
+<pre class="console">ohm.cpp: In function 'int main()':
+ohm.cpp:5:5: error: 'cout' was not declared in this scope; did you mean 'std::cout'?
+ohm.cpp:6:5: error: 'cin' was not declared in this scope; did you mean 'std::cin'?
+ohm.cpp:7:53: error: 'endl' was not declared in this scope; did you mean 'std::endl'?</pre></figure>
+      <div class="concept"><p class="box-label">Cause</p><p>The line <code>using namespace std;</code> is missing. <code>cout</code>, <code>cin</code>, and <code>endl</code> live in the <code>std</code> namespace, so without it you must write <code>std::cout</code>. One missing line, three errors.</p></div>
+      <div class="practice"><p class="box-label">Strategy</p>
+        <ol>
+          <li>Read only the <b>first</b> error.</li>
+          <li>Fix it, then <b>recompile</b> right away.</li>
+          <li>Repeat. Many later errors vanish by themselves.</li>
+        </ol>
+      </div>
+    </div>
+  </div>
+  <aside class="notes">
+    <p class="note-time">Suggested time: about 5 min</p>
+    <h4>Teaching tips</h4>
+    <ul>
+      <li>Real g++ 13 output. The full output also has six "note: … declared here" lines pointing inside the standard library headers; students can ignore notes that point into files they did not write.</li>
+      <li>Good moment to mention once that <code>std::cout</code> is the full name, and <code>using namespace std;</code> is a shortcut used in this course.</li>
+      <li>Other one-mistake cascades: a missing <code>"</code> (unterminated string) or a missing <code>;</code> after a class definition.</li>
+    </ul>
+    <h4>Common student pitfalls</h4>
+    <ul>
+      <li>Fixing every <code>cout</code> line one by one instead of the single missing line.</li>
+      <li>Panicking at 20+ errors. Usually only one or two mistakes cause them.</li>
+    </ul>
+    <h4>Ask the class</h4>
+    <ul>
+      <li>"g++ says 'did you mean total?'. Should you always accept the suggestion?" (Usually, but check: maybe the variable was never declared.)</li>
+    </ul>
+  </aside>
+</section>
+
+<!-- ========================= SLIDE 7 · WARNINGS ========================= -->
+<section class="slide" id="l15-warnings" data-title="Warnings: -Wall -Wextra" data-section="Error types">
+  <header class="slide-head">
+    <p class="kicker">Lab 15 · Compiler messages</p>
+    <h2>Warnings: Compile with <code>-Wall -Wextra</code></h2>
+    <p class="lede">A warning means "this compiles, but it is probably not what you meant".</p>
+  </header>
+  <div class="grid-2 align-start">
+    <div class="stack">
+      <figure class="codeblock"><figcaption><code>password.cpp</code> (no message when warnings are off)</figcaption>
+<pre class="code bad-code scroll compact" data-cpp data-nocheck style="max-height:37vh">
+#include &lt;iostream&gt;
+#include &lt;string&gt;
+#include &lt;cctype&gt;
+using namespace std;
+
+int main() {
+    string password;
+    int attempts = 0;
+    cout &lt;&lt; "Enter a password: ";
+    cin &gt;&gt; password;
+    int digits = 0;
+    for (int i = 0; i &lt; password.length(); i++) {
+        if (isdigit(password[i])) {
+            digits++;
+        }
+    }
+    if (digits = 0) {
+        cout &lt;&lt; "Add at least one digit." &lt;&lt; endl;
+    } else {
+        cout &lt;&lt; "OK: " &lt;&lt; digits &lt;&lt; " digit(s)." &lt;&lt; endl;
+    }
+    return 0;
+}
+</pre></figure>
+      <div class="card soft">
+        <h3 class="card-title">Turn warnings on</h3>
+        <ul class="tight small">
+          <li><b>Code::Blocks:</b> Settings → Compiler → Compiler Flags: tick <code>-Wall</code> and <code>-Wextra</code>.</li>
+          <li><b>VS Code:</b> add <code>"-Wall", "-Wextra"</code> to <code>args</code> in <code>tasks.json</code>.</li>
+          <li><b>Dev-C++:</b> Tools → Compiler Options: add <code>-Wall -Wextra</code> to the compiler command line.</li>
+        </ul>
+      </div>
+    </div>
+    <div class="stack">
+      <figure class="codeblock"><figcaption><code>g++ -Wall -Wextra password.cpp</code> (trimmed)</figcaption>
+<pre class="console">password.cpp:12:23: warning: comparison of integer expressions of different signedness: 'int' and 'std::__cxx11::basic_string&lt;char&gt;::size_type' {aka 'long unsigned int'} [-Wsign-compare]
+password.cpp:17:16: warning: suggest parentheses around assignment used as truth value [-Wparentheses]
+password.cpp:8:9: warning: unused variable 'attempts' [-Wunused-variable]</pre></figure>
+      <figure class="codeblock"><figcaption>And it runs, with a wrong answer</figcaption>
+<pre class="console">Enter a password: <span class="in">abc12</span>
+OK: 0 digit(s).</pre></figure>
+      <div class="table-wrap">
+        <table class="table compact">
+          <thead><tr><th scope="col">Warning</th><th scope="col">Fix</th></tr></thead>
+          <tbody>
+            <tr><td>line 17: <code>=</code> in a condition</td><td><code>if (digits == 0)</code></td></tr>
+            <tr><td>line 12: signed vs unsigned</td><td><code>for (size_t i = 0; …)</code></td></tr>
+            <tr><td>line 8: unused variable</td><td>Delete it (or use it)</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+  <aside class="notes">
+    <p class="note-time">Suggested time: about 6 min</p>
+    <h4>Teaching tips</h4>
+    <ul>
+      <li>Real g++ 13 output. Without <code>-Wall -Wextra</code> the same file compiles silently. On Windows (MinGW) the type in the first warning may read <code>long long unsigned int</code>.</li>
+      <li>The <code>=</code> bug is a real logic error: <code>digits = 0</code> sets digits to 0, the condition is false, and the else branch prints "OK: 0 digit(s)" for any password.</li>
+      <li>IDE menus differ slightly by version. Show the setting on the lab computers once and have students turn it on today.</li>
+      <li>Course rule suggestion: submitted code should compile with <b>zero warnings</b> under <code>-Wall -Wextra</code>.</li>
+    </ul>
+    <h4>Common student pitfalls</h4>
+    <ul>
+      <li>"It's only a warning." The <code>-Wparentheses</code> warning here <em>is</em> the bug.</li>
+      <li>Silencing a warning with a cast without understanding it.</li>
+    </ul>
+    <h4>Ask the class</h4>
+    <ul>
+      <li>"Why is comparing <code>int</code> with an unsigned size risky?" (A negative <code>int</code> converts to a huge unsigned number, so <code>-1 &lt; s.length()</code> can be false.)</li>
+    </ul>
+  </aside>
+</section>
+
+<!-- ========================= SLIDE 8 · DEBUGGING PROCESS ========================= -->
+<section class="slide" id="l15-process" data-title="A Systematic Debugging Process" data-section="Debugging process">
+  <header class="slide-head">
+    <p class="kicker">Lab 15 · Debugging process · ILO 2</p>
+    <h2>A Systematic Debugging Process</h2>
+    <p class="lede">Don't guess and change things at random. Follow the same steps every time.</p>
+  </header>
+  <div class="grid-2 align-start" style="grid-template-columns:minmax(0,.9fr) minmax(0,1.1fr)">
+    <figure class="card chart-card" style="margin:0">
+      <figcaption>Flowchart</figcaption>
+      <div class="chart-body">
+        <svg class="fc" viewBox="0 0 420 574" style="max-height:60vh" role="img" aria-label="Flowchart: A test fails. 1 Reproduce it. 2 Locate it. 3 Understand the cause. 4 Fix the cause. 5 Verify the fix. Decision 6: all tests pass? If no, go back to step 2, locate. If yes, record it in the bug log, then End.">
+          <g class="fc-node"><rect class="s-terminal" x="100" y="8" width="180" height="36" rx="18"/><text x="190" y="26">A test fails</text></g>
+          <path class="fc-line" d="M190 44 V64"/>
+          <g class="fc-node"><rect class="s-process" x="70" y="64" width="240" height="40"/><text x="190" y="84">1 · Reproduce it</text></g>
+          <path class="fc-line" d="M190 104 V124"/>
+          <g class="fc-node"><rect class="s-process" x="70" y="124" width="240" height="40"/><text x="190" y="144">2 · Locate it</text></g>
+          <path class="fc-line" d="M190 164 V184"/>
+          <g class="fc-node"><rect class="s-process" x="70" y="184" width="240" height="40"/><text x="190" y="204">3 · Understand the cause</text></g>
+          <path class="fc-line" d="M190 224 V244"/>
+          <g class="fc-node"><rect class="s-process" x="70" y="244" width="240" height="40"/><text x="190" y="264">4 · Fix the cause</text></g>
+          <path class="fc-line" d="M190 284 V304"/>
+          <g class="fc-node"><rect class="s-process" x="70" y="304" width="240" height="40"/><text x="190" y="324">5 · Verify the fix</text></g>
+          <path class="fc-line" d="M190 344 V364"/>
+          <g class="fc-node"><polygon class="s-decision" points="190,364 310,404 190,444 70,404"/><text x="190" y="404">6 · All tests pass?</text></g>
+          <path class="fc-line" d="M310 404 H385 V144 H310"/>
+          <text class="fc-label" x="348" y="392">No</text>
+          <path class="fc-line" d="M190 444 V468"/>
+          <text class="fc-label a-start" x="200" y="456">Yes</text>
+          <g class="fc-node"><rect class="s-process" x="70" y="468" width="240" height="40"/><text x="190" y="488">Record it in the bug log</text></g>
+          <path class="fc-line" d="M190 508 V528"/>
+          <g class="fc-node"><rect class="s-terminal" x="120" y="528" width="140" height="36" rx="18"/><text x="190" y="546">End</text></g>
+        </svg>
+      </div>
+    </figure>
+    <ol class="algo-steps" style="margin:0">
+      <li><b>Reproduce</b>: find an input that shows the bug <b>every</b> time. Write it down as a test case.</li>
+      <li><b>Locate</b>: narrow down <b>where</b>: trace table, print statements, debugger, or comment out half the code.</li>
+      <li><b>Understand</b>: explain <b>why</b> the line is wrong before touching it. (Rubber duck!)</li>
+      <li><b>Fix</b> the cause with the smallest change. One fix at a time.</li>
+      <li><b>Verify</b>: rerun the failing test. Does it pass now?</li>
+      <li><b>Re-test</b> everything: normal, boundary, edge, invalid. A fix can break something else (a <i>regression</i>).</li>
+    </ol>
+  </div>
+  <aside class="notes">
+    <p class="note-time">Suggested time: about 6 min</p>
+    <h4>Teaching tips</h4>
+    <ul>
+      <li>This is the scientific method applied to code: observe, hypothesize (understand), experiment (fix), and check.</li>
+      <li>The loop goes back to <b>Locate</b>, not to Fix: if the tests still fail, your understanding of the cause was incomplete.</li>
+      <li>The bug log is required in Lab Exercise 15 and in the Final Project's test logs.</li>
+    </ul>
+    <h4>Common student pitfalls</h4>
+    <ul>
+      <li>Changing several things at once. If it then works, you don't know which change fixed it (or which one broke something else).</li>
+      <li>Skipping "Reproduce": "it failed once, but now it works" usually means the bug is still there (uninitialized variables behave like that).</li>
+    </ul>
+    <h4>Ask the class</h4>
+    <ul>
+      <li>"Why re-test the cases that already passed?" (A fix can break them: regression.)</li>
+    </ul>
+  </aside>
+</section>
+
+<!-- ========================= SLIDE 9 · TRACE THE BUG (tracer 1) ========================= -->
+<section class="slide" id="l15-trace-bug" data-title="Desk-Check a Buggy Loop" data-section="Debugging process">
+  <header class="slide-head">
+    <p class="kicker">Lab 15 · Technique 1: desk-checking</p>
+    <h2>Desk-Check a Buggy Loop</h2>
+    <p class="lede">Expected for 85, 90, 78: <code>Average = 84.3333</code>. The program prints <code>Average = 58</code>. Trace it.</p>
+  </header>
+  <div class="example-grid">
+    <div class="stack">
+      <figure class="codeblock"><figcaption><code>average.cpp</code> (buggy)</figcaption>
+<pre class="code bad-code compact" id="l15-bug-code" data-cpp data-stdin="3 85 90 78">
+#include &lt;iostream&gt;
+using namespace std;
+
+int main() {
+    int n;
+    cout &lt;&lt; "How many scores? ";
+    cin &gt;&gt; n;
+    cout &lt;&lt; "Enter " &lt;&lt; n &lt;&lt; " scores: ";
+    int sum = 0;
+    for (int i = 1; i &lt; n; i++) {
+        int score;
+        cin &gt;&gt; score;
+        sum += score;
+    }
+    double average = sum / n;
+    cout &lt;&lt; "Average = " &lt;&lt; average &lt;&lt; endl;
+    return 0;
+}
+</pre></figure>
+      <details class="hint"><summary>Reveal the two bugs</summary><p>Line 10: <code>i = 1; i &lt; n</code> runs only <b>n − 1</b> times (off by one). Line 15: <code>sum / n</code> is <b>integer division</b>: 175 / 3 = 58.</p></details>
+    </div>
+    <div class="stack">
+      <div class="tracer" data-trace="l15-bug" data-code="#l15-bug-code" data-title="Watch the variables go wrong">
+        <div class="tracer-inputs">
+          <label>n <input type="number" data-var="n" value="3" step="1" min="1" max="10"></label>
+          <label>scores <input type="text" data-var="scores" data-type="text" value="85 90 78" style="width:9rem"></label>
+        </div>
+      </div>
+      <div class="table-wrap">
+        <table class="table compact trace-table">
+          <caption>Desk-check by hand: n = 3, scores 85 90 78</caption>
+          <thead><tr><th scope="col">i</th><th scope="col">i &lt; n?</th><th scope="col">score</th><th scope="col">sum</th></tr></thead>
+          <tbody>
+            <tr><td>1</td><td>true</td><td>85</td><td>85</td></tr>
+            <tr><td>2</td><td>true</td><td>90</td><td>175</td></tr>
+            <tr class="is-hl"><td>3</td><td>false</td><td>(78 never read)</td><td>175</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+  <aside class="notes">
+    <p class="note-time">Suggested time: about 8 min</p>
+    <h4>Teaching tips</h4>
+    <ul>
+      <li>First fill the trace table on the board <b>with the class</b>, before using the tracer. Then run the tracer to confirm it.</li>
+      <li>In the tracer, watch the Memory panel: after the loop, <code>sum</code> is 175 instead of 253. That is the moment the program "goes wrong".</li>
+      <li>Two bugs that hide each other: fixing only the loop gives 253 / 3 = 84 (still wrong). Fixing only the division gives 58.3333 (still wrong). Good argument for re-testing after every fix.</li>
+      <li>Try n = 1 in the tracer: the loop never runs and the average is 0.</li>
+    </ul>
+    <h4>Common student pitfalls</h4>
+    <ul>
+      <li>Filling the trace table from what the code <em>should</em> do instead of what it <em>actually</em> does. Read each line literally.</li>
+    </ul>
+    <h4>Ask the class</h4>
+    <ul>
+      <li>"With n = 0 the program crashes. Why?" (Integer division by zero on line 15.)</li>
+    </ul>
+  </aside>
+</section>
+
+<!-- ========================= SLIDE 10 · FIX & RE-TRACE (tracer 2) ========================= -->
+<section class="slide" id="l15-trace-fix" data-title="Fix It, Then Trace Again" data-section="Debugging process">
+  <header class="slide-head">
+    <p class="kicker">Lab 15 · Verify the fix</p>
+    <h2>Fix It, Then Trace Again</h2>
+    <p class="lede">Line 10: <code>i = 0; i &lt; n</code> runs exactly <b>n</b> times. Line 15: <code>static_cast&lt;double&gt;(sum) / n</code> divides as doubles.</p>
+  </header>
+  <div class="example-grid">
+    <div class="stack">
+      <figure class="codeblock"><figcaption><code>average.cpp</code> (fixed)</figcaption>
+<pre class="code compact" id="l15-fix-code" data-cpp data-stdin="3 85 90 78">
+#include &lt;iostream&gt;
+using namespace std;
+
+int main() {
+    int n;
+    cout &lt;&lt; "How many scores? ";
+    cin &gt;&gt; n;
+    cout &lt;&lt; "Enter " &lt;&lt; n &lt;&lt; " scores: ";
+    int sum = 0;
+    for (int i = 0; i &lt; n; i++) {
+        int score;
+        cin &gt;&gt; score;
+        sum += score;
+    }
+    double average = static_cast&lt;double&gt;(sum) / n;
+    cout &lt;&lt; "Average = " &lt;&lt; average &lt;&lt; endl;
+    return 0;
+}
+</pre></figure>
+    </div>
+    <div class="stack">
+      <div class="tracer" data-trace="l15-fix" data-code="#l15-fix-code" data-title="Trace the fixed program">
+        <div class="tracer-inputs">
+          <label>n <input type="number" data-var="n" value="3" step="1" min="1" max="10"></label>
+          <label>scores <input type="text" data-var="scores" data-type="text" value="85 90 78" style="width:9rem"></label>
+        </div>
+      </div>
+      <div class="table-wrap">
+        <table class="table compact">
+          <thead><tr><th scope="col">Test</th><th scope="col">Expected</th><th scope="col">Before</th><th scope="col">After</th></tr></thead>
+          <tbody>
+            <tr><td>3 · 85 90 78</td><td>84.3333</td><td>58 ✗</td><td>84.3333 ✓</td></tr>
+            <tr><td>1 · 100</td><td>100</td><td>0 ✗</td><td>100 ✓</td></tr>
+            <tr><td>2 · 90 91</td><td>90.5</td><td>45 ✗</td><td>90.5 ✓</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+  <aside class="notes">
+    <p class="note-time">Suggested time: about 5 min</p>
+    <h4>Teaching tips</h4>
+    <ul>
+      <li>Run the tracer with the same input as before, then with the other two rows of the table (n = 1, score 100; n = 2, scores 90 91).</li>
+      <li>The "Before" column was produced by running the buggy program; the "After" column by the fixed one (real outputs).</li>
+      <li>Alternative fixes are fine: <code>for (int i = 1; i &lt;= n; i++)</code>, or declaring <code>double sum = 0;</code>.</li>
+    </ul>
+    <h4>Common student pitfalls</h4>
+    <ul>
+      <li>Writing <code>static_cast&lt;double&gt;(sum / n)</code>. The division happens first (as integers), then the cast: still wrong.</li>
+    </ul>
+    <h4>Ask the class</h4>
+    <ul>
+      <li>"Which test in the table would catch the off-by-one bug alone? Which would catch the division bug alone?"</li>
+    </ul>
+  </aside>
+</section>
+
+<!-- ========================= SLIDE 11 · MORE TECHNIQUES ========================= -->
+<section class="slide" id="l15-techniques" data-title="Print Debugging & More" data-section="Debugging process">
+  <header class="slide-head">
+    <p class="kicker">Lab 15 · Techniques 2–5</p>
+    <h2>Print Debugging, Rubber Duck, Divide &amp; Conquer</h2>
+  </header>
+  <div class="grid-2 align-start">
+    <div class="stack">
+      <figure class="codeblock"><figcaption>Add labeled <code>cerr</code> lines inside the buggy loop</figcaption>
+<pre class="code compact" data-cpp>
+    int sum = 0;
+    for (int i = 1; i &lt; n; i++) {
+        int score;
+        cin &gt;&gt; score;
+        sum += score;
+        cerr &lt;&lt; "[DEBUG] i=" &lt;&lt; i &lt;&lt; " score=" &lt;&lt; score
+             &lt;&lt; " sum=" &lt;&lt; sum &lt;&lt; endl;
+    }
+    cerr &lt;&lt; "[DEBUG] after loop: sum=" &lt;&lt; sum &lt;&lt; endl;
+    double average = sum / n;
+</pre></figure>
+      <figure class="codeblock"><figcaption>Output</figcaption>
+<pre class="console">How many scores? <span class="in">3</span>
+Enter 3 scores: <span class="in">85 90 78</span>
+[DEBUG] i=1 score=85 sum=85
+[DEBUG] i=2 score=90 sum=175
+[DEBUG] after loop: sum=175
+Average = 58</pre></figure>
+    </div>
+    <div class="stack">
+      <div class="card"><h3 class="card-title">2 · Print (cerr) debugging</h3><p class="small">Print <b>labeled</b> values at key points. <code>cerr</code> is the error stream: it is not buffered and is easy to find and delete later. Remove debug lines before submitting.</p></div>
+      <div class="card"><h3 class="card-title">3 · Rubber duck</h3><p class="small">Explain the code, line by line, out loud, to a rubber duck (or a seatmate). Saying "and here <code>i</code> starts at 1…" often reveals the bug by itself.</p></div>
+      <div class="card"><h3 class="card-title">4 · Divide and conquer</h3><p class="small">Comment out half the code (or print at the middle). Is the value already wrong there? Then the bug is in the first half. Repeat: a binary search on your code.</p></div>
+      <div class="card"><h3 class="card-title">5 · Simplify the input</h3><p class="small">Shrink the failing input: 1 score instead of 50, small round numbers. Small inputs are easy to check by hand.</p></div>
+    </div>
+  </div>
+  <aside class="notes">
+    <p class="note-time">Suggested time: about 6 min</p>
+    <h4>Teaching tips</h4>
+    <ul>
+      <li>The output is from a real run in a terminal (the [DEBUG] lines go to <code>cerr</code>, which appears in the same console window).</li>
+      <li>Print debugging works everywhere, including online compilers such as Codechum that may not have a step debugger.</li>
+      <li>"Rubber duck debugging" comes from <i>The Pragmatic Programmer</i> (Hunt &amp; Thomas). Pair students and have them explain one function to each other.</li>
+      <li>Technique 1 was the trace table on the previous slides; technique 6 is the debugger on the next slide.</li>
+    </ul>
+    <h4>Common student pitfalls</h4>
+    <ul>
+      <li>Printing values without labels (<code>cout &lt;&lt; x &lt;&lt; y</code> → "85175"). Always label.</li>
+      <li>Leaving debug output in the final program, which breaks the expected output.</li>
+    </ul>
+    <h4>Ask the class</h4>
+    <ul>
+      <li>"Which debug line first shows something unexpected?" (The missing third <code>[DEBUG]</code> line: only two iterations ran.)</li>
+    </ul>
+  </aside>
+</section>
+
+<!-- ========================= SLIDE 12 · USING A DEBUGGER ========================= -->
+<section class="slide" id="l15-debugger" data-title="Using a Debugger" data-section="Debugging process">
+  <header class="slide-head">
+    <p class="kicker">Lab 15 · Technique 6: the debugger · watches</p>
+    <h2>Using a Debugger</h2>
+    <p class="lede">A debugger pauses your <b>real</b> program so you can run it one line at a time and watch the variables change.</p>
+  </header>
+  <div class="grid-2 align-start" style="grid-template-columns:minmax(0,1.85fr) minmax(0,1fr)">
+    <figure class="card" style="margin:0;padding:.6rem">
+      <svg viewBox="0 0 760 400" role="img" style="display:block;width:100%;height:auto" aria-label="Mock debugger window. Toolbar buttons: Continue, Step over, Step into, Step out, Stop. Code pane shows the function computeAverage, lines 4 to 12, with a red breakpoint dot on line 9 and a yellow arrow showing execution paused on line 9. Watches pane: n equals 3, i equals 2, score equals 90, sum equals 85. Call stack pane: number 0 computeAverage with n equals 3 at line 9, highlighted; number 1 main at line 18.">
+        <g style="font-family:var(--font-sans);font-size:14px;fill:var(--text)">
+          <rect x="0" y="0" width="760" height="40" rx="8" style="fill:var(--surface-2);stroke:var(--border)"/>
+          <g style="font-weight:700">
+            <rect x="8" y="6" width="112" height="28" rx="6" style="fill:var(--surface);stroke:var(--border)"/><text x="64" y="25" text-anchor="middle">▶ Continue</text>
+            <rect x="128" y="6" width="112" height="28" rx="6" style="fill:var(--surface);stroke:var(--border)"/><text x="184" y="25" text-anchor="middle">Step over</text>
+            <rect x="248" y="6" width="112" height="28" rx="6" style="fill:var(--surface);stroke:var(--border)"/><text x="304" y="25" text-anchor="middle">Step into</text>
+            <rect x="368" y="6" width="112" height="28" rx="6" style="fill:var(--surface);stroke:var(--border)"/><text x="424" y="25" text-anchor="middle">Step out</text>
+            <rect x="488" y="6" width="90" height="28" rx="6" style="fill:var(--surface);stroke:var(--border)"/><text x="533" y="25" text-anchor="middle" style="fill:var(--bad)">■ Stop</text>
+          </g>
+          <text x="752" y="25" text-anchor="end" style="font-size:13px;fill:var(--muted)">Paused at line 9</text>
+          <!-- code pane -->
+          <rect x="0" y="50" width="452" height="350" rx="8" style="fill:var(--code-bg);stroke:var(--border)"/>
+          <text x="14" y="72" style="font-weight:700;font-size:13px;fill:var(--muted)">average.cpp</text>
+          <rect x="1" y="226" width="450" height="28" style="fill:var(--hl-bg)"/>
+          <circle cx="16" cy="240" r="7" style="fill:var(--bad)"/>
+          <path d="M26 233 L36 240 L26 247 Z" style="fill:var(--hl-stroke)"/>
+          <g style="font-family:var(--font-mono);font-size:15px">
+            <g style="fill:var(--muted)" text-anchor="end">
+              <text x="62" y="105">4</text><text x="62" y="133">5</text><text x="62" y="161">6</text><text x="62" y="189">7</text><text x="62" y="217">8</text><text x="62" y="245">9</text><text x="62" y="273">10</text><text x="62" y="301">11</text><text x="62" y="329">12</text>
+            </g>
+            <text x="74" y="105" xml:space="preserve">double computeAverage(int n) {</text>
+            <text x="74" y="133" xml:space="preserve">    int sum = 0;</text>
+            <text x="74" y="161" xml:space="preserve">    for (int i = 1; i &lt; n; i++) {</text>
+            <text x="74" y="189" xml:space="preserve">        int score;</text>
+            <text x="74" y="217" xml:space="preserve">        cin &gt;&gt; score;</text>
+            <text x="74" y="245" xml:space="preserve" style="font-weight:700">        sum += score;</text>
+            <text x="74" y="273" xml:space="preserve">    }</text>
+            <text x="74" y="301" xml:space="preserve">    return sum / n;</text>
+            <text x="74" y="329">}</text>
+          </g>
+          <text x="14" y="380" style="font-size:13px;fill:var(--muted)">● breakpoint   ▶ next line to run (not run yet)</text>
+          <!-- watches -->
+          <rect x="464" y="50" width="296" height="178" rx="8" style="fill:var(--surface);stroke:var(--border)"/>
+          <text x="478" y="74" style="font-weight:800">Watches</text>
+          <g style="font-family:var(--font-mono);font-size:15px">
+            <text x="478" y="104" style="fill:var(--muted)">n</text><text x="600" y="104" style="font-weight:700">3</text>
+            <text x="478" y="134" style="fill:var(--muted)">i</text><text x="600" y="134" style="font-weight:700">2</text>
+            <text x="478" y="164" style="fill:var(--muted)">score</text><text x="600" y="164" style="font-weight:700">90</text>
+            <text x="478" y="194" style="fill:var(--muted)">sum</text><text x="600" y="194" style="font-weight:700;fill:var(--warn)">85</text>
+          </g>
+          <!-- call stack -->
+          <rect x="464" y="240" width="296" height="160" rx="8" style="fill:var(--surface);stroke:var(--border)"/>
+          <text x="478" y="264" style="font-weight:800">Call stack</text>
+          <rect x="470" y="276" width="284" height="30" rx="4" style="fill:var(--hl-bg)"/>
+          <g style="font-family:var(--font-mono);font-size:14px">
+            <text x="478" y="296">#0 computeAverage(n=3)</text><text x="746" y="296" text-anchor="end" style="fill:var(--muted)">:9</text>
+            <text x="478" y="330">#1 main()</text><text x="746" y="330" text-anchor="end" style="fill:var(--muted)">:18</text>
+          </g>
+          <text x="478" y="370" style="font-size:13px;fill:var(--muted)">Top = where you are now.</text>
+          <text x="478" y="388" style="font-size:13px;fill:var(--muted)">Below = who called it.</text>
+        </g>
+      </svg>
+    </figure>
+    <div class="table-wrap">
+      <table class="table compact">
+        <tbody>
+          <tr><th scope="row">Breakpoint</th><td>A marked line where the program pauses.</td></tr>
+          <tr><th scope="row">Continue</th><td>Run until the next breakpoint (or the end).</td></tr>
+          <tr><th scope="row">Step over</th><td>Run the current line; don't go inside functions it calls.</td></tr>
+          <tr><th scope="row">Step into</th><td>Run the current line, entering a function it calls.</td></tr>
+          <tr><th scope="row">Step out</th><td>Finish the current function; pause back in its caller.</td></tr>
+          <tr><th scope="row">Watch</th><td>A variable or expression whose value is shown at every pause.</td></tr>
+          <tr><th scope="row">Call stack</th><td>The chain of function calls that led to this line.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <aside class="notes">
+    <p class="note-time">Suggested time: about 7 min</p>
+    <h4>Teaching tips</h4>
+    <ul>
+      <li>The mockup shows the buggy average program rewritten with a function <code>computeAverage(int n)</code> (called from <code>main</code> on line 18), paused at the breakpoint the <b>second</b> time it is hit. The values were checked with gdb: <code>score = 90, i = 2, sum = 85, n = 3</code>.</li>
+      <li>Key insight: the highlighted line has <b>not run yet</b>. <code>sum</code> is still 85 and becomes 175 after one Step over.</li>
+      <li>Demo live in your IDE: set the breakpoint, run with 3 and 85 90 78, add watches for <code>i</code> and <code>sum</code>, and press Step over until the loop ends after only two rounds.</li>
+      <li>The syllabus ILO mentions <b>watches</b> explicitly; make sure every student adds at least one watch today.</li>
+    </ul>
+    <h4>Common student pitfalls</h4>
+    <ul>
+      <li>Pressing Step into on a <code>cout</code> line and landing inside the standard library. Use Step out to get back, and Step over for library calls.</li>
+      <li>Reading a variable before its line has run and concluding it is wrong.</li>
+    </ul>
+    <h4>Ask the class</h4>
+    <ul>
+      <li>"Where do you put the breakpoint to see the value of <code>sum</code> right after the loop?" (On the <code>return</code> line, line 11.)</li>
+    </ul>
+  </aside>
+</section>
+
+<!-- ========================= SLIDE 13 · IDE ========================= -->
+<section class="slide" id="l15-ide" data-title="Start Debugging in Your IDE" data-section="Debugging process">
+  <header class="slide-head">
+    <p class="kicker">Lab 15 · Tools</p>
+    <h2>Start Debugging in Your IDE</h2>
+    <p class="lede">All three IDEs below drive the same GNU debugger (gdb). The program must be built <b>with debug information</b> (<code>-g</code>).</p>
+  </header>
+  <div class="grid-3" style="margin-top:0">
+    <div class="card">
+      <h3 class="card-title">Code::Blocks</h3>
+      <ul class="tight small">
+        <li>Use a <b>project</b> (File → New → Project → Console application) with the <b>Debug</b> build target.</li>
+        <li>Breakpoint: click just right of the line number (red dot), or <kbd>F5</kbd>.</li>
+        <li>Debug → <b>Start / Continue</b> (<kbd>F8</kbd>).</li>
+        <li>Debug → Next line (step over), Step into, Step out.</li>
+        <li>Debug → Debugging windows → <b>Watches</b>, <b>Call stack</b>.</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3 class="card-title">VS Code (C/C++ extension)</h3>
+      <ul class="tight small">
+        <li>Open the <code>.cpp</code> file. Breakpoint: click left of the line number, or <kbd>F9</kbd>.</li>
+        <li>Run → <b>Start Debugging</b> (<kbd>F5</kbd>), or the ▷ menu → <i>Debug C/C++ File</i>.</li>
+        <li>Step over <kbd>F10</kbd> · Step into <kbd>F11</kbd> · Step out <kbd>Shift</kbd>+<kbd>F11</kbd> · Continue <kbd>F5</kbd>.</li>
+        <li>Run and Debug view: <b>Variables</b>, <b>Watch</b>, <b>Call Stack</b>.</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3 class="card-title">Dev-C++</h3>
+      <ul class="tight small">
+        <li>Turn on debug info: Tools → Compiler Options → Settings → Linker → <i>Generate debugging information</i> = Yes.</li>
+        <li>Breakpoint: click the line number (the line turns red).</li>
+        <li>Execute → <b>Debug</b> (<kbd>F5</kbd>).</li>
+        <li>Debug panel buttons: <i>Next line</i>, <i>Into function</i>, <i>Continue</i>, <i>Add watch</i>.</li>
+      </ul>
+    </div>
+  </div>
+  <div class="grid-2" style="margin-top:1rem">
+    <div class="note-box"><p class="box-label">Online compilers</p><p class="small">Codechum and similar online compilers usually have no step-by-step debugger. Use trace tables and labeled <code>cerr</code> output there, and a desktop IDE when you need breakpoints.</p></div>
+    <div class="pitfall"><p class="box-label">Breakpoints ignored?</p><ul class="small"><li>The program was built without <code>-g</code> (Release build): rebuild in Debug.</li><li>Code::Blocks: debugging a single file outside a project, or a folder path with spaces, often fails.</li></ul></div>
+  </div>
+  <aside class="notes">
+    <p class="note-time">Suggested time: about 8 min (hands-on)</p>
+    <h4>Teaching tips</h4>
+    <ul>
+      <li>Menu names and shortcuts are the defaults in current versions (Code::Blocks 20.03, VS Code with the Microsoft C/C++ extension, Dev-C++ 5.11 / 6.x). Check them once on the lab computers and adjust the slide if your setup differs.</li>
+      <li>Hands-on: every student sets a breakpoint in the buggy average program, adds watches for <code>i</code> and <code>sum</code>, and steps through the loop.</li>
+      <li>VS Code needs a compiler and gdb installed separately (e.g. MinGW-w64 on Windows). Its default build task for C++ already includes <code>-g</code>.</li>
+    </ul>
+    <h4>Common student pitfalls</h4>
+    <ul>
+      <li>Pressing Run instead of Debug: the program runs normally and ignores breakpoints.</li>
+      <li>A program waiting for <code>cin</code> looks "frozen" in the debugger. Type the input in the console window.</li>
+    </ul>
+    <h4>Ask the class</h4>
+    <ul>
+      <li>"Your breakpoint is inside a loop that runs 1000 times. How do you avoid pressing Continue 1000 times?" (Move the breakpoint after the loop, or use a conditional breakpoint if your IDE supports it.)</li>
+    </ul>
+  </aside>
+</section>
+
+<!-- ========================= SLIDE 14 · ASSERT ========================= -->
+<section class="slide" id="l15-assert" data-title="assert: Check Your Assumptions" data-section="Debugging process">
+  <header class="slide-head">
+    <p class="kicker">Lab 15 · Technique 7</p>
+    <h2><code>assert</code>: Check Your Assumptions</h2>
+    <p class="lede"><code>assert(condition);</code> from <code>&lt;cassert&gt;</code> stops the program with a message if the condition is false.</p>
+  </header>
+  <div class="code-pair">
+    <figure class="codeblock"><figcaption><code>average.cpp</code></figcaption>
+<pre class="code" data-cpp data-stdin="253 3">
+#include &lt;iostream&gt;
+#include &lt;cassert&gt;
+using namespace std;
+
+double average(int sum, int count) {
+    assert(count &gt; 0);      // stop here if false
+    return static_cast&lt;double&gt;(sum) / count;
+}
+
+int main() {
+    int sum, count;
+    cout &lt;&lt; "Enter the sum and the count: ";
+    cin &gt;&gt; sum &gt;&gt; count;
+    cout &lt;&lt; "Average = " &lt;&lt; average(sum, count) &lt;&lt; endl;
+    return 0;
+}
+</pre></figure>
+    <div class="stack">
+      <figure class="codeblock"><figcaption>Run 1</figcaption>
+<pre class="console">Enter the sum and the count: <span class="in">253 3</span>
+Average = 84.3333</pre></figure>
+      <figure class="codeblock"><figcaption>Run 2: the assumption is broken</figcaption>
+<pre class="console">Enter the sum and the count: <span class="in">253 0</span>
+average: average.cpp:6: double average(int, int): Assertion `count &gt; 0' failed.
+Aborted</pre></figure>
+      <ul class="tight">
+        <li>The message names the <b>file, line, function, and condition</b>, so you know exactly which assumption failed.</li>
+        <li>Use <code>assert</code> for <b>programmer mistakes</b> ("this can never happen"). For user input, still validate with <code>if</code>/<code>while</code> and a friendly message.</li>
+        <li>Compiling with <code>-DNDEBUG</code> removes all asserts. Run 2 then prints <code>Average = inf</code>.</li>
+      </ul>
+    </div>
+  </div>
+  <aside class="notes">
+    <p class="note-time">Suggested time: about 5 min</p>
+    <h4>Teaching tips</h4>
+    <ul>
+      <li>Both runs are real (g++ 13, Linux). "Aborted" is printed by the terminal; it may also say "(core dumped)". On Windows, the message is similar and the program ends abnormally.</li>
+      <li>Here <code>main</code> forgot to validate the count, and the assert catches that mistake at the exact line. In a finished program, <code>main</code> should validate and re-ask.</li>
+      <li>Good asserts in projects: array indexes in range, pointers not null, a computed percentage between 0 and 100.</li>
+    </ul>
+    <h4>Common student pitfalls</h4>
+    <ul>
+      <li>Putting needed work inside an assert, like <code>assert(cin &gt;&gt; x);</code>. With <code>NDEBUG</code> the whole line disappears.</li>
+      <li>Using asserts as the only input validation.</li>
+    </ul>
+    <h4>Ask the class</h4>
+    <ul>
+      <li>"Write an assert for a function <code>getScore(int scores[], int i)</code> with 5 scores." (<code>assert(i &gt;= 0 &amp;&amp; i &lt; 5);</code>)</li>
+    </ul>
+  </aside>
+</section>
+
+<!-- ========================= SLIDE 15 · TEST CASES ========================= -->
+<section class="slide" id="l15-tests" data-title="Designing Test Cases" data-section="Testing">
+  <header class="slide-head">
+    <p class="kicker">Lab 15 · Testing · ILO 2</p>
+    <h2>Designing Test Cases</h2>
+    <p class="lede">A <b>test case</b> = an input + the output the <b>specification</b> says you should get. Decide the expected output <b>before</b> running.</p>
+  </header>
+  <div class="grid-2 align-start">
+    <div class="stack">
+      <div class="grid-2 tight-gap">
+        <div class="card"><h3 class="card-title">Normal</h3><p class="small">Typical, valid inputs. <br>Grade: <code>85</code></p></div>
+        <div class="card"><h3 class="card-title">Boundary</h3><p class="small">Exactly at, and just next to, a limit where behavior changes. <br><code>90</code> and <code>89.99</code></p></div>
+        <div class="card"><h3 class="card-title">Edge</h3><p class="small">The extremes of the valid range: smallest, largest, empty, one item. <br><code>0</code> and <code>100</code></p></div>
+        <div class="card"><h3 class="card-title">Invalid</h3><p class="small">Inputs the program must reject: out of range, wrong type. <br><code>-5</code>, <code>105</code>, <code>abc</code></p></div>
+      </div>
+      <div class="concept"><p class="box-label">Rubric link</p><p class="small">"Program Functionality, Testing &amp; Debugging" (×8) asks for exact outputs across <b>all normal, boundary, and edge</b> test cases.</p></div>
+    </div>
+    <div class="stack">
+      <div class="table-wrap">
+        <table class="table compact">
+          <caption>Test case table template</caption>
+          <thead><tr><th scope="col">#</th><th scope="col">Category</th><th scope="col">Input</th><th scope="col">Expected</th><th scope="col">Actual</th><th scope="col">Pass / Fail</th></tr></thead>
+          <tbody>
+            <tr><td>1</td><td>Normal</td><td>…</td><td>…</td><td>…</td><td>…</td></tr>
+            <tr><td>2</td><td>Boundary</td><td>…</td><td>…</td><td>…</td><td>…</td></tr>
+            <tr><td>3</td><td>Edge</td><td>…</td><td>…</td><td>…</td><td>…</td></tr>
+            <tr><td>4</td><td>Invalid</td><td>…</td><td>…</td><td>…</td><td>…</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="practice"><p class="box-label">Rules</p>
+        <ul>
+          <li>Expected output comes from the <b>problem statement</b>, never from running your program.</li>
+          <li>Test each boundary from <b>both sides</b>.</li>
+          <li>Copy the actual output <b>exactly</b>.</li>
+          <li>After every fix, rerun <b>all</b> tests (regression).</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+  <aside class="notes">
+    <p class="note-time">Suggested time: about 6 min</p>
+    <h4>Teaching tips</h4>
+    <ul>
+      <li>Boundary vs edge: a <b>boundary</b> is where the behavior changes inside the range (89.99 → B, 90 → A). An <b>edge</b> is the end of the valid range (0, 100).</li>
+      <li>Most bugs in this course live at boundaries: <code>&gt;</code> vs <code>&gt;=</code>, loops that run one time too many or too few.</li>
+      <li>The Final Project rubric asks for <b>test case logs</b>; this table is that log.</li>
+    </ul>
+    <h4>Common student pitfalls</h4>
+    <ul>
+      <li>Running the program first and copying its output into "Expected". Then every test "passes", including the wrong ones.</li>
+      <li>Only testing the sample run from the problem statement.</li>
+    </ul>
+    <h4>Ask the class</h4>
+    <ul>
+      <li>"For a loop that reads n scores (1 to 10), what are the edge cases?" (n = 1, n = 10; invalid: 0 and 11.)</li>
+    </ul>
+  </aside>
+</section>
+
+<!-- ========================= SLIDE 16 · TEST CASES APPLIED ========================= -->
+<section class="slide" id="l15-tests-grade" data-title="Testing Lab 1's Letter Grade" data-section="Testing">
+  <header class="slide-head">
+    <p class="kicker">Lab 15 · Testing in practice</p>
+    <h2>Testing Lab 1's Letter-Grade Program</h2>
+    <p class="lede">The C++ version of <a href="lab-01.html#problem-4">Lab 1, Problem 4</a>. Spec: A ≥ 90, B ≥ 80, C ≥ 70, D ≥ 60, F &lt; 60, for grades 0–100.</p>
+  </header>
+  <div class="grid-2 align-start" style="grid-template-columns:minmax(0,1fr) minmax(0,1.15fr)">
+    <figure class="codeblock"><figcaption><code>letter.cpp</code></figcaption>
+<pre class="code compact scroll" data-cpp data-stdin="85" style="max-height:58vh">
+#include &lt;iostream&gt;
+using namespace std;
+
+int main() {
+    double grade;
+    cout &lt;&lt; "Enter the numerical grade: ";
+    cin &gt;&gt; grade;
+    if (grade &gt;= 90) {
+        cout &lt;&lt; "Letter grade: A" &lt;&lt; endl;
+    } else if (grade &gt;= 80) {
+        cout &lt;&lt; "Letter grade: B" &lt;&lt; endl;
+    } else if (grade &gt;= 70) {
+        cout &lt;&lt; "Letter grade: C" &lt;&lt; endl;
+    } else if (grade &gt;= 60) {
+        cout &lt;&lt; "Letter grade: D" &lt;&lt; endl;
+    } else {
+        cout &lt;&lt; "Letter grade: F" &lt;&lt; endl;
+    }
+    return 0;
+}
+</pre></figure>
+    <div class="stack">
+      <div class="table-wrap">
+        <table class="table compact">
+          <thead><tr><th scope="col">#</th><th scope="col">Category</th><th scope="col">Input</th><th scope="col">Expected</th><th scope="col">Actual</th><th scope="col">Result</th></tr></thead>
+          <tbody>
+            <tr><td>1</td><td>Normal</td><td><code>85</code></td><td>B</td><td>B</td><td>Pass</td></tr>
+            <tr><td>2</td><td>Boundary</td><td><code>90</code></td><td>A</td><td>A</td><td>Pass</td></tr>
+            <tr><td>3</td><td>Boundary</td><td><code>89.99</code></td><td>B</td><td>B</td><td>Pass</td></tr>
+            <tr><td>4</td><td>Boundary</td><td><code>60</code></td><td>D</td><td>D</td><td>Pass</td></tr>
+            <tr><td>5</td><td>Boundary</td><td><code>59.99</code></td><td>F</td><td>F</td><td>Pass</td></tr>
+            <tr><td>6</td><td>Edge</td><td><code>100</code></td><td>A</td><td>A</td><td>Pass</td></tr>
+            <tr><td>7</td><td>Edge</td><td><code>0</code></td><td>F</td><td>F</td><td>Pass</td></tr>
+            <tr style="color:var(--bad)"><td>8</td><td>Invalid</td><td><code>105</code></td><td>Invalid grade</td><td>A</td><td><b>FAIL</b></td></tr>
+            <tr style="color:var(--bad)"><td>9</td><td>Invalid</td><td><code>-5</code></td><td>Invalid grade</td><td>F</td><td><b>FAIL</b></td></tr>
+            <tr style="color:var(--bad)"><td>10</td><td>Invalid</td><td><code>abc</code></td><td>Invalid grade</td><td>F</td><td><b>FAIL</b></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="callout tip">The three failures share one cause: <b>no input validation</b>. Fix: before the grading <code>if</code>s, check <code>if (cin.fail() || grade &lt; 0 || grade &gt; 100)</code> and print <code>Invalid grade</code>. Then rerun all ten tests.</p>
+    </div>
+  </div>
+  <aside class="notes">
+    <p class="note-time">Suggested time: about 7 min</p>
+    <h4>Teaching tips</h4>
+    <ul>
+      <li>"Actual" values are real outputs of <code>letter.cpp</code> (g++ 13). The program prints <code>Letter grade: X</code>; the table shows only the letter.</li>
+      <li>Test 10 is interesting: when <code>cin &gt;&gt; grade</code> fails on "abc", modern C++ (C++11 and later) sets <code>grade</code> to 0, so the program prints F.</li>
+      <li>Lab 1's version had no validation either. Testing found a gap in the <b>specification</b>, not only in the code. Good discussion point.</li>
+      <li>Have students write the fix and rerun all ten rows (regression).</li>
+    </ul>
+    <h4>Common student pitfalls</h4>
+    <ul>
+      <li>Testing 90 but not 89.99 (only one side of the boundary).</li>
+      <li>Marking test 8 as Pass because "A is the closest grade". Expected output comes from the spec.</li>
+    </ul>
+    <h4>Ask the class</h4>
+    <ul>
+      <li>"Which tests would catch a bug where line 8 says <code>grade &gt; 90</code>?" (Test 2: input 90 would give B.)</li>
+    </ul>
+  </aside>
+</section>
+
+<!-- ========================= SLIDE 17 · BUG GALLERY 1 ========================= -->
+<section class="slide" id="l15-gallery-1" data-title="Bug Gallery (1 of 2)" data-section="Testing">
+  <header class="slide-head">
+    <p class="kicker">Lab 15 · Find the bug · 1 of 2</p>
+    <h2>Bug Gallery: The Usual Suspects</h2>
+    <p class="lede">Each snippet compiles (some with warnings) but does not do what its title says. Find the bug, then reveal.</p>
+  </header>
+  <div class="grid-3" style="margin-top:0">
+    <div class="card">
+      <h3 class="card-title">1 · Print "Perfect!" only for 100</h3>
+<pre class="code bad-code compact no-ln" data-cpp data-nocheck>
+int grade = 85;
+if (grade = 100) {
+    cout &lt;&lt; "Perfect!\n";
+}
+</pre>
+      <details class="hint"><summary>Reveal the bug</summary><p><code>=</code> assigns 100 (true), so it always prints and changes <code>grade</code>. Use <code>==</code>. (<code>-Wall</code> warns: <i>suggest parentheses around assignment</i>.)</p></details>
+    </div>
+    <div class="card">
+      <h3 class="card-title">2 · Warn only above 40 °C</h3>
+<pre class="code bad-code compact no-ln" data-cpp data-nocheck>
+double temp = 25.0;
+if (temp &gt; 40); {
+    cout &lt;&lt; "Overheat!\n";
+}
+</pre>
+      <details class="hint"><summary>Reveal the bug</summary><p>The <code>;</code> after <code>if (…)</code> is an empty body; the block always runs and prints "Overheat!". Remove the <code>;</code>. (<code>-Wextra</code> warns: <i>empty body</i>.)</p></details>
+    </div>
+    <div class="card">
+      <h3 class="card-title">3 · Average of 85, 90, 78</h3>
+<pre class="code bad-code compact no-ln" data-cpp data-nocheck>
+int sum = 85 + 90 + 78;
+double average = sum / 3;
+cout &lt;&lt; average;   // 84?!
+</pre>
+      <details class="hint"><summary>Reveal the bug</summary><p><code>int / int</code> is integer division: 253 / 3 = 84. Use <code>sum / 3.0</code> or <code>static_cast&lt;double&gt;(sum) / 3</code>.</p></details>
+    </div>
+    <div class="card">
+      <h3 class="card-title">4 · Add 5 numbers</h3>
+<pre class="code bad-code compact no-ln" data-cpp data-nocheck>
+int total;
+for (int i = 0; i &lt; 5; i++) {
+    int x;
+    cin &gt;&gt; x;
+    total += x;
+}
+</pre>
+      <details class="hint"><summary>Reveal the bug</summary><p><code>total</code> is never initialized, so it starts with a garbage value. Write <code>int total = 0;</code>.</p></details>
+    </div>
+    <div class="card">
+      <h3 class="card-title">5 · Print 1 to 10</h3>
+<pre class="code bad-code compact no-ln" data-cpp data-nocheck>
+for (int i = 1; i &lt; 10; i++) {
+    cout &lt;&lt; i &lt;&lt; " ";
+}
+</pre>
+      <details class="hint"><summary>Reveal the bug</summary><p>Off by one: it prints 1 to 9. Use <code>i &lt;= 10</code>. Test the last value, not just the first.</p></details>
+    </div>
+    <div class="card soft">
+      <h3 class="card-title">How to use this gallery</h3>
+      <ul class="tight small">
+        <li>Read the title (the intent), then each line literally.</li>
+        <li>Predict the output before revealing.</li>
+        <li>Name the error type: syntax, runtime, or logic?</li>
+        <li>Which of these would <code>-Wall -Wextra</code> have warned about?</li>
+      </ul>
+    </div>
+  </div>
+  <aside class="notes">
+    <p class="note-time">Suggested time: about 8 min</p>
+    <h4>Teaching tips</h4>
+    <ul>
+      <li>Give 60 seconds per card in pairs, then reveal. Keep score for fun.</li>
+      <li>Warnings quoted on the cards were checked with g++ 13 (<code>-Wall -Wextra</code>). Bug 4 produced <b>no</b> warning at the default optimization level: warnings help, but they don't catch everything.</li>
+      <li>All five are logic errors at run time; none stops the compiler.</li>
+    </ul>
+    <h4>Common student pitfalls</h4>
+    <ul>
+      <li>Bug 3: believing that storing into a <code>double</code> "fixes" the division.</li>
+      <li>Bug 4: "it worked on my computer" (the garbage value happened to be 0).</li>
+    </ul>
+    <h4>Ask the class</h4>
+    <ul>
+      <li>"Which bugs would a boundary test catch?" (5: the last value; 2: a temperature of 25 should print nothing.)</li>
+    </ul>
+  </aside>
+</section>
+
+<!-- ========================= SLIDE 18 · BUG GALLERY 2 ========================= -->
+<section class="slide" id="l15-gallery-2" data-title="Bug Gallery (2 of 2)" data-section="Testing">
+  <header class="slide-head">
+    <p class="kicker">Lab 15 · Find the bug · 2 of 2</p>
+    <h2>Bug Gallery: Five More</h2>
+  </header>
+  <div class="grid-3" style="margin-top:0">
+    <div class="card">
+      <h3 class="card-title">6 · Choice 1 prints only "Add"</h3>
+<pre class="code bad-code compact no-ln" data-cpp data-nocheck>
+switch (choice) {
+  case 1: cout &lt;&lt; "Add\n";
+  case 2: cout &lt;&lt; "Sub\n";
+  default: cout &lt;&lt; "Bad\n";
+}
+</pre>
+      <details class="hint"><summary>Reveal the bug</summary><p>No <code>break</code>: choice 1 falls through and prints all three lines. Add <code>break;</code> after each case. (<code>-Wextra</code> warns: <i>this statement may fall through</i>.)</p></details>
+    </div>
+    <div class="card">
+      <h3 class="card-title">7 · Read age, then full name</h3>
+<pre class="code bad-code compact no-ln" data-cpp data-nocheck>
+int age;
+string name;
+cin &gt;&gt; age;
+getline(cin, name);
+</pre>
+      <details class="hint"><summary>Reveal the bug</summary><p><code>cin &gt;&gt; age</code> leaves the Enter key (<code>'\n'</code>) in the input; <code>getline</code> reads that empty line, so <code>name</code> is "". Add <code>cin.ignore();</code> before <code>getline</code> (or use <code>getline(cin &gt;&gt; ws, name)</code>).</p></details>
+    </div>
+    <div class="card">
+      <h3 class="card-title">8 · Clear 5 scores</h3>
+<pre class="code bad-code compact no-ln" data-cpp data-nocheck>
+int scores[5];
+for (int i = 0; i &lt;= 5; i++) {
+    scores[i] = 0;
+}
+</pre>
+      <details class="hint"><summary>Reveal the bug</summary><p>Valid indexes are 0 to 4. <code>scores[5]</code> is out of bounds: <b>undefined behavior</b> (it may overwrite another variable, crash, or seem fine). Use <code>i &lt; 5</code>.</p></details>
+    </div>
+    <div class="card">
+      <h3 class="card-title">9 · Return the bigger value</h3>
+<pre class="code bad-code compact no-ln" data-cpp data-nocheck>
+int&amp; bigger(int a, int b) {
+    int r = (a &gt; b) ? a : b;
+    return r;
+}
+</pre>
+      <details class="hint"><summary>Reveal the bug</summary><p>It returns a <b>reference to a local variable</b> that is destroyed when the function ends. g++ warns (<i>reference to local variable 'r' returned</i>), and our test run crashed with a segmentation fault. Return by value: <code>int bigger(…)</code>.</p></details>
+    </div>
+    <div class="card">
+      <h3 class="card-title">10 · Print each shape's real area</h3>
+<pre class="code bad-code compact no-ln" data-cpp data-nocheck>
+class Shape {
+public:
+    double area() const {
+        return 0;
+    }
+};
+// Circle redefines area()
+Shape* s = &amp;myCircle;
+cout &lt;&lt; s-&gt;area(); // 0
+</pre>
+      <details class="hint"><summary>Reveal the bug</summary><p><code>area()</code> is not <code>virtual</code>, so the call uses the pointer's type: <code>Shape::area()</code>. Make it <code>virtual</code> (and use <code>override</code> in Circle). See <a href="lab-14.html#l14-problem">Lab 14</a>.</p></details>
+    </div>
+    <div class="card soft">
+      <h3 class="card-title">Pattern check</h3>
+      <ul class="tight small">
+        <li><b>Initialize</b> every variable.</li>
+        <li>Check loop bounds with the <b>first and last</b> values.</li>
+        <li>Compile with <code>-Wall -Wextra</code>; fix every warning.</li>
+        <li>Prefer <code>override</code>, <code>break</code>, and <code>==</code> habits.</li>
+      </ul>
+    </div>
+  </div>
+  <aside class="notes">
+    <p class="note-time">Suggested time: about 8 min</p>
+    <h4>Teaching tips</h4>
+    <ul>
+      <li>Bug 7 shows up in Lab 3-style programs (string &amp; getline) and in Final Projects with menus. Show it live: the program skips the name prompt.</li>
+      <li>Bug 9: with g++ 13 the test program crashed (segmentation fault). Other compilers may print a plausible-looking number, which is worse because the bug stays hidden.</li>
+      <li>Bug 10 links back to Lab 14's static vs dynamic binding.</li>
+    </ul>
+    <h4>Common student pitfalls</h4>
+    <ul>
+      <li>Bug 8: "It didn't crash, so it's fine." Undefined behavior can look fine today and fail tomorrow.</li>
+      <li>Bug 6: forgetting that <code>default</code> also runs when cases fall through.</li>
+    </ul>
+    <h4>Ask the class</h4>
+    <ul>
+      <li>"Which of the ten bugs is a runtime error rather than a logic error?" (8 and 9 can crash; the rest give wrong output.)</li>
+    </ul>
+  </aside>
+</section>
+
+<!-- ========================= SLIDE 19 · QUICK CHECK ========================= -->
+<section class="slide" id="l15-quick-check" data-title="Quick Check" data-section="Testing">
+  <header class="slide-head">
+    <p class="kicker">Lab 15 · Check your understanding</p>
+    <h2>Quick Check</h2>
+  </header>
+  <div class="qa-grid">
+    <details class="qa"><summary><span class="q-num">1</span><span class="q-text">The compiler says <code>undefined reference to 'computeTax(double)'</code>. What kind of error, and what is the usual cause?</span></summary><p>A <b>linker</b> error. The function was declared (prototype) but its definition is missing, misspelled, or has different parameter types.</p></details>
+    <details class="qa"><summary><span class="q-num">2</span><span class="q-text">g++ reports 12 errors. Where do you start?</span></summary><p>With the <b>first</b> error. Fix it and recompile; many later errors are side effects of the first one.</p></details>
+    <details class="qa"><summary><span class="q-num">3</span><span class="q-text">The error is reported on line 8, but line 8 looks perfect. What do you check?</span></summary><p>The line <b>before</b> it (line 7): a missing <code>;</code>, <code>)</code>, or <code>}</code> is often only noticed on the next line.</p></details>
+    <details class="qa"><summary><span class="q-num">4</span><span class="q-text">What is the difference between <b>Step over</b> and <b>Step into</b>?</span></summary><p>Step over runs the whole current line, including any function it calls. Step into enters the called function so you can step through its lines.</p></details>
+    <details class="qa"><summary><span class="q-num">5</span><span class="q-text">A loop must accept 1 to 50 items. Give one boundary/edge test and one invalid test.</span></summary><p>Edge: 1 and 50 items. Invalid: 0 and 51 items (and a non-number). Test both sides of each limit.</p></details>
+    <details class="qa"><summary><span class="q-num">6</span><span class="q-text">Why is a logic error harder to find than a syntax error?</span></summary><p>Nothing reports it. The program runs and prints something; only a test with a known expected output shows that it is wrong.</p></details>
+  </div>
+  <aside class="notes">
+    <p class="note-time">Suggested time: about 6 min</p>
+    <h4>Teaching tips</h4>
+    <ul>
+      <li>Use as a quick oral quiz: call on students by row, reveal after each answer.</li>
+      <li>Q5 is good exit-ticket material for the Final Project, which must include test case logs.</li>
+    </ul>
+    <h4>Common student pitfalls</h4>
+    <ul>
+      <li>Q1: calling a linker error a "syntax error" because it appears when you press Build.</li>
+    </ul>
+    <h4>Ask the class</h4>
+    <ul>
+      <li>Follow-up to Q4: "When would you use Step out?" (When you stepped into a function you don't need to inspect.)</li>
+    </ul>
+  </aside>
+</section>
+
+<!-- ========================= SLIDE 20 · SEATWORK ========================= -->
+<section class="slide" id="l15-seatwork" data-title="Seatwork: Debug the Sensor Log" data-section="Testing">
+  <header class="slide-head">
+    <p class="kicker">Lab 15 · Seatwork</p>
+    <h2>Seatwork: Debug the Sensor Log</h2>
+  </header>
+  <div class="story"><p><b>Spec:</b> Given 5 temperature readings, print the <b>highest</b> reading and how many readings are <b>above</b> 35.0 °C. Expected: <code>Highest: 37.4 C</code> and <code>Above 35 C: 2</code>. The program has <b>3 bugs</b>. Find them, fix them, and write a 3-row bug log.</p></div>
+  <div class="grid-2 align-start">
+    <figure class="codeblock"><figcaption><code>sensorlog.cpp</code> (buggy)</figcaption>
+<pre class="code bad-code compact" data-cpp data-nocheck>
+#include &lt;iostream&gt;
+using namespace std;
+
+int main() {
+    double readings[5] = {36.2, 31.5, 29.8, 37.4, 35.0};
+    double highest = readings[0];
+    int hotCount;
+    for (int i = 1; i &lt;= 5; i++) {
+        if (readings[i] &gt; highest) {
+            highest = readings[i];
+        }
+        if (readings[i] &gt;= 35.0) {
+            hotCount++;
+        }
+    }
+    cout &lt;&lt; "Highest: " &lt;&lt; highest &lt;&lt; " C" &lt;&lt; endl;
+    cout &lt;&lt; "Above 35 C: " &lt;&lt; hotCount &lt;&lt; endl;
+    return 0;
+}
+</pre></figure>
+    <div class="stack">
+      <figure class="codeblock"><figcaption>Two runs of the SAME program</figcaption>
+<pre class="console">Highest: 37.4 C
+Above 35 C: 2
+<span class="muted-out">$ ./sensorlog</span>
+Highest: 9.99167e+08 C
+Above 35 C: 3</pre></figure>
+      <div class="grid-2 tight-gap">
+        <div class="card">
+          <h3 class="card-title">Hints</h3>
+          <details class="hint"><summary>Hint 1</summary><p>Different output each run → something reads memory it shouldn't, or a variable starts with garbage.</p></details>
+          <details class="hint"><summary>Hint 2</summary><p>Trace the loop: which indexes does <code>i</code> take? Valid ones are 0–4.</p></details>
+          <details class="hint"><summary>Hint 3</summary><p>Is 35.0 "above 35"?</p></details>
+        </div>
+        <div class="card timer" data-timer data-minutes="15">
+          <h3 class="card-title">Timer</h3>
+          <p class="timer-display" style="font-size:clamp(2rem,1.4rem + 2vw,3.2rem)">15:00</p>
+          <div class="timer-presets" role="group" aria-label="Timer presets">
+            <button type="button" class="btn ghost tiny" data-min="10">10</button>
+            <button type="button" class="btn ghost tiny" data-min="15">15</button>
+            <button type="button" class="btn ghost tiny" data-min="20">20</button>
+          </div>
+          <div class="timer-actions">
+            <button type="button" class="btn primary" data-timer-act="toggle">Start</button>
+            <button type="button" class="btn" data-timer-act="reset">Reset</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <details class="answer">
+    <summary><span>Reveal answer</span></summary>
+    <div class="code-pair" style="margin-top:1rem">
+      <figure class="codeblock"><figcaption><code>sensorlog.cpp</code> (fixed)</figcaption>
+<pre class="code compact" data-cpp>
+#include &lt;iostream&gt;
+using namespace std;
+
+int main() {
+    double readings[5] = {36.2, 31.5, 29.8, 37.4, 35.0};
+    double highest = readings[0];
+    int hotCount = 0;                      // fix 1: start the counter at 0
+    for (int i = 0; i &lt; 5; i++) {          // fix 2: indexes 0 to 4
+        if (readings[i] &gt; highest) {
+            highest = readings[i];
+        }
+        if (readings[i] &gt; 35.0) {          // fix 3: ABOVE 35, not 35 or more
+            hotCount++;
+        }
+    }
+    cout &lt;&lt; "Highest: " &lt;&lt; highest &lt;&lt; " C" &lt;&lt; endl;
+    cout &lt;&lt; "Above 35 C: " &lt;&lt; hotCount &lt;&lt; endl;
+    return 0;
+}
+</pre></figure>
+      <div class="stack">
+        <div class="table-wrap">
+          <table class="table compact">
+            <thead><tr><th scope="col">#</th><th scope="col">Line</th><th scope="col">Type</th><th scope="col">Symptom → Fix</th></tr></thead>
+            <tbody>
+              <tr><td>1</td><td>7</td><td>Logic (uninitialized)</td><td>Count is garbage → <code>int hotCount = 0;</code></td></tr>
+              <tr><td>2</td><td>8</td><td>Runtime (out of bounds)</td><td>Reads <code>readings[5]</code>, skips <code>[0]</code> → <code>i = 0; i &lt; 5</code></td></tr>
+              <tr><td>3</td><td>12</td><td>Logic (boundary)</td><td>35.0 counted as "above" → <code>&gt; 35.0</code></td></tr>
+            </tbody>
+          </table>
+        </div>
+        <figure class="codeblock"><figcaption>Output (every run)</figcaption>
+<pre class="console">Highest: 37.4 C
+Above 35 C: 2</pre></figure>
+        <p class="small muted">Lesson: the first buggy run printed the "right" answer by luck. One passing run proves nothing.</p>
+      </div>
+    </div>
+  </details>
+  <aside class="notes">
+    <p class="note-time">Suggested time: about 15 min</p>
+    <h4>Running the seatwork</h4>
+    <ul>
+      <li>Students copy the buggy code, run it a few times, and use any technique: trace table, <code>cerr</code> lines, or the debugger with a watch on <code>i</code> and <code>hotCount</code>.</li>
+      <li>The two outputs on the slide are real consecutive runs of the same executable (g++ 13, Linux). Students' garbage values will differ, and some may see the "right" answer every time.</li>
+      <li>With optimization (<code>-O2</code>) g++ even warns: <i>iteration 4 invokes undefined behavior</i> and <i>'hotCount' may be used uninitialized</i>.</li>
+    </ul>
+    <h4>Common student pitfalls</h4>
+    <ul>
+      <li>Fixing only the bug that changes the output on their machine.</li>
+      <li>Changing <code>i &lt;= 5</code> to <code>i &lt; 5</code> but leaving <code>i = 1</code>, which still skips <code>readings[0]</code> (36.2, a hot reading).</li>
+    </ul>
+    <h4>Ask the class</h4>
+    <ul>
+      <li>"Which test data would expose bug 3?" (A reading of exactly 35.0, which this data already has.)</li>
+    </ul>
+  </aside>
+</section>
+
+<!-- ========================= SLIDE 21 · LAB EXERCISE: OVERVIEW + PROGRAM A ========================= -->
+<!-- LOCKED-ACTIVITY:START lab-15 -->
+<section class="slide locked-slide" id="l15-exercise" data-title="Laboratory Exercise No. 15 (locked)" data-section="Laboratory Exercise" data-locked="lab-15">
+  <header class="slide-head">
+    <p class="kicker">Laboratory Exercise No. 15</p>
+    <h2>This lab activity is locked</h2>
+    <p class="lede">It opens when your instructor releases it. Enter the passphrase your instructor gives you.</p>
+  </header>
+  <div class="lock-card">
+    <svg class="lock-icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="10.5" width="14" height="10" rx="2"/><path d="M8 10.5V7.5a4 4 0 0 1 8 0v3M12 14.5v2.5"/></svg>
+    <h3>Laboratory Exercise No. 15</h3>
+    <form class="lock-form" autocomplete="off">
+      <label class="sr-only" for="unlock-lab-15">Passphrase</label>
+      <input id="unlock-lab-15" type="password" placeholder="Passphrase" autocomplete="off" spellcheck="false">
+      <button type="submit" class="btn primary">Unlock</button>
+    </form>
+    <p class="lock-msg" aria-live="polite"></p>
+    <p class="small muted">The activity is stored encrypted on this site and is unlocked in your browser. Once unlocked, it stays open on this device.</p>
+  </div>
+  <script type="application/json" class="locked-data">{"v":1,"iter":250000,"salt":"zMahBV7h69i1Kn+3qN9S4Q==","iv":"cs/XXGz8Sh0wt42W","data":"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"}</script>
+  <aside class="notes">
+    <p class="note-time">Locked activity (4 slides)</p>
+    <h4>Instructor</h4>
+    <ul>
+      <li>Type this lab's passphrase (private instructor package → <code>passwords.json</code>) to open the activity on the classroom PC. It stays unlocked on that browser until you press "Lock again".</li>
+      <li>To release the activity to students, announce or post the passphrase (e.g. in MS Teams).</li>
+      <li>To re-lock it for everyone, change the passphrase and rerun <code>node tools/lock-activities.js</code>.</li>
+    </ul>
+  </aside>
+</section>
+<!-- LOCKED-ACTIVITY:END lab-15 -->
+
+<!-- ========================= SLIDE 25 · FINAL PROJECT & EXAM ========================= -->
+<section class="slide" id="l15-final-project" data-title="Final Project & Final Exam" data-section="Final output">
+  <header class="slide-head">
+    <p class="kicker">What's next · Weeks 17–18</p>
+    <h2>Final Project &amp; Final Practical Exam</h2>
+    <p class="lede">Design, implement, test, and document an integrated, modular C++ program that solves an engineering or real-world problem.</p>
+  </header>
+  <div class="grid-2 align-start">
+    <div class="stack">
+      <div class="card">
+        <span class="badge-milestone">Week 17</span>
+        <h3 class="card-title" style="margin-top:.5rem">Final Project submission</h3>
+        <p class="small">Submit via MS Teams: source code, <b>technical report</b>, <b>test case logs</b>, and <b>code documentation</b>. Graded with the Final Project Rubric (design &amp; architecture, coding standards, functional completeness &amp; reliability, documentation &amp; oral demo).</p>
+      </div>
+      <div class="card">
+        <span class="badge-milestone">Week 18</span>
+        <h3 class="card-title" style="margin-top:.5rem">Final Practical Exam: submission &amp; demo</h3>
+        <p class="small">Develop and <b>defend</b> a complete C++ program solving an engineering or real-world problem; show mastery of programming logic, modular design, and <b>debugging</b>. Graded with the 5-level practical exam rubric.</p>
+      </div>
+      <p class="small muted">Rubric details: <a href="orientation.html#rubrics">Course Orientation → Rubrics</a>. The Final Project is 30% of the Final Term Grade.</p>
+    </div>
+    <div class="practice"><p class="box-label">Prep checklist</p>
+      <ol>
+        <li>Choose and <b>analyze</b> the problem: inputs, outputs, rules (Lab 1).</li>
+        <li>Plan with <b>flowcharts / pseudocode</b> before coding.</li>
+        <li>Design <b>modules</b>: functions (Lab 11) and classes (Labs 12–14). No global variables.</li>
+        <li>Validate every input; use loops, arrays, and selection where they fit.</li>
+        <li>Build in small steps; compile with <code>-Wall -Wextra</code> after each.</li>
+        <li>Keep a <b>test case log</b> (normal, boundary, edge, invalid) and a bug log.</li>
+        <li>Comment your code: file header, each function's purpose, tricky lines.</li>
+        <li>Write the technical report and <b>rehearse the demo</b>: explain any line you wrote.</li>
+      </ol>
+    </div>
+  </div>
+  <aside class="notes">
+    <p class="note-time">Suggested time: about 5 min</p>
+    <h4>Teaching tips</h4>
+    <ul>
+      <li>From the syllabus: the final course output is a modular C++ program that solves an engineering or real-world problem, with appropriate data structures, control structures, and algorithms. Week 17 is project submission; Week 18 is the Final Practical Exam with submission and demo.</li>
+      <li>Announce your project rules (individual or group, topic approval, report format, demo schedule). Edit this slide if they differ.</li>
+      <li>Example topics with a CpE flavor: a sensor data logger with statistics, a resistor color-code tool, an electric bill calculator with tiers, an inventory for a lab stockroom.</li>
+      <li>The "no global variables" point comes from the Final Project rubric (Coding Standards &amp; Efficiency).</li>
+    </ul>
+    <h4>Common student pitfalls</h4>
+    <ul>
+      <li>Starting to code in Week 17. The plan, flowchart, and test cases should exist before then.</li>
+      <li>Not being able to explain code during the oral demo (for example, AI-generated code they do not understand). Remind students of the course AI policy.</li>
+    </ul>
+    <h4>Ask the class</h4>
+    <ul>
+      <li>"Which lab topic do you most want to use in your project?"</li>
+    </ul>
+  </aside>
+</section>
+
+<!-- ========================= SLIDE 26 · WRAP-UP ========================= -->
+<section class="slide" id="l15-wrap-up" data-title="Wrap-up" data-section="Final output">
+  <header class="slide-head">
+    <p class="kicker">Wrap-up</p>
+    <h2>Find It, Fix It, Prove It</h2>
+  </header>
+  <div class="table-wrap">
+    <table class="table compare-table">
+      <thead><tr><th scope="col"></th><th scope="col">Best tool</th><th scope="col">Remember</th></tr></thead>
+      <tbody>
+        <tr><th scope="row">Syntax / linker</th><td>Compiler and linker messages</td><td>Fix the first error first; check the line before.</td></tr>
+        <tr><th scope="row">Warnings</th><td><code>-Wall -Wextra</code></td><td>A warning is often the bug itself.</td></tr>
+        <tr><th scope="row">Runtime</th><td>Debugger: breakpoints, watches, call stack</td><td>Find <b>where</b> it fails, then <b>why</b>.</td></tr>
+        <tr><th scope="row">Logic</th><td>Test cases, trace tables, <code>cerr</code>, <code>assert</code></td><td>Expected output comes from the spec.</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="grid-3">
+    <div class="card"><h3 class="card-title">Remember</h3><ul class="tight"><li>Reproduce → locate → understand → fix → verify → re-test.</li><li>One change at a time.</li><li>Log every bug and every test.</li></ul></div>
+    <div class="card"><h3 class="card-title">Exit ticket</h3><p>On a ¼ sheet: name the bug you found fastest today and the technique you used, then write one boundary test case for your Final Project idea.</p></div>
+    <div class="card"><h3 class="card-title">Last lab done!</h3><p>Next: the <b>Final Project</b> (Week 17) and the <b>Final Practical Exam</b> (Week 18).</p><p><a href="../index.html">Back to the course home →</a></p></div>
+  </div>
+  <aside class="notes">
+    <p class="note-time">Suggested time: about 3 min</p>
+    <h4>Teaching tips</h4>
+    <ul>
+      <li>This is the last lab. Congratulate students on reaching it, and point them to the course home page to review any lab before the final exam.</li>
+      <li>Collect exit tickets: the boundary test case shows whether they understood testing (ILO 2).</li>
+    </ul>
+    <h4>Common student pitfalls</h4>
+    <ul>
+      <li>Treating debugging as a separate phase after coding. It is part of every step.</li>
+    </ul>
+  </aside>
+</section>
+
+      </div>
+    </main>
+  </div>
+</body>
+</html>

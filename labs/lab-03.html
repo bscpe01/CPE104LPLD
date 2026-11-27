@@ -1,0 +1,1514 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Lab 3 · Data Types, Constants, Variables &amp; Strings · CPE 104L</title>
+  <meta name="description" content="CPE 104L Programming Logic and Design, Lab No. 3: Data Types, Constants, Variables, and Strings. Primitive types and their sizes, type modifiers, identifier rules, scope, memory, const, and the C++ string class.">
+  <meta name="color-scheme" content="light dark">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%232f3410'/%3E%3Cpath d='M32 11 53 32 32 53 11 32Z' fill='none' stroke='%23f5c518' stroke-width='6' stroke-linejoin='round'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="../css/styles.css">
+  <script>
+    (function () { var d = document.documentElement; d.classList.add('js');
+      try { var t = localStorage.getItem('cpe104l.theme'); if (t === 'dark' || t === 'light') d.setAttribute('data-theme', t); } catch (e) {} })();
+  </script>
+  <script src="../js/course.js" defer></script>
+  <script src="../js/search-index.js" defer></script>
+  <script src="../js/script.js" defer></script>
+  <script src="../js/labs/lab-03.js" defer></script>
+</head>
+<body data-page="lab-03" data-root="../">
+  <svg class="svg-defs" aria-hidden="true" focusable="false"><defs><marker id="arrow" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="10" markerHeight="10" markerUnits="userSpaceOnUse" orient="auto"><path class="arrowhead" d="M0 0 L10 5 L0 10 Z"/></marker></defs></svg>
+  <div class="app" id="app">
+    <main class="stage" id="stage">
+      <div class="deck" id="deck" tabindex="-1">
+<noscript><p class="noscript">JavaScript is off, so every slide is shown in one long page. Turn JavaScript on for slide navigation, speaker notes, and the live tracers.</p></noscript>
+
+<!-- ========================= SLIDE 1 · TITLE ========================= -->
+<section class="slide" id="l3-title" data-title="Title & ILOs" data-section="Introduction">
+  <div class="lab-title">
+    <div>
+      <div class="lab-badges"><span class="badge-lab">Lab No. 3</span><span class="badge-week">Week 4</span><span class="badge-co">CO1</span></div>
+      <p class="kicker">CPE 104L · Programming Logic and Design</p>
+      <h1 style="font-size:clamp(2rem,1.1rem + 2.2vw,3.1rem)">Data Types, Constants, Variables, and Strings <span>Choosing the right box for every value</span></h1>
+      <p class="lede">Every value in a program lives in memory. Today you learn what kinds of values C++ can store, how much room each one takes, and how to name them well.</p>
+      <ol class="roadmap" aria-label="Lab roadmap">
+        <li><a href="#l3-types">Data types</a></li>
+        <li><a href="#l3-sizeof">Sizes</a></li>
+        <li><a href="#l3-variables">Variables</a></li>
+        <li><a href="#l3-naming">Naming rules</a></li>
+        <li><a href="#l3-const">Constants</a></li>
+        <li><a href="#l3-strings">Strings</a></li>
+        <li><a href="#l3-reverse">Reverse challenge</a></li>
+        <li><a href="#l3-lab">Lab Activity 3</a></li>
+      </ol>
+    </div>
+    <div class="ilo-card">
+      <h2>Intended Learning Outcomes</h2>
+      <ol>
+        <li>Differentiate primitive data types, constants, variables, and strings in C++.</li>
+        <li>Apply proper identifier naming rules and memory allocation concepts.</li>
+      </ol>
+      <div class="ilo-meta">
+        <span><b>Activities:</b> Guided syntax exercises · Live coding demonstrations · Laboratory activities</span>
+        <span><b>Assessment:</b> Lab Exercise No. 3 · 5-Level Lab Rubric</span>
+      </div>
+    </div>
+  </div>
+  <aside class="notes">
+    <p class="note-time">Suggested time: about 2 min</p>
+    <h4>Teaching tips</h4>
+    <ul>
+      <li>This lab is the vocabulary lab: every later lab assumes students can pick a type, declare a variable, and read a line of text.</li>
+      <li>Read both ILOs aloud. ILO 2 ("memory allocation concepts") is covered by the sizeof, memory, and scope slides.</li>
+      <li>Have Codechum open: most slides end with "type this and run it".</li>
+    </ul>
+    <h4>Common student pitfalls</h4>
+    <ul>
+      <li>Students who missed Lab 2 will struggle with basic <code>cout</code>/<code>cin</code>. Pair them with a neighbor for the first 20 minutes.</li>
+    </ul>
+  </aside>
+</section>
+
+<!-- ========================= SLIDE 2 · BRIDGE ========================= -->
+<section class="slide" id="l3-bridge" data-title="The 2.5 Mystery from Lab 2" data-section="Introduction">
+  <header class="slide-head">
+    <p class="kicker">Lab 3 · Review of Lab 2</p>
+    <h2>The 2.5 Mystery: Why Did 2.5 + 3.7 Give 2?</h2>
+    <p class="lede">Lab 2's calculator stored its numbers in <code>int</code> variables. Watch what happens when the user types a decimal.</p>
+  </header>
+  <div class="grid-2 align-start">
+    <div class="compare bad">
+      <p class="compare-label">Lab 2 calculator: <code>int</code></p>
+<pre class="code" data-cpp data-stdin="2.5">
+#include &lt;iostream&gt;
+using namespace std;
+
+int main() {
+    int x, y;
+    int sum;
+    cout &lt;&lt; "Type a number: ";
+    cin &gt;&gt; x;
+    cout &lt;&lt; "Type another number: ";
+    cin &gt;&gt; y;
+    sum = x + y;
+    cout &lt;&lt; "Sum is: " &lt;&lt; sum &lt;&lt; endl;
+    return 0;
+}
+</pre>
+<pre class="console" style="margin-top:.6rem">Type a number: <span class="in">2.5</span>
+Type another number: Sum is: 2</pre>
+      <p class="small">It never waited for the second number! <code>cin</code> put <code>2</code> in <code>x</code>, then choked on the leftover <code>.5</code>, so <code>y</code> became 0.</p>
+    </div>
+    <div class="stack">
+      <div class="compare good">
+        <p class="compare-label">Fix: change only the data type</p>
+<pre class="code no-ln" data-cpp>
+double x, y;
+double sum;
+</pre>
+<pre class="console" style="margin-top:.6rem">Type a number: <span class="in">2.5</span>
+Type another number: <span class="in">3.7</span>
+Sum is: 6.2</pre>
+      </div>
+      <div class="concept big"><p class="box-label">Today's big idea</p><p>A variable's <b>data type</b> decides what it can hold, how much memory it uses, and what happens when the value doesn't fit.</p></div>
+    </div>
+  </div>
+  <aside class="notes">
+    <p class="note-time">Suggested time: about 5 min</p>
+    <h4>Teaching tips</h4>
+    <ul>
+      <li>Run the int version live in Codechum and type <code>2.5</code>. The program skipping the second prompt is a memorable surprise.</li>
+      <li>Then change the two declarations to <code>double</code> and rerun with 2.5 and 3.7. Nothing else in the program changes.</li>
+      <li>Explain briefly: <code>cin &gt;&gt;</code> into an <code>int</code> reads digits and stops at the <code>.</code>; the next <code>cin &gt;&gt;</code> into an <code>int</code> sees <code>.5</code>, fails, and stores 0. Input validation comes later in the course.</li>
+    </ul>
+    <h4>Common student pitfalls</h4>
+    <ul>
+      <li>Thinking the computer "rounds" 2.5 to 2. It doesn't round here: it stops reading at the decimal point.</li>
+    </ul>
+    <h4>Ask the class</h4>
+    <ul>
+      <li>"Name three values in an engineering problem that need decimals." (Voltage, resistance, length, temperature, grades…)</li>
+    </ul>
+  </aside>
+</section>
+
+<!-- ========================= SLIDE 3 · DATA TYPES ========================= -->
+<section class="slide" id="l3-types" data-title="Data Types" data-section="Data Types">
+  <header class="slide-head">
+    <p class="kicker">Lab 3 · Data types</p>
+    <h2>The Basic Data Types</h2>
+    <p class="lede">Data types define the type of data a variable can hold.</p>
+  </header>
+  <div class="table-wrap">
+    <table class="table">
+      <thead><tr><th scope="col">Type</th><th scope="col">Stores</th><th scope="col">Example</th><th scope="col">Size today*</th></tr></thead>
+      <tbody>
+        <tr><th scope="row"><code>int</code></th><td>Integers: whole numbers, no decimals</td><td><code>int num = 100;</code></td><td>4 bytes (32 bits)</td></tr>
+        <tr><th scope="row"><code>float</code></th><td>Floating-point numbers, single precision (about 7 digits)</td><td><code>float num = 123.78987;</code></td><td>4 bytes (32 bits)</td></tr>
+        <tr><th scope="row"><code>double</code></th><td>Floating-point numbers, double precision (about 15 digits)</td><td><code>double num = 10098.98899;</code></td><td>8 bytes (64 bits)</td></tr>
+        <tr><th scope="row"><code>char</code></th><td>One character, in <b>single</b> quotes</td><td><code>char ch = 'A';</code></td><td>1 byte (8 bits)</td></tr>
+        <tr><th scope="row"><code>bool</code></th><td>Boolean: <code>true</code> or <code>false</code></td><td><code>bool b = true;</code></td><td>1 byte</td></tr>
+        <tr><th scope="row"><code>string</code></th><td>A collection of characters (text), in <b>double</b> quotes. Needs <code>#include &lt;string&gt;</code></td><td><code>string str = "Hello";</code></td><td>grows with the text</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="grid-2 align-start" style="margin-top:1rem">
+    <div class="note-box"><p class="box-label">*Why "today"?</p><p>The C++ standard only promises that <code>int</code> is <b>at least</b> 16 bits. Old 16-bit compilers (like Turbo C++) used 2-byte ints. Codechum, g++, and Visual C++ use <b>4 bytes</b>. You can check with <code>sizeof</code> (next slide).</p></div>
+    <div class="pitfall"><p class="box-label">Quotes matter</p><ul><li><code>'A'</code> is a <code>char</code>; <code>"A"</code> is a <code>string</code>.</li><li><code>'AB'</code> is not one character. Use <code>"AB"</code>.</li><li><code>string</code> is not built into the language core: it is a class from the standard library.</li></ul></div>
+  </div>
+  <aside class="notes">
+    <p class="note-time">Suggested time: about 6 min</p>
+    <h4>Teaching tips</h4>
+    <ul>
+      <li>The examples are the ones on your Lab 3 deck. The deck lists <code>int</code> as <b>2 bytes (16 bits)</b>; that was true for old 16-bit compilers such as Turbo C++ under DOS. Every compiler students will use (Codechum, MinGW g++ in Code::Blocks/Dev-C++, Visual C++) uses a <b>4-byte</b> int, so the slide shows 4 bytes.</li>
+      <li>Give one engineering example per row: <code>int</code> number of resistors; <code>double</code> resistance in ohms; <code>char</code> grade letter or resistor band code; <code>bool</code> "is the LED on?"; <code>string</code> component name.</li>
+      <li>Rule of thumb for this course: use <code>double</code> for decimals unless told otherwise.</li>
+    </ul>
+    <h4>Common student pitfalls</h4>
+    <ul>
+      <li>Using <code>int</code> for money, grades, or measurements, which silently loses the decimals.</li>
+      <li>Writing <code>String</code> with a capital S (Java habit). In C++ it is <code>string</code>.</li>
+    </ul>
+    <h4>Ask the class</h4>
+    <ul>
+      <li>"Which type for: a student number like 2026-00123? A phone number like 0917…?" (A <code>string</code>: it has a dash or a leading zero, and you never do math with it.)</li>
+    </ul>
+  </aside>
+</section>
+
+<!-- ========================= SLIDE 4 · SIZEOF ========================= -->
+<section class="slide" id="l3-sizeof" data-title="Checking Sizes with sizeof" data-section="Data Types">
+  <header class="slide-head">
+    <p class="kicker">Lab 3 · Memory sizes</p>
+    <h2>Ask the Compiler: <code>sizeof</code></h2>
+    <p class="lede"><code>sizeof(type)</code> or <code>sizeof(variable)</code> gives the number of <b>bytes</b> it uses. 1 byte = 8 bits.</p>
+  </header>
+  <div class="code-pair">
+    <figure class="codeblock">
+      <figcaption><code>sizes.cpp</code></figcaption>
+<pre class="code" data-cpp>
+#include &lt;iostream&gt;
+using namespace std;
+
+int main() {
+    int num = 100;
+    cout &lt;&lt; "Size in bytes" &lt;&lt; endl;
+    cout &lt;&lt; "char:      " &lt;&lt; sizeof(char) &lt;&lt; endl;
+    cout &lt;&lt; "bool:      " &lt;&lt; sizeof(bool) &lt;&lt; endl;
+    cout &lt;&lt; "int:       " &lt;&lt; sizeof(int) &lt;&lt; endl;
+    cout &lt;&lt; "float:     " &lt;&lt; sizeof(float) &lt;&lt; endl;
+    cout &lt;&lt; "double:    " &lt;&lt; sizeof(double) &lt;&lt; endl;
+    cout &lt;&lt; "long long: " &lt;&lt; sizeof(long long) &lt;&lt; endl;
+    cout &lt;&lt; "num:       " &lt;&lt; sizeof(num) &lt;&lt; endl;
+    return 0;
+}
+</pre>
+    </figure>
+    <div class="stack">
+      <figure class="codeblock">
+        <figcaption>Output (g++ on 64-bit, same on Codechum)</figcaption>
+<pre class="console">Size in bytes
+char:      1
+bool:      1
+int:       4
+float:     4
+double:    8
+long long: 8
+num:       4</pre>
+      </figure>
+      <div class="concept"><p class="box-label">Why size matters</p><p>More bytes = more possible values. 4 bytes = 32 bits = 2<sup>32</sup> ≈ 4.3 billion different patterns, so an <code>int</code> can hold about −2.1 billion to +2.1 billion.</p></div>
+    </div>
+  </div>
+  <aside class="notes">
+    <p class="note-time">Suggested time: about 5 min</p>
+    <h4>Teaching tips</h4>
+    <ul>
+      <li>This output is from g++ on 64-bit Linux; Codechum, MinGW (Code::Blocks / Dev-C++), and Visual C++ print the same numbers for these types.</li>
+      <li>This is where you correct the deck's "int = 2 bytes": run it and let the compiler settle it. Mention that 2 bytes was correct for 16-bit compilers like Turbo C++, which some older references and handouts still describe.</li>
+      <li><code>sizeof(num)</code> shows that sizeof also works on a variable: its size comes from its type, not its value (100 or 2,000,000 both use 4 bytes).</li>
+      <li><code>sizeof(string)</code> is left out on purpose: it prints the size of the string <em>object</em> (32 on g++, other values elsewhere), not the length of the text. Use <code>.length()</code> for text.</li>
+    </ul>
+    <h4>Common student pitfalls</h4>
+    <ul>
+      <li>Thinking bigger numbers take more memory in the same type. A type has a fixed size.</li>
+      <li>Confusing bits and bytes (×8).</li>
+    </ul>
+    <h4>Ask the class</h4>
+    <ul>
+      <li>"How many bits in a double?" (64.) "Why might a microcontroller programmer care?" (An Arduino Uno has only 2 KB of RAM; on that 8-bit board, <code>int</code> is 2 bytes again.)</li>
+    </ul>
+  </aside>
+</section>
+
+<!-- ========================= SLIDE 5 · TYPE MODIFIERS ========================= -->
+<section class="slide" id="l3-modifiers" data-title="Type Modifiers" data-section="Data Types">
+  <header class="slide-head">
+    <p class="kicker">Lab 3 · Type modifiers</p>
+    <h2>Type Modifiers: <code>short</code>, <code>long</code>, <code>signed</code>, <code>unsigned</code></h2>
+    <p class="lede">Modifiers change how much a type can hold. <code>unsigned</code> gives up negatives to double the positive range.</p>
+  </header>
+  <div class="grid-2 align-start" style="grid-template-columns:minmax(0,1.35fr) minmax(0,1fr)">
+    <div class="table-wrap">
+      <table class="table compact">
+        <caption>Integer types (g++, 64-bit)</caption>
+        <thead><tr><th scope="col">Type</th><th scope="col">Bytes</th><th scope="col">Range</th></tr></thead>
+        <tbody>
+          <tr><td><code>signed char</code></td><td>1</td><td>−128 to 127</td></tr>
+          <tr><td><code>unsigned char</code></td><td>1</td><td>0 to 255</td></tr>
+          <tr><td><code>short</code> (<code>short int</code>)</td><td>2</td><td>−32,768 to 32,767</td></tr>
+          <tr><td><code>unsigned short</code></td><td>2</td><td>0 to 65,535</td></tr>
+          <tr><td><code>int</code> (<code>signed int</code>)</td><td>4</td><td>−2,147,483,648 to 2,147,483,647</td></tr>
+          <tr><td><code>unsigned int</code></td><td>4</td><td>0 to 4,294,967,295</td></tr>
+          <tr><td><code>long</code> (<code>long int</code>)</td><td>8 Linux · 4 Windows</td><td>same as <code>long long</code> or <code>int</code></td></tr>
+          <tr><td><code>long long</code></td><td>8</td><td>about ±9.22 × 10<sup>18</sup></td></tr>
+          <tr><td><code>unsigned long long</code></td><td>8</td><td>0 to about 1.84 × 10<sup>19</sup></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="stack">
+      <div class="table-wrap">
+        <table class="table compact">
+          <caption>Floating-point types</caption>
+          <thead><tr><th scope="col">Type</th><th scope="col">Bytes</th><th scope="col">Range · precision</th></tr></thead>
+          <tbody>
+            <tr><td><code>float</code></td><td>4</td><td>±3.4 × 10<sup>38</sup> · ~7 digits</td></tr>
+            <tr><td><code>double</code></td><td>8</td><td>±1.7 × 10<sup>308</sup> · ~15 digits</td></tr>
+            <tr><td><code>long double</code></td><td>8–16</td><td>at least a double; varies</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="note-box"><p class="box-label">Platform differences</p><ul><li><code>long</code>: 8 bytes on 64-bit Linux/macOS, but 4 bytes on Windows. Need 8 bytes everywhere? Use <code>long long</code>.</li><li><code>long double</code>: 16 bytes on g++ (Linux), 8 on Visual C++.</li><li>Plain <code>char</code> is signed on most PCs.</li></ul></div>
+    </div>
+  </div>
+  <aside class="notes">
+    <p class="note-time">Suggested time: about 6 min</p>
+    <h4>Teaching tips</h4>
+    <ul>
+      <li>Your deck's table shows 16-bit <code>int</code> (−32,768 to 32,767) and 32-bit <code>long</code>. Those are Turbo C++ values. The ranges here were printed with <code>numeric_limits</code> on g++ 13 (64-bit Linux), which matches Codechum; Windows compilers differ only for <code>long</code> and <code>long double</code>.</li>
+      <li>To verify in class: <code>#include &lt;climits&gt;</code> then <code>cout &lt;&lt; INT_MAX;</code> prints <code>2147483647</code>.</li>
+      <li>Don't make students memorize the table. They should remember: <code>int</code> ≈ ±2.1 billion; use <code>long long</code> for bigger whole numbers; use <code>double</code> for decimals.</li>
+      <li>Engineering hook: the Philippine population (about 113 million) fits in an int; the number of bytes on a 4 TB drive (4 × 10<sup>12</sup>) does not, so it needs <code>long long</code>.</li>
+    </ul>
+    <h4>Common student pitfalls</h4>
+    <ul>
+      <li>Storing a value past the maximum ("overflow"). For signed types this is undefined behavior; for unsigned types the value wraps around (0 − 1 becomes 4,294,967,295).</li>
+      <li>Using <code>unsigned</code> for values that can become negative (a difference, a temperature).</li>
+    </ul>
+    <h4>Ask the class</h4>
+    <ul>
+      <li>"Why does <code>unsigned char</code> go to 255, not 127?" (No sign bit: all 8 bits count magnitude, 2<sup>8</sup> − 1 = 255.)</li>
+    </ul>
+  </aside>
+</section>
+
+<!-- ========================= SLIDE 6 · PRECISION ========================= -->
+<section class="slide" id="l3-precision" data-title="float vs double Precision" data-section="Data Types">
+  <header class="slide-head">
+    <p class="kicker">Lab 3 · Precision</p>
+    <h2><code>float</code> vs <code>double</code>: What "Precision" Means</h2>
+    <p class="lede">Precision = how many significant digits a type can keep accurately. <code>cout</code> also shows only <b>6</b> significant digits unless you ask for more.</p>
+  </header>
+  <div class="code-pair">
+    <figure class="codeblock">
+      <figcaption><code>precision.cpp</code></figcaption>
+<pre class="code" data-cpp>
+#include &lt;iostream&gt;
+#include &lt;iomanip&gt;   // for setprecision
+using namespace std;
+
+int main() {
+    float num1 = 123.78987;
+    double num2 = 10098.98899;
+
+    cout &lt;&lt; "Default cout:" &lt;&lt; endl;
+    cout &lt;&lt; num1 &lt;&lt; endl;
+    cout &lt;&lt; num2 &lt;&lt; endl;
+
+    cout &lt;&lt; setprecision(10);
+    cout &lt;&lt; "With setprecision(10):" &lt;&lt; endl;
+    cout &lt;&lt; num1 &lt;&lt; endl;
+    cout &lt;&lt; num2 &lt;&lt; endl;
+    return 0;
+}
+</pre>
+    </figure>
+    <div class="stack">
+      <figure class="codeblock">
+        <figcaption>Output</figcaption>
+<pre class="console">Default cout:
+123.79
+10099
+With setprecision(10):
+123.7898712
+10098.98899</pre>
+      </figure>
+      <div class="concept"><p class="box-label">Read the output</p><ul><li>Default <code>cout</code> rounds to 6 significant digits: <code>123.79</code>, <code>10099</code>. The stored values did not change.</li><li>The <code>float</code> could not store 123.78987 exactly: the extra <code>…12</code> is rounding noise. A float is reliable to only about 7 digits.</li><li>The <code>double</code> kept every digit.</li></ul></div>
+    </div>
+  </div>
+  <aside class="notes">
+    <p class="note-time">Suggested time: about 6 min</p>
+    <h4>Teaching tips</h4>
+    <ul>
+      <li>Both literals are your deck's examples (<code>float num = 123.78987;</code>, <code>double num = 10098.98899;</code>), renamed num1/num2 so they can live in one program.</li>
+      <li><code>setprecision(n)</code> sets the number of <b>significant digits</b> (total, not decimal places). Lab 5 adds <code>fixed</code>, which makes it mean decimal places: <code>fixed &lt;&lt; setprecision(2)</code> for pesos.</li>
+      <li>Optional: <code>123.78987f</code> (with <code>f</code>) is a float literal. Without the <code>f</code> it is a double that gets converted to float when stored.</li>
+    </ul>
+    <h4>Common student pitfalls</h4>
+    <ul>
+      <li>Thinking <code>10099</code> means the variable lost its decimals. It's only the display.</li>
+      <li>Comparing floating-point values with <code>==</code> (0.1 + 0.2 is not exactly 0.3). Revisit in Lab 6.</li>
+    </ul>
+    <h4>Ask the class</h4>
+    <ul>
+      <li>"A sensor gives readings like 3.14159265. Which type keeps all the digits?" (<code>double</code>.)</li>
+    </ul>
+  </aside>
+</section>
+
+<!-- ========================= SLIDE 7 · VARIABLES ========================= -->
+<section class="slide" id="l3-variables" data-title="Variables in C++" data-section="Variables">
+  <header class="slide-head">
+    <p class="kicker">Lab 3 · Variables</p>
+    <h2>Variables in C++</h2>
+  </header>
+  <div class="grid-2 align-start">
+    <div class="stack">
+      <div class="concept big"><p class="box-label">Definition</p><p>A <b>variable</b> is a name associated with a value that can be changed. Behind the name is a <b>memory location</b> big enough for its data type.</p></div>
+      <figure class="card" style="margin:0">
+        <svg class="fc" viewBox="0 0 560 200" role="img" aria-label="The declaration int num = 20 with three labels: int is the data type, num is the variable name, and 20 is the value.">
+          <rect class="s-process" x="72" y="22" width="96" height="66" rx="10"/>
+          <rect class="s-io" x="196" y="22" width="104" height="66" rx="10"/>
+          <rect class="s-terminal" x="372" y="22" width="84" height="66" rx="10"/>
+          <text x="120" y="56" style="font-family:var(--font-mono);font-size:40px;font-weight:700">int</text>
+          <text x="248" y="56" style="font-family:var(--font-mono);font-size:40px;font-weight:700">num</text>
+          <text x="336" y="56" style="font-family:var(--font-mono);font-size:40px;font-weight:700">=</text>
+          <text x="414" y="56" style="font-family:var(--font-mono);font-size:40px;font-weight:700">20</text>
+          <text x="476" y="56" style="font-family:var(--font-mono);font-size:40px;font-weight:700">;</text>
+          <path class="fc-line" d="M120 146 V94"/>
+          <path class="fc-line" d="M248 146 V94"/>
+          <path class="fc-line" d="M414 146 V94"/>
+          <text x="120" y="168">Data type</text>
+          <text x="248" y="168">Variable name</text>
+          <text x="414" y="168">Value</text>
+        </svg>
+      </figure>
+    </div>
+    <div class="stack">
+      <div class="card">
+        <h3 class="card-title">"Can be changed": watch the box</h3>
+<pre class="code no-ln" data-cpp>
+int num = 20;   // num holds 20
+num = 35;       // now num holds 35
+</pre>
+        <div class="grid-2 tight-gap" style="margin-top:.9rem">
+          <div><p class="small muted">after line 1</p><div class="mem" aria-label="num holds 20"><div class="mem-cell"><span class="mem-name">num</span><span class="mem-val">20</span><span class="mem-addr">int · 4 bytes</span></div></div></div>
+          <div><p class="small muted">after line 2</p><div class="mem" aria-label="num holds 35"><div class="mem-cell is-hl"><span class="mem-name">num</span><span class="mem-val">35</span><span class="mem-addr">int · 4 bytes</span></div></div></div>
+        </div>
+      </div>
+      <div class="pitfall"><p class="box-label">One value at a time</p><p>A variable holds exactly <b>one</b> value. Storing a new value <b>replaces</b> the old one; the 20 is gone.</p></div>
+    </div>
+  </div>
+  <aside class="notes">
+    <p class="note-time">Suggested time: about 5 min</p>
+    <h4>Teaching tips</h4>
+    <ul>
+      <li>The diagram recreates your deck's <code>int num=20</code> slide (data type, variable name, value). The code here adds spaces around <code>=</code>, matching our coding conventions.</li>
+      <li>Analogy: a labeled storage box in a stockroom. The label is the name, the box size is the type, and the content is the value. You can replace the content, but the box stays the same size.</li>
+      <li><code>=</code> means "store into", not "is equal to". Read <code>num = 35;</code> as "num gets 35".</li>
+    </ul>
+    <h4>Common student pitfalls</h4>
+    <ul>
+      <li>Writing <code>20 = num;</code>. The variable must be on the left.</li>
+      <li>Re-declaring: <code>int num = 20;</code> then <code>int num = 35;</code> in the same block is an error ("redeclaration"). To change it, drop the type.</li>
+    </ul>
+    <h4>Ask the class</h4>
+    <ul>
+      <li>"After <code>num = num + 5;</code>, what does num hold?" (40, if it held 35.)</li>
+    </ul>
+  </aside>
+</section>
+
+<!-- ========================= SLIDE 8 · NAMING RULES ========================= -->
+<section class="slide" id="l3-naming" data-title="Naming Rules & Conventions" data-section="Variables">
+  <header class="slide-head">
+    <p class="kicker">Lab 3 · Program variables</p>
+    <h2>Naming Variables: Rules and Conventions</h2>
+    <p class="lede">Names of variables (and constants, functions…) are called <b>identifiers</b>. Rules are enforced by the compiler; conventions are enforced by your grade.</p>
+  </header>
+  <div class="grid-2 align-start">
+    <div class="stack">
+      <p class="sub">Rules: break one and it won't compile</p>
+      <ol class="rules">
+        <li>Use only <b>letters, digits, or underscore</b> <code>_</code>.</li>
+        <li><b>Cannot begin with a digit</b>: <code>2ndPlace</code> ✗</li>
+        <li><b>No spaces, punctuation, math, or special symbols</b>: <code>net pay</code>, <code>my-score</code>, <code>rate%</code> ✗</li>
+        <li><b>Not a reserved word</b>: <code>int</code>, <code>float</code>, <code>return</code>, <code>if</code> ✗</li>
+        <li><b>Case-sensitive</b>: <code>age</code>, <code>Age</code>, and <code>AGE</code> are three different names.</li>
+      </ol>
+    </div>
+    <div class="stack">
+      <p class="sub">Conventions: follow them for readable code</p>
+      <div class="card">
+        <ul class="tight">
+          <li><b>Meaningful names</b>: <code>totalCost</code>, not <code>tc</code> or <code>x1</code>.</li>
+          <li>Pick one style and stay consistent:<br><b>camelCase</b> <code>myNum</code>, <code>totalCost</code> or <b>snake_case</b> <code>total_cost</code>.</li>
+          <li>Constants in <b>UPPER_CASE</b>: <code>PI</code>, <code>MAX_SPEED</code>.</li>
+          <li>Single letters only for short loop counters (<code>i</code>) or math formulas (<code>x</code>, <code>y</code>).</li>
+        </ul>
+      </div>
+      <div class="pitfall"><p class="box-label">Avoid library names</p><p>Names already used by the standard library (<code>cout</code>, <code>string</code>, <code>count</code>, <code>max</code>) are not keywords, but with <code>using namespace std;</code> they can clash and cause confusing errors.</p></div>
+    </div>
+  </div>
+  <aside class="notes">
+    <p class="note-time">Suggested time: about 6 min</p>
+    <h4>Teaching tips</h4>
+    <ul>
+      <li>Rules 1–4 are from your deck. The deck also says <em>"ANSI guarantees only the first 32 characters to be significant."</em> That is an old <b>C</b> limit (C89 guaranteed 31 significant characters for internal names). Modern C++ compilers support much longer names (g++ has no practical limit), so it is omitted from the slide. Mention it only if students have seen it in an older book.</li>
+      <li>The deck's last rule ("names reserved for function names and the standard library") is split here: <b>keywords</b> can never be used; <b>library names</b> are legal but risky. A real example: a global variable named <code>count</code> becomes ambiguous with <code>std::count</code> once <code>&lt;algorithm&gt;</code> is included.</li>
+      <li>Our decks use camelCase (<code>myNum</code>, <code>myFloatNum</code>), so this lab does too.</li>
+    </ul>
+    <h4>Common student pitfalls</h4>
+    <ul>
+      <li>Using a hyphen (<code>first-name</code>). The compiler reads it as <code>first minus name</code>.</li>
+      <li>Mixing <code>Total</code> and <code>total</code> in one program and getting "not declared" errors.</li>
+    </ul>
+    <h4>Ask the class</h4>
+    <ul>
+      <li>"Is <code>Int</code> a legal variable name?" (Yes, because only lowercase <code>int</code> is reserved. But it is a terrible name.)</li>
+    </ul>
+  </aside>
+</section>
+
+<!-- ========================= SLIDE 9 · IDENTIFIER QUIZ ========================= -->
+<section class="slide" id="l3-ident-quiz" data-title="Valid or Invalid? Identifier Quiz" data-section="Variables">
+  <header class="slide-head">
+    <p class="kicker">Lab 3 · Guided syntax exercise</p>
+    <h2>Valid or Invalid Identifier?</h2>
+    <p class="lede">Decide for each name, then reveal. If invalid, say which rule it breaks.</p>
+  </header>
+  <div class="qa-grid">
+    <details class="qa"><summary><span class="q-num">1</span><span class="q-text"><code>studentAge</code></span></summary><p><b>Valid.</b> Letters only, camelCase, meaningful.</p></details>
+    <details class="qa"><summary><span class="q-num">2</span><span class="q-text"><code>2ndPlace</code></span></summary><p><b>Invalid.</b> Starts with a digit. Try <code>secondPlace</code> or <code>place2</code>.</p></details>
+    <details class="qa"><summary><span class="q-num">3</span><span class="q-text"><code>total_cost</code></span></summary><p><b>Valid.</b> Underscore is allowed (snake_case).</p></details>
+    <details class="qa"><summary><span class="q-num">4</span><span class="q-text"><code>my-score</code></span></summary><p><b>Invalid.</b> <code>-</code> is the minus operator, so this means <code>my minus score</code>.</p></details>
+    <details class="qa"><summary><span class="q-num">5</span><span class="q-text"><code>float</code></span></summary><p><b>Invalid.</b> Reserved keyword (a data type).</p></details>
+    <details class="qa"><summary><span class="q-num">6</span><span class="q-text"><code>net pay</code></span></summary><p><b>Invalid.</b> Contains a space. Use <code>netPay</code> or <code>net_pay</code>.</p></details>
+    <details class="qa"><summary><span class="q-num">7</span><span class="q-text"><code>voltage2</code></span></summary><p><b>Valid.</b> Digits are fine after the first character.</p></details>
+    <details class="qa"><summary><span class="q-num">8</span><span class="q-text"><code>Main</code></span></summary><p><b>Valid</b>, because C++ is case-sensitive and only <code>main</code> is special. But it is confusing: avoid it.</p></details>
+  </div>
+  <aside class="notes">
+    <p class="note-time">Suggested time: about 5 min</p>
+    <h4>Teaching tips</h4>
+    <ul>
+      <li>Run it as a quick game: students hold up a hand for valid, a fist for invalid, then reveal.</li>
+      <li>For any "invalid", have a student propose a valid, meaningful replacement.</li>
+      <li>Optional live demo: declare <code>int 2ndPlace;</code> in Codechum and read the error message together.</li>
+    </ul>
+    <h4>Common student pitfalls</h4>
+    <ul>
+      <li>Thinking <code>Main</code> or <code>Int</code> are illegal. They are legal, just bad style.</li>
+      <li>Thinking underscores can't start a name. <code>_count</code> is legal, but names beginning with an underscore are best avoided (some are reserved for the compiler and library).</li>
+    </ul>
+    <h4>Ask the class</h4>
+    <ul>
+      <li>"Write three good names for: the resistance of a resistor, the number of LEDs, and whether a switch is on."</li>
+    </ul>
+  </aside>
+</section>
+
+<!-- ========================= SLIDE 10 · SCOPE ========================= -->
+<section class="slide" id="l3-scope" data-title="Scope: Global vs Local" data-section="Variables">
+  <header class="slide-head">
+    <p class="kicker">Lab 3 · Scope of variables</p>
+    <h2>Scope: Where Can a Variable Be Used?</h2>
+    <p class="lede">A <b>global</b> variable is declared outside all functions. A <b>local</b> variable is declared inside a function or block <code>{ }</code> and exists only there.</p>
+  </header>
+  <div class="code-pair">
+    <figure class="codeblock">
+      <figcaption><code>scope.cpp</code></figcaption>
+<pre class="code" data-cpp>
+#include &lt;iostream&gt;
+using namespace std;
+
+int x;              // global variables: declared
+char y;             // outside all functions and
+unsigned int m;     // visible to every function
+
+int main() {
+    int a = 5;      // local variables
+    int b(2);       // with initial values
+    int result;
+
+    a = a + 1;
+    result = a - b;
+    cout &lt;&lt; "result = " &lt;&lt; result &lt;&lt; endl;
+    cout &lt;&lt; "x = " &lt;&lt; x &lt;&lt; ", m = " &lt;&lt; m &lt;&lt; endl;
+    return 0;
+}
+</pre>
+    </figure>
+    <div class="stack">
+      <figure class="codeblock">
+        <figcaption>Output</figcaption>
+<pre class="console">result = 4
+x = 0, m = 0</pre>
+      </figure>
+      <div class="concept"><p class="box-label">Notice</p><ul><li>Globals start at <b>0</b> automatically. Locals start with <b>garbage</b> unless you give them a value.</li><li><code>int b(2);</code> is another way to write <code>int b = 2;</code></li><li><b>Prefer locals.</b> Globals can be changed from anywhere, which makes bugs hard to find.</li></ul></div>
+      <div class="pitfall"><p class="box-label">Shadowing</p>
+<pre class="code no-ln" data-cpp>
+int total = 100;  // global
+// later, inside main:
+int total = 7;    // hides it!
+cout &lt;&lt; total;    // prints 7
+</pre>
+      </div>
+    </div>
+  </div>
+  <aside class="notes">
+    <p class="note-time">Suggested time: about 6 min</p>
+    <h4>Teaching tips</h4>
+    <ul>
+      <li>This program follows your deck's Code::Blocks example (globals <code>x</code>, <code>y</code>, <code>m</code>; locals <code>a = 5</code>, <code>b(2)</code>, <code>result</code>). The deck's <code>string z[20]</code> (an array) is left out until Lab 9. Trace it: a becomes 6, result = 6 − 2 = 4.</li>
+      <li>Block scope preview: a variable declared inside <code>if { … }</code> or a loop body disappears at the closing brace. Students will hit this in Labs 6–7.</li>
+      <li>When functions arrive (Lab 11), scope becomes essential: each function has its own locals.</li>
+    </ul>
+    <h4>Common student pitfalls</h4>
+    <ul>
+      <li>Making everything global "so it works everywhere". It works until two parts of the program change the same variable.</li>
+      <li>Shadowing by accident: declaring <code>int total</code> again inside main and then wondering why the global never changes. (<code>::total</code> refers to the global, but the real fix is better names.)</li>
+    </ul>
+    <h4>Ask the class</h4>
+    <ul>
+      <li>"Which variables in this program could another function use?" (Only the globals: x, y, m.)</li>
+    </ul>
+  </aside>
+</section>
+
+<!-- ========================= SLIDE 11 · DECLARATION & ASSIGNMENT ========================= -->
+<section class="slide" id="l3-declare" data-title="Declaration & Assignment" data-section="Variables">
+  <header class="slide-head">
+    <p class="kicker">Lab 3 · Variable declaration, assignment, and display</p>
+    <h2>Declaring and Assigning Variables</h2>
+    <p class="lede">To create a variable, you specify the type and (ideally) give it a value.</p>
+  </header>
+  <p class="syntax">Syntax: <i>type</i> <i>variable</i> = <i>value</i>;   ·   <i>data_type</i> <i>variable1_name</i> = <i>value1</i>, <i>variable2_name</i> = <i>value2</i>;</p>
+  <div class="grid-3">
+    <div class="card"><h3 class="card-title">Declare and initialize</h3>
+<pre class="code no-ln" data-cpp>
+int myNum = 15;
+cout &lt;&lt; myNum;
+</pre>
+    </div>
+    <div class="card"><h3 class="card-title">Several in one line</h3>
+<pre class="code no-ln" data-cpp>
+int num1 = 20, num2 = 100;
+</pre>
+    </div>
+    <div class="card"><h3 class="card-title">Declare now, assign later</h3>
+<pre class="code no-ln" data-cpp>
+int num1, num2;
+num1 = 20;
+num2 = 100;
+</pre>
+    </div>
+  </div>
+  <div class="grid-2 align-start" style="margin-top:1.2rem">
+    <div class="code-pair" style="grid-template-columns:minmax(0,1.6fr) minmax(0,1fr)">
+<pre class="code" data-cpp>
+#include &lt;iostream&gt;
+using namespace std;
+
+int main() {
+    int myNum;
+    myNum = 15;
+    cout &lt;&lt; myNum &lt;&lt; endl;
+
+    myNum = 10;
+    cout &lt;&lt; myNum &lt;&lt; endl;
+    return 0;
+}
+</pre>
+<pre class="console">15
+10</pre>
+    </div>
+    <div class="pitfall"><p class="box-label">Uninitialized variables</p><p><code>int total;</code> followed by <code>cout &lt;&lt; total;</code> prints <b>garbage</b>: whatever bits were left in that memory. g++ warns:</p>
+<pre class="console">warning: 'total' is used uninitialized</pre>
+      <p>Always give a variable a value before you use it.</p>
+    </div>
+  </div>
+  <aside class="notes">
+    <p class="note-time">Suggested time: about 6 min</p>
+    <h4>Teaching tips</h4>
+    <ul>
+      <li>All three forms and the myNum example come from your deck (slides 10–12). The complete program combines "declare, then assign 15" with an overwrite to 10.</li>
+      <li>Vocabulary: <b>declaration</b> creates the variable; <b>initialization</b> gives the first value at creation; <b>assignment</b> stores a value later.</li>
+      <li>Show the uninitialized warning live (compile with warnings on in Code::Blocks: Settings → Compiler → "-Wall"). The printed garbage value differs between runs and machines; sometimes it happens to be 0, which fools students.</li>
+    </ul>
+    <h4>Common student pitfalls</h4>
+    <ul>
+      <li><code>int num1, num2 = 100;</code> initializes <b>only</b> num2. num1 is still garbage.</li>
+      <li>Using a variable before its declaration line.</li>
+    </ul>
+    <h4>Ask the class</h4>
+    <ul>
+      <li>"What is printed if we delete line 6 (<code>myNum = 15;</code>)?" (Unpredictable garbage, plus a warning.)</li>
+    </ul>
+  </aside>
+</section>
+
+<!-- ========================= SLIDE 12 · DISPLAY (TRACER) ========================= -->
+<section class="slide" id="l3-display" data-title="Displaying Variables" data-section="Variables">
+  <header class="slide-head">
+    <p class="kicker">Lab 3 · Display variables</p>
+    <h2>One Variable of Each Type, Displayed with <code>&lt;&lt;</code></h2>
+    <p class="lede">To combine text and a variable, separate them with the <code>&lt;&lt;</code> operator.</p>
+  </header>
+  <div class="example-grid" style="grid-template-columns:minmax(0,1.2fr) minmax(0,1fr)">
+    <figure class="codeblock">
+      <figcaption><code>display.cpp</code></figcaption>
+<pre class="code" id="l3-display-code" data-cpp>
+#include &lt;iostream&gt;
+#include &lt;string&gt;
+using namespace std;
+
+int main() {
+    int myNum = 5;              // whole number
+    double myFloatNum = 5.99;   // with decimals
+    char myLetter = 'D';        // one character
+    string myText = "Hello";    // text
+    bool myBoolean = true;      // true or false
+
+    cout &lt;&lt; "myNum: " &lt;&lt; myNum &lt;&lt; endl;
+    cout &lt;&lt; "myFloatNum: " &lt;&lt; myFloatNum &lt;&lt; endl;
+    cout &lt;&lt; "myLetter: " &lt;&lt; myLetter &lt;&lt; endl;
+    cout &lt;&lt; "myText: " &lt;&lt; myText &lt;&lt; endl;
+    cout &lt;&lt; "myBoolean: " &lt;&lt; myBoolean &lt;&lt; endl;
+
+    int myAge = 35;
+    cout &lt;&lt; "I am " &lt;&lt; myAge &lt;&lt; " years old." &lt;&lt; endl;
+    return 0;
+}
+</pre>
+    </figure>
+    <div class="stack">
+      <div class="tracer" data-trace="l3-display" data-code="#l3-display-code"></div>
+      <div class="note-box"><p class="box-label">Surprise: <code>bool</code> prints as 1</p><p><code>cout</code> shows <code>true</code> as <code>1</code> and <code>false</code> as <code>0</code>. To print the words, send <code>boolalpha</code> first: <code>cout &lt;&lt; boolalpha &lt;&lt; myBoolean;</code> prints <code>true</code>.</p></div>
+    </div>
+  </div>
+  <aside class="notes">
+    <p class="note-time">Suggested time: about 7 min</p>
+    <h4>Teaching tips</h4>
+    <ul>
+      <li>The five declarations are your deck's example (slide 13) and the "I am 35 years old." line is from slide 14. The comments were shortened to fit the projector.</li>
+      <li>Press Play and point at the Memory panel as each variable appears. Note the quotes: <code>'D'</code> for a char, <code>"Hello"</code> for a string.</li>
+      <li>Real output for reference: <code>myNum: 5</code>, <code>myFloatNum: 5.99</code>, <code>myLetter: D</code>, <code>myText: Hello</code>, <code>myBoolean: 1</code>, <code>I am 35 years old.</code></li>
+      <li>Your deck notes mention <code>to_string</code>, <code>int()</code>, <code>float()</code>. Conversions belong with operators and type casting (Lab 4); preview only if asked: <code>to_string(35)</code> turns a number into the string <code>"35"</code>.</li>
+    </ul>
+    <h4>Common student pitfalls</h4>
+    <ul>
+      <li>Forgetting the spaces inside the text: <code>"I am" &lt;&lt; myAge</code> prints <code>I am35</code>.</li>
+      <li>Putting the variable in quotes: <code>"myAge"</code> prints the word myAge.</li>
+      <li>Joining with <code>+</code> instead of <code>&lt;&lt;</code>: <code>cout &lt;&lt; "I am " + myAge;</code> compiles <b>without a warning</b> but does pointer arithmetic on the text: it prints garbage (or crashes), never 35.</li>
+    </ul>
+    <h4>Ask the class</h4>
+    <ul>
+      <li>"How do we print <code>myLetter</code> inside single quotes, like <code>'D'</code>?" (<code>cout &lt;&lt; "'" &lt;&lt; myLetter &lt;&lt; "'";</code>, or use the escape <code>\'</code>.)</li>
+    </ul>
+  </aside>
+</section>
+
+<!-- ========================= SLIDE 13 · MEMORY ========================= -->
+<section class="slide" id="l3-memory" data-title="Variables in Memory" data-section="Variables">
+  <header class="slide-head">
+    <p class="kicker">Lab 3 · Memory allocation</p>
+    <h2>What a Declaration Does in Memory</h2>
+    <p class="lede">Each declaration reserves a block of bytes, sized by the data type. The name is how <b>you</b> refer to it; the address is how the <b>computer</b> finds it.</p>
+  </header>
+  <div class="grid-2 align-start" style="grid-template-columns:minmax(0,1.1fr) minmax(0,1fr)">
+    <figure class="card" style="margin:0">
+      <svg class="fc" viewBox="0 0 500 352" role="img" aria-label="Memory diagram, one row per byte with example addresses 1000 to 1013. myNum, an int, uses 4 bytes holding 5. myFloatNum, a double, uses the next 8 bytes holding 5.99. myLetter, a char, uses 1 byte holding D. myBoolean, a bool, uses 1 byte holding true.">
+        <text class="fc-label" x="86" y="14" style="text-anchor:end">address</text>
+        <text class="fc-label" x="180" y="14">memory (1 row = 1 byte)</text>
+        <rect class="s-process" x="100" y="30" width="160" height="88" rx="4"/>
+        <rect class="s-io" x="100" y="118" width="160" height="176" rx="4"/>
+        <rect class="s-decision" x="100" y="294" width="160" height="22" rx="3"/>
+        <rect class="s-terminal" x="100" y="316" width="160" height="22" rx="3"/>
+        <path class="fc-line plain dashed" d="M100 52 H260 M100 74 H260 M100 96 H260 M100 140 H260 M100 162 H260 M100 184 H260 M100 206 H260 M100 228 H260 M100 250 H260 M100 272 H260" style="stroke-width:1"/>
+        <text x="180" y="74" style="font-family:var(--font-mono);font-size:22px">5</text>
+        <text x="180" y="206" style="font-family:var(--font-mono);font-size:22px">5.99</text>
+        <text x="180" y="305" style="font-family:var(--font-mono);font-size:14px">'D'</text>
+        <text x="180" y="327" style="font-family:var(--font-mono);font-size:14px">true</text>
+        <g style="font-family:var(--font-mono)">
+          <text class="fc-label" x="86" y="41" style="text-anchor:end">1000</text><text class="fc-label" x="86" y="63" style="text-anchor:end">1001</text><text class="fc-label" x="86" y="85" style="text-anchor:end">1002</text><text class="fc-label" x="86" y="107" style="text-anchor:end">1003</text>
+          <text class="fc-label" x="86" y="129" style="text-anchor:end">1004</text><text class="fc-label" x="86" y="151" style="text-anchor:end">1005</text><text class="fc-label" x="86" y="173" style="text-anchor:end">1006</text><text class="fc-label" x="86" y="195" style="text-anchor:end">1007</text>
+          <text class="fc-label" x="86" y="217" style="text-anchor:end">1008</text><text class="fc-label" x="86" y="239" style="text-anchor:end">1009</text><text class="fc-label" x="86" y="261" style="text-anchor:end">1010</text><text class="fc-label" x="86" y="283" style="text-anchor:end">1011</text>
+          <text class="fc-label" x="86" y="305" style="text-anchor:end">1012</text><text class="fc-label" x="86" y="327" style="text-anchor:end">1013</text>
+        </g>
+        <path class="fc-line plain" d="M268 32 H278 V116 H268 M268 120 H278 V292 H268 M268 305 H282 M268 327 H282"/>
+        <text class="a-start" x="290" y="64">myNum</text><text class="fc-label a-start" x="290" y="86">int · 4 bytes</text>
+        <text class="a-start" x="290" y="196">myFloatNum</text><text class="fc-label a-start" x="290" y="218">double · 8 bytes</text>
+        <text class="a-start" x="290" y="305" style="font-size:13px">myLetter · char · 1 byte</text>
+        <text class="a-start" x="290" y="327" style="font-size:13px">myBoolean · bool · 1 byte</text>
+      </svg>
+      <p class="small muted" style="margin-top:.4rem">Addresses are examples. The real addresses (and any gaps between variables) are chosen by the compiler and change from run to run.</p>
+    </figure>
+    <div class="stack">
+      <div class="concept"><p class="box-label">Every variable has four things</p>
+        <ul>
+          <li><b>Name</b>: <code>myNum</code>, for humans.</li>
+          <li><b>Type</b>: <code>int</code>, which fixes the size (4 bytes) and how the bits are read.</li>
+          <li><b>Value</b>: <code>5</code>, the current contents.</li>
+          <li><b>Address</b>: where those bytes start in memory.</li>
+        </ul>
+      </div>
+      <div class="note-box"><p class="box-label">Where is myText?</p><p>A <code>string</code> is an object that keeps its characters in a separate, resizable block of memory, so it can grow as text is added.</p></div>
+      <div class="card soft"><h3 class="card-title">Memory budget</h3><p>These four variables use 4 + 8 + 1 + 1 = <b>14 bytes</b>. Tiny on a laptop with 8 GB, but it matters on a microcontroller with 2 KB.</p></div>
+    </div>
+  </div>
+  <aside class="notes">
+    <p class="note-time">Suggested time: about 5 min</p>
+    <h4>Teaching tips</h4>
+    <ul>
+      <li>This slide addresses ILO 2, "memory allocation concepts". Keep it concrete: one row = one byte, a declaration claims a block of rows.</li>
+      <li>Students will print real addresses with <code>&amp;myNum</code> in Lab 10 (References and Pointers). Today, just plant the idea that every variable has an address.</li>
+      <li>In real programs the compiler may leave gaps (alignment) and may order variables differently. The diagram simplifies on purpose.</li>
+    </ul>
+    <h4>Common student pitfalls</h4>
+    <ul>
+      <li>Thinking the variable <em>name</em> is stored in memory at run time. Only the value is; names are for the compiler and for you.</li>
+      <li>Thinking a <code>double</code> holding 5 uses less memory than one holding 5.99. Same type, same 8 bytes.</li>
+    </ul>
+    <h4>Ask the class</h4>
+    <ul>
+      <li>"If we add <code>long long big = 0;</code>, how many more rows?" (8.)</li>
+    </ul>
+  </aside>
+</section>
+
+<!-- ========================= SLIDE 14 · CONSTANTS ========================= -->
+<section class="slide" id="l3-const" data-title="Constants with const" data-section="Constants &amp; Strings">
+  <header class="slide-head">
+    <p class="kicker">Lab 3 · Constants</p>
+    <h2>Constants: Values That Never Change</h2>
+    <p class="lede">Constants store fixed data that remains the same for the whole run of the program. Add <code>const</code> before the type.</p>
+  </header>
+  <p class="syntax">Syntax: const <i>data_type</i> <i>constant_name</i> = <i>value_of_constant</i>;</p>
+  <div class="grid-2 align-start" style="margin-top:1rem;grid-template-columns:minmax(0,1.25fr) minmax(0,1fr)">
+    <div class="stack">
+      <figure class="codeblock">
+        <figcaption><code>constants.cpp</code></figcaption>
+<pre class="code" data-cpp>
+#include &lt;iostream&gt;
+#include &lt;string&gt;
+using namespace std;
+
+int main() {
+    const float PI = 3.14;
+    const string myname = "Ana";
+    const int housenumber = 1234;
+
+    float radius = 2.5;
+    float area = PI * radius * radius;
+    cout &lt;&lt; myname &lt;&lt; " lives at house no. "
+         &lt;&lt; housenumber &lt;&lt; endl;
+    cout &lt;&lt; "Circle area = " &lt;&lt; area &lt;&lt; endl;
+    return 0;
+}
+</pre>
+      </figure>
+<pre class="console">Ana lives at house no. 1234
+Circle area = 19.625</pre>
+    </div>
+    <div class="stack">
+      <div class="pitfall"><p class="box-label">Try to change one…</p>
+<pre class="code bad-code no-ln" data-cpp data-nocheck>
+const float PI = 3.14;
+PI = 3.1416;    // not allowed!
+</pre>
+        <p style="margin-top:.5rem">…and the program will not compile:</p>
+<pre class="console">error: assignment of read-only variable 'PI'</pre>
+      </div>
+      <div class="concept"><p class="box-label">Why use constants?</p><ul><li><b>Safety</b>: the compiler stops accidental changes.</li><li><b>Readability</b>: <code>PI</code> says more than <code>3.14</code>.</li><li><b>One place to edit</b>: change the value once, everywhere updates.</li><li>A <code>const</code> <b>must</b> get its value when declared.</li></ul></div>
+    </div>
+  </div>
+  <aside class="notes">
+    <p class="note-time">Suggested time: about 6 min</p>
+    <h4>Teaching tips</h4>
+    <ul>
+      <li>The three declarations are exactly your deck's examples. Many style guides would write the last two as <code>MY_NAME</code> and <code>HOUSE_NUMBER</code>; point out that UPPER_CASE makes constants easy to spot (our naming slide).</li>
+      <li>The error text is g++'s; Codechum shows the same kind of message with a line number.</li>
+      <li>Engineering constants make great examples: <code>const double GRAVITY = 9.81;</code> (m/s²), <code>const double METERS_PER_MILE = 1609.34;</code>. The second one is useful in Lab Activity 3.</li>
+      <li>Optional: 19.625 prints exactly because 3.14 × 6.25 rounds cleanly in 6 significant digits.</li>
+    </ul>
+    <h4>Common student pitfalls</h4>
+    <ul>
+      <li><code>const int MAX;</code> with no value: compile error ("uninitialized const").</li>
+      <li>Thinking <code>const</code> makes a program faster. Its main benefit is safety and readability.</li>
+    </ul>
+    <h4>Ask the class</h4>
+    <ul>
+      <li>"Which values in a Meralco bill calculator should be constants?" (The rate per kWh, fixed charges, VAT rate.)</li>
+    </ul>
+  </aside>
+</section>
+
+<!-- ========================= SLIDE 15 · STRINGS ========================= -->
+<section class="slide" id="l3-strings" data-title="Declaring & Initializing Strings" data-section="Constants &amp; Strings">
+  <header class="slide-head">
+    <p class="kicker">Lab 3 · Strings</p>
+    <h2>Strings: Storing Text</h2>
+    <p class="lede">A <code>string</code> variable contains a collection of characters surrounded by double quotes. Add <code>#include &lt;string&gt;</code>.</p>
+  </header>
+  <div class="grid-2 align-start">
+    <div class="stack">
+      <div class="table-wrap">
+        <table class="table compact">
+          <thead><tr><th scope="col">Form</th><th scope="col">Code (from the deck)</th></tr></thead>
+          <tbody>
+            <tr><th scope="row">String object</th><td><code>string str;</code></td></tr>
+            <tr><th scope="row">Declaration</th><td><code>string mystring;</code></td></tr>
+            <tr><th scope="row">Initialization</th><td><code>mystring = "This is a string example";</code></td></tr>
+            <tr><th scope="row">Declaration + initialization</th><td><code>string mystring = "This is a string example.";</code></td></tr>
+            <tr><th scope="row">Constructor form</th><td><code>string mystr("This is also a string example");</code></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="pitfall"><p class="box-label">Watch the quotes</p><ul><li>Straight quotes only: <code>"text"</code>, not curly <code>“text”</code> pasted from Word or a PDF.</li><li>A string declared with no value is <b>empty</b> (<code>""</code>), not garbage.</li></ul></div>
+    </div>
+    <div class="stack">
+      <figure class="codeblock">
+        <figcaption><code>strings.cpp</code></figcaption>
+<pre class="code" data-cpp>
+#include &lt;iostream&gt;
+#include &lt;string&gt;
+using namespace std;
+
+int main() {
+    string mystring;
+    mystring = "This is a string example";
+    string mystring2 = "This is a string example.";
+    string mystr("This is also a string example");
+
+    cout &lt;&lt; mystring &lt;&lt; endl;
+    cout &lt;&lt; mystring2 &lt;&lt; endl;
+    cout &lt;&lt; mystr &lt;&lt; endl;
+    return 0;
+}
+</pre>
+      </figure>
+<pre class="console">This is a string example
+This is a string example.
+This is also a string example</pre>
+    </div>
+  </div>
+  <aside class="notes">
+    <p class="note-time">Suggested time: about 5 min</p>
+    <h4>Teaching tips</h4>
+    <ul>
+      <li>All forms in the table are from your deck (slides 16–17). In the program, the second declaration is renamed <code>mystring2</code> because a name can only be declared once per block.</li>
+      <li>Unlike <code>int</code>, a <code>string</code> always starts in a known state: empty. That's because <code>string</code> is a class that initializes itself (classes are Lab 12).</li>
+      <li>Some compilers let programs use <code>string</code> without <code>#include &lt;string&gt;</code> because <code>&lt;iostream&gt;</code> happens to include it. Don't rely on that: always include it.</li>
+      <li>Your deck typed the examples with curly quotes (a PowerPoint auto-format). Copying them into Codechum gives a "stray '\342' in program" error; good to demonstrate once.</li>
+    </ul>
+    <h4>Common student pitfalls</h4>
+    <ul>
+      <li>Declaring <code>string mystring</code> twice in one program ("redeclaration" error).</li>
+      <li>Using single quotes: <code>string s = 'Hi';</code> does not work.</li>
+    </ul>
+    <h4>Ask the class</h4>
+    <ul>
+      <li>"Which type would you use for a resistor color code like <code>"brown-black-red"</code>? For one band's letter code like <code>'R'</code>?"</li>
+    </ul>
+  </aside>
+</section>
+
+<!-- ========================= SLIDE 16 · ESCAPE SEQUENCES ========================= -->
+<section class="slide" id="l3-escape" data-title="Escape Sequences" data-section="Constants &amp; Strings">
+  <header class="slide-head">
+    <p class="kicker">Lab 3 · Escape codes for strings</p>
+    <h2>Escape Sequences: Special Characters in Text</h2>
+    <p class="lede">A backslash <code>\</code> inside quotes starts an escape code for a character you can't type directly.</p>
+  </header>
+  <div class="grid-2 align-start" style="grid-template-columns:minmax(0,.85fr) minmax(0,1.15fr)">
+    <div class="table-wrap">
+      <table class="table compact">
+        <thead><tr><th scope="col">Code</th><th scope="col">Meaning</th></tr></thead>
+        <tbody>
+          <tr><td><code>\n</code></td><td>new line</td></tr>
+          <tr><td><code>\r</code></td><td>carriage return (back to line start)</td></tr>
+          <tr><td><code>\t</code></td><td>horizontal tab</td></tr>
+          <tr><td><code>\v</code></td><td>vertical tab</td></tr>
+          <tr><td><code>\b</code></td><td>backspace</td></tr>
+          <tr><td><code>\f</code></td><td>form feed (page feed)</td></tr>
+          <tr><td><code>\a</code></td><td>alert (beep)</td></tr>
+          <tr><td><code>\'</code></td><td>single quote <code>'</code></td></tr>
+          <tr><td><code>\"</code></td><td>double quote <code>"</code></td></tr>
+          <tr><td><code>\?</code></td><td>question mark <code>?</code></td></tr>
+          <tr><td><code>\\</code></td><td>backslash <code>\</code></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="stack">
+      <figure class="codeblock">
+        <figcaption><code>escapes.cpp</code></figcaption>
+<pre class="code" data-cpp>
+#include &lt;iostream&gt;
+using namespace std;
+
+int main() {
+    cout &lt;&lt; "Name\tScore" &lt;&lt; endl;
+    cout &lt;&lt; "Ana\t95" &lt;&lt; endl;
+    cout &lt;&lt; "She said \"Hi!\"" &lt;&lt; endl;
+    cout &lt;&lt; "It\'s C++" &lt;&lt; endl;
+    cout &lt;&lt; "Path: C:\\Codes\\lab3.cpp" &lt;&lt; endl;
+    cout &lt;&lt; "Line 1\nLine 2" &lt;&lt; endl;
+    return 0;
+}
+</pre>
+      </figure>
+<pre class="console">Name    Score
+Ana     95
+She said "Hi!"
+It's C++
+Path: C:\Codes\lab3.cpp
+Line 1
+Line 2</pre>
+      <p class="small muted"><code>\t</code> jumps to the next tab stop (every 8 columns in most consoles). <code>\r</code>, <code>\v</code>, <code>\b</code>, <code>\f</code>, and <code>\a</code> depend on the terminal; online compilers often ignore them.</p>
+    </div>
+  </div>
+  <aside class="notes">
+    <p class="note-time">Suggested time: about 5 min</p>
+    <h4>Teaching tips</h4>
+    <ul>
+      <li>The table is your deck's escape-code table. Focus on the five students will actually use: <code>\n</code>, <code>\t</code>, <code>\"</code>, <code>\'</code>, <code>\\</code>.</li>
+      <li>Inside double quotes, <code>'</code> works without escaping (<code>"It's"</code>); <code>\'</code> is needed inside single quotes: <code>char q = '\'';</code>.</li>
+      <li><code>\?</code> exists for historical reasons (trigraphs); a plain <code>?</code> works fine in modern C++.</li>
+      <li>Windows paths are the classic <code>\\</code> example: <code>"C:\new"</code> would contain a newline!</li>
+    </ul>
+    <h4>Common student pitfalls</h4>
+    <ul>
+      <li>Using <code>/</code> instead of <code>\</code> (<code>/n</code>, <code>/t</code> print literally).</li>
+      <li>Expecting <code>\t</code> to align columns perfectly: a label of 8+ characters jumps to the next tab stop.</li>
+    </ul>
+    <h4>Ask the class</h4>
+    <ul>
+      <li>"Write one cout that prints: <code>He said "PASS" \o/</code>" (<code>cout &lt;&lt; "He said \"PASS\" \\o/";</code>)</li>
+    </ul>
+  </aside>
+</section>
+
+<!-- ========================= SLIDE 17 · STRING FUNCTIONS ========================= -->
+<section class="slide" id="l3-strfunc" data-title="String Functions" data-section="Constants &amp; Strings">
+  <header class="slide-head">
+    <p class="kicker">Lab 3 · String functions</p>
+    <h2>Working with Strings: <code>+</code>, <code>append()</code>, <code>length()</code>, <code>[ ]</code></h2>
+  </header>
+  <div class="code-pair">
+    <figure class="codeblock">
+      <figcaption><code>string_tools.cpp</code></figcaption>
+<pre class="code" data-cpp>
+#include &lt;iostream&gt;
+#include &lt;string&gt;
+using namespace std;
+
+int main() {
+    string part1 = "Bulacan";
+    string part2 = "State";
+    string school = part1 + " " + part2;  // join with +
+    school.append(" University");         // add to the end
+
+    cout &lt;&lt; school &lt;&lt; endl;
+    cout &lt;&lt; "Length: " &lt;&lt; school.length() &lt;&lt; endl;
+    cout &lt;&lt; "Size:   " &lt;&lt; school.size() &lt;&lt; endl;
+    cout &lt;&lt; "First letter: " &lt;&lt; school[0] &lt;&lt; endl;
+    int lastIndex = school.length() - 1;
+    cout &lt;&lt; "Last letter:  " &lt;&lt; school[lastIndex] &lt;&lt; endl;
+
+    string word = "Hello";
+    word[0] = 'J';                        // change a char
+    cout &lt;&lt; word &lt;&lt; endl;
+    return 0;
+}
+</pre>
+    </figure>
+    <div class="stack">
+      <figure class="codeblock">
+        <figcaption>Output</figcaption>
+<pre class="console">Bulacan State University
+Length: 24
+Size:   24
+First letter: B
+Last letter:  y
+Jello</pre>
+      </figure>
+      <div class="card">
+        <h3 class="card-title">Indexes start at 0</h3>
+        <div class="mem array" aria-label="The string Hello with indexes 0 to 4">
+          <div class="mem-cell"><span class="mem-name">[0]</span><span class="mem-val">H</span></div>
+          <div class="mem-cell"><span class="mem-name">[1]</span><span class="mem-val">e</span></div>
+          <div class="mem-cell"><span class="mem-name">[2]</span><span class="mem-val">l</span></div>
+          <div class="mem-cell"><span class="mem-name">[3]</span><span class="mem-val">l</span></div>
+          <div class="mem-cell"><span class="mem-name">[4]</span><span class="mem-val">o</span></div>
+        </div>
+        <p class="small" style="margin-top:.5rem"><code>"Hello"</code> has length 5, so the last index is <b>4</b> (length − 1).</p>
+      </div>
+    </div>
+  </div>
+  <aside class="notes">
+    <p class="note-time">Suggested time: about 7 min</p>
+    <h4>Teaching tips</h4>
+    <ul>
+      <li>This covers your deck's list: concatenation with <code>+</code>, <code>append()</code>, <code>length()</code>, <code>size()</code> (an alias of length), access with <code>[]</code>, and changing characters. <code>cin</code> and <code>getline</code> are the next two slides.</li>
+      <li>Count the length together: "Bulacan State University" is 7 + 1 + 5 + 1 + 10 = 24. Spaces count!</li>
+      <li><code>school[0]</code> is a <code>char</code>, so it is assigned with single quotes: <code>word[0] = 'J';</code>.</li>
+    </ul>
+    <h4>Common student pitfalls</h4>
+    <ul>
+      <li>Using index <code>length()</code> as the last character. The last one is at <code>length() - 1</code>; index <code>length()</code> is past the text (only a hidden <code>'\0'</code>), and anything further is undefined behavior. <code>.at(i)</code> reports an error instead.</li>
+      <li><code>"Bulacan" + " State"</code> (two literals) does not compile; at least one side of <code>+</code> must be a <code>string</code> variable.</li>
+      <li>Writing <code>school.length</code> without parentheses.</li>
+    </ul>
+    <h4>Ask the class</h4>
+    <ul>
+      <li>"What does <code>school[8]</code> hold?" (<code>S</code>: B0 u1 l2 a3 c4 a5 n6 space7 S8.)</li>
+    </ul>
+  </aside>
+</section>
+
+<!-- ========================= SLIDE 18 · CIN vs GETLINE ========================= -->
+<section class="slide" id="l3-getline" data-title="cin vs getline" data-section="Constants &amp; Strings">
+  <header class="slide-head">
+    <p class="kicker">Lab 3 · User input for strings</p>
+    <h2>Reading Text: <code>cin &gt;&gt;</code> vs <code>getline</code></h2>
+    <p class="lede"><code>cin &gt;&gt;</code> stops at the first space. <code>getline</code> reads the whole line.</p>
+  </header>
+  <div class="grid-2 align-start">
+    <div class="compare bad">
+      <p class="compare-label"><code>cin &gt;&gt; course;</code> reads one word</p>
+<pre class="code compact" data-cpp data-stdin="BS Computer Engineering">
+#include &lt;iostream&gt;
+#include &lt;string&gt;
+using namespace std;
+
+int main() {
+    string course;
+    cout &lt;&lt; "Enter your course: ";
+    cin &gt;&gt; course;
+    cout &lt;&lt; "cin read: " &lt;&lt; course &lt;&lt; endl;
+    return 0;
+}
+</pre>
+<pre class="console" style="margin-top:.6rem">Enter your course: <span class="in">BS Computer Engineering</span>
+cin read: BS</pre>
+    </div>
+    <div class="compare good">
+      <p class="compare-label"><code>getline(cin, course);</code> reads the whole line</p>
+<pre class="code compact" data-cpp data-stdin="BS Computer Engineering">
+#include &lt;iostream&gt;
+#include &lt;string&gt;
+using namespace std;
+
+int main() {
+    string course;
+    cout &lt;&lt; "Enter your course: ";
+    getline(cin, course);
+    cout &lt;&lt; "getline read: " &lt;&lt; course &lt;&lt; endl;
+    return 0;
+}
+</pre>
+<pre class="console" style="margin-top:.6rem">Enter your course: <span class="in">BS Computer Engineering</span>
+getline read: BS Computer Engineering</pre>
+    </div>
+  </div>
+  <div class="grid-2 align-start" style="margin-top:1rem">
+    <div class="concept"><p class="box-label">Rule</p><p>Use <code>cin &gt;&gt;</code> for numbers and single words. Use <code>getline(cin, stringname);</code> for names, addresses, sentences: anything that may contain spaces.</p></div>
+    <div class="note-box"><p class="box-label">Where did "Computer Engineering" go?</p><p>It is still waiting in the input. The <b>next</b> <code>cin &gt;&gt;</code> would read <code>Computer</code> without letting the user type.</p></div>
+  </div>
+  <aside class="notes">
+    <p class="note-time">Suggested time: about 5 min</p>
+    <h4>Teaching tips</h4>
+    <ul>
+      <li>From your deck: "User input string using cin" and "User input string using getline(cin, stringname)". Run both live with a two-word input.</li>
+      <li><code>cin &gt;&gt;</code> skips leading spaces and stops at the next space, tab, or Enter. <code>getline</code> reads everything up to Enter and throws the Enter away.</li>
+      <li>Lab Activity 3 asks for a nickname such as <code>Maria Ana</code>: students must decide which of these two they need.</li>
+    </ul>
+    <h4>Common student pitfalls</h4>
+    <ul>
+      <li>Writing <code>getline(course);</code> or <code>cin.getline(course);</code> with a <code>string</code>. The form for strings is <code>getline(cin, course);</code>.</li>
+      <li>Forgetting <code>#include &lt;string&gt;</code>.</li>
+    </ul>
+    <h4>Ask the class</h4>
+    <ul>
+      <li>"Which one would you use for a Philippine address like <code>123 Rizal St., Malolos</code>?"</li>
+    </ul>
+  </aside>
+</section>
+
+<!-- ========================= SLIDE 19 · LEFTOVER NEWLINE ========================= -->
+<section class="slide" id="l3-ignore" data-title="The cin + getline Pitfall" data-section="Constants &amp; Strings">
+  <header class="slide-head">
+    <p class="kicker">Lab 3 · A famous bug</p>
+    <h2>The Leftover Enter: <code>cin &gt;&gt;</code> Followed by <code>getline</code></h2>
+    <p class="lede">After <code>cin &gt;&gt; age;</code> the Enter key (<code>'\n'</code>) stays in the input. A following <code>getline</code> reads that empty line and doesn't wait.</p>
+  </header>
+  <div class="grid-2 align-start">
+    <div class="compare bad">
+      <p class="compare-label">Bug: the city is never asked</p>
+<pre class="code compact" data-cpp data-stdin="18&#10;Malolos City">
+#include &lt;iostream&gt;
+#include &lt;string&gt;
+using namespace std;
+
+int main() {
+    int age;
+    string city;
+    cout &lt;&lt; "Enter your age: ";
+    cin &gt;&gt; age;
+    cout &lt;&lt; "Enter your city: ";
+    getline(cin, city);
+    cout &lt;&lt; "City: [" &lt;&lt; city &lt;&lt; "]" &lt;&lt; endl;
+    return 0;
+}
+</pre>
+<pre class="console" style="margin-top:.6rem">Enter your age: <span class="in">18</span>
+Enter your city: City: []</pre>
+    </div>
+    <div class="compare good">
+      <p class="compare-label">Fix: throw away the leftover Enter</p>
+<pre class="code compact" data-cpp data-stdin="18&#10;Malolos City">
+#include &lt;iostream&gt;
+#include &lt;string&gt;
+using namespace std;
+
+int main() {
+    int age;
+    string city;
+    cout &lt;&lt; "Enter your age: ";
+    cin &gt;&gt; age;
+    cin.ignore(1000, '\n');  // drop the Enter
+    cout &lt;&lt; "Enter your city: ";
+    getline(cin, city);
+    cout &lt;&lt; "City: [" &lt;&lt; city &lt;&lt; "]" &lt;&lt; endl;
+    return 0;
+}
+</pre>
+<pre class="console" style="margin-top:.6rem">Enter your age: <span class="in">18</span>
+Enter your city: <span class="in">Malolos City</span>
+City: [Malolos City]</pre>
+    </div>
+  </div>
+  <aside class="notes">
+    <p class="note-time">Suggested time: about 6 min</p>
+    <h4>Teaching tips</h4>
+    <ul>
+      <li>Run the buggy version live: the program prints the city prompt and finishes immediately. The brackets in <code>City: []</code> make the empty string visible. Ask students what they think happened before explaining.</li>
+      <li>Draw the input buffer on the board: <code>1</code> <code>8</code> <code>\n</code>. <code>cin &gt;&gt; age</code> takes 1 and 8 and leaves <code>\n</code>; <code>getline</code> sees <code>\n</code> first and returns an empty string.</li>
+      <li><code>cin.ignore(1000, '\n')</code> means "discard up to 1000 characters, or until a newline is discarded". The fully general form uses <code>numeric_limits&lt;streamsize&gt;::max()</code>; 1000 is plenty for keyboard input. Another fix is <code>getline(cin &gt;&gt; ws, city);</code> (skip leading whitespace).</li>
+      <li>Simplest prevention: read all <code>getline</code> inputs <b>before</b> any <code>cin &gt;&gt;</code>, as in today's seatwork.</li>
+    </ul>
+    <h4>Common student pitfalls</h4>
+    <ul>
+      <li>Putting <code>cin.ignore()</code> <b>before</b> the first <code>getline</code> at the start of the program, which eats the first character the user types.</li>
+      <li>Adding <code>cin.ignore()</code> after every input "just in case".</li>
+    </ul>
+    <h4>Ask the class</h4>
+    <ul>
+      <li>"Does the bug happen if we swap the order (city first with getline, then age with cin)?" (No. getline consumes its own Enter.)</li>
+    </ul>
+  </aside>
+</section>
+
+<!-- ========================= SLIDE 20 · REVERSE CHALLENGE (TRACER) ========================= -->
+<section class="slide" id="l3-reverse" data-title="Example: Reverse a Phrase" data-section="Constants &amp; Strings">
+  <header class="slide-head">
+    <p class="kicker">Lab 3 · Example challenge</p>
+    <h2>The ₱200k/month Challenge: Reverse a Phrase</h2>
+  </header>
+  <div class="grid-2 align-start" style="grid-template-columns:minmax(0,1.15fr) minmax(0,1fr)">
+    <div class="story" style="margin:0">
+      <p><q>Hello, and thank you for participating in our test. We are looking for individuals who would be interested in becoming professional programmers. The starting salary would be around ₱200k/month. But we will only accept those who pass this test. We will be giving you a phrase and all you need to do is to reverse it. The person with the fastest time will be hired on the spot! Are you up for the challenge?</q></p>
+    </div>
+    <div class="samples" style="grid-template-columns:minmax(0,1fr)">
+      <figure class="sample"><figcaption>Sample Output 1</figcaption><pre class="console">Enter the phrase: <span class="in">this is a sample problem</span>
+melborp elpmas a si siht</pre></figure>
+      <figure class="sample"><figcaption>Sample Output 2</figcaption><pre class="console">Enter the phrase: <span class="in">i love programming</span>
+gnimmargorp evol i</pre></figure>
+    </div>
+  </div>
+  <details class="answer">
+    <summary><span>Reveal a worked solution</span></summary>
+    <div class="example-grid" style="margin-top:1rem">
+      <div class="stack">
+<pre class="code" id="l3-reverse-code" data-cpp data-stdin="i love programming">
+#include &lt;iostream&gt;
+#include &lt;string&gt;
+using namespace std;
+
+int main() {
+    string phrase;
+    string reversed = "";
+    cout &lt;&lt; "Enter the phrase: ";
+    getline(cin, phrase);
+
+    // start at the last index, walk back to index 0
+    for (int i = phrase.length() - 1; i &gt;= 0; i--) {
+        reversed = reversed + phrase[i];
+    }
+    cout &lt;&lt; reversed &lt;&lt; endl;
+    return 0;
+}
+</pre>
+        <div class="note-box"><p class="box-label">Preview of Lab 7</p><p>The <code>for</code> loop repeats line 13 once per character, with <code>i</code> counting <b>down</b> from the last index (length − 1) to 0. You'll learn loops properly in Lab 7.</p></div>
+      </div>
+      <div class="tracer" data-trace="l3-reverse" data-code="#l3-reverse-code" data-speed="250">
+        <div class="tracer-inputs">
+          <label>phrase <input type="text" data-var="phrase" data-type="text" value="i love programming" style="width:13rem"></label>
+        </div>
+      </div>
+    </div>
+  </details>
+  <aside class="notes">
+    <p class="note-time">Suggested time: about 10 min</p>
+    <h4>Teaching tips</h4>
+    <ul>
+      <li>The story and both sample outputs are from your deck's Example slide. Give students 3–4 minutes to think (or pseudocode) before revealing.</li>
+      <li>The solution uses only today's tools (getline, length, <code>[]</code>, concatenation) plus one <code>for</code> loop, labeled as a preview. Read the loop aloud: "start i at the last index; while i is at least 0; after each round, subtract 1".</li>
+      <li>Set the tracer to Fast and watch <code>reversed</code> grow one character at a time in the Memory panel.</li>
+      <li>Alternative for strong students: <code>#include &lt;algorithm&gt;</code> and <code>reverse(phrase.begin(), phrase.end());</code>. It works, but the hiring test is about understanding indexes.</li>
+    </ul>
+    <h4>Common student pitfalls</h4>
+    <ul>
+      <li>Starting at <code>i = phrase.length()</code>: one past the last character.</li>
+      <li>Using <code>cin &gt;&gt; phrase</code>, which reverses only the first word (<code>siht</code>).</li>
+      <li>Using <code>i &gt; 0</code>, which skips the first character.</li>
+    </ul>
+    <h4>Ask the class</h4>
+    <ul>
+      <li>"How would you print the phrase in UPPERCASE?" (Teaser: <code>toupper</code>, later.) "How would you check if a word is a palindrome, like <code>racecar</code>?"</li>
+    </ul>
+  </aside>
+</section>
+
+<!-- ========================= SLIDE 21 · QUICK CHECK ========================= -->
+<section class="slide" id="l3-quick-check" data-title="Quick Check" data-section="Practice &amp; Lab">
+  <header class="slide-head">
+    <p class="kicker">Lab 3 · Quick check</p>
+    <h2>Quick Check</h2>
+    <p class="lede">Answer in your head first, then click to reveal.</p>
+  </header>
+  <div class="qa-grid">
+    <details class="qa"><summary><span class="q-num">1</span><span class="q-text">How many bytes does an <code>int</code> use on Codechum or g++?</span></summary><p><b>4 bytes</b> (32 bits). Old 16-bit compilers used 2. Check any compiler with <code>sizeof(int)</code>.</p></details>
+    <details class="qa"><summary><span class="q-num">2</span><span class="q-text">Which type stores <code>98.6</code> most accurately: <code>int</code>, <code>float</code>, or <code>double</code>?</span></summary><p><code>double</code> (about 15 significant digits). <code>int</code> would drop the decimals.</p></details>
+    <details class="qa"><summary><span class="q-num">3</span><span class="q-text">What does <code>bool ok = true; cout &lt;&lt; ok;</code> print?</span></summary><p><code>1</code>. Use <code>cout &lt;&lt; boolalpha &lt;&lt; ok;</code> to print <code>true</code>.</p></details>
+    <details class="qa"><summary><span class="q-num">4</span><span class="q-text">For <code>string s = "CpE 104";</code> what are <code>s[1]</code> and <code>s.length()</code>?</span></summary><p><code>s[1]</code> is <code>'p'</code> (indexes start at 0). <code>s.length()</code> is 7: the space counts.</p></details>
+    <details class="qa"><summary><span class="q-num">5</span><span class="q-text">What happens with <code>const int MAX = 5;</code> then <code>MAX = 6;</code>?</span></summary><p>A <b>compile error</b>: assignment of read-only variable 'MAX'. Constants can't change.</p></details>
+    <details class="qa"><summary><span class="q-num">6</span><span class="q-text">Why might <code>getline</code> return an empty string right after <code>cin &gt;&gt; age;</code>?</span></summary><p>The Enter after the age is still in the input. Use <code>cin.ignore(1000, '\n');</code> before the <code>getline</code>.</p></details>
+  </div>
+  <aside class="notes">
+    <p class="note-time">Suggested time: about 5 min</p>
+    <h4>Teaching tips</h4>
+    <ul>
+      <li>Ask students to write answers on scratch paper first, then reveal one at a time.</li>
+      <li>Q4 and Q6 are the ones Lab Activity 3 depends on; spend extra time if many miss them.</li>
+    </ul>
+    <h4>Common student pitfalls</h4>
+    <ul>
+      <li>Q4: answering <code>'C'</code> (counting from 1) or 6 (ignoring the space).</li>
+    </ul>
+    <h4>Ask the class</h4>
+    <ul>
+      <li>Bonus: "Is <code>my_Var2</code> a valid identifier?" (Yes.)</li>
+    </ul>
+  </aside>
+</section>
+
+<!-- ========================= SLIDE 22 · SEATWORK ========================= -->
+<section class="slide" id="l3-seatwork" data-title="Seatwork: Engineering ID Card" data-section="Practice &amp; Lab">
+  <header class="slide-head">
+    <p class="kicker">Lab 3 · Seatwork</p>
+    <h2>Seatwork: Engineering ID Card</h2>
+    <p class="lede">Write a program that asks for the user's <b>full name</b> (may contain spaces), <b>age</b> (whole number), and <b>height in meters</b>, then prints an ID card.</p>
+  </header>
+  <div class="grid-2 align-start">
+    <div class="stack">
+      <div class="practice"><p class="box-label">Your card must</p>
+        <ol>
+          <li>Show the school name from a <code>const string</code> in a header line.</li>
+          <li>Show the name inside double quotes (use <code>\"</code>).</li>
+          <li>Show the first letter of the name and the number of characters.</li>
+          <li>Line up the labels with <code>\t</code>.</li>
+        </ol>
+      </div>
+      <figure class="codeblock"><figcaption>Expected output</figcaption>
+<pre class="console">Enter your full name: <span class="in">Alex Santos</span>
+Enter your age: <span class="in">18</span>
+Enter your height in meters: <span class="in">1.68</span>
+
+*** BulSU College of Engineering ***
+Name:   "Alex Santos"
+Init:   A
+Length: 11 characters
+Age:    18
+Height: 1.68 m</pre>
+      </figure>
+    </div>
+    <div class="stack">
+      <div class="card">
+        <h3 class="card-title">Need a hint?</h3>
+        <details class="hint"><summary>Hint 1</summary><p>Pick a type for each value: name → <code>string</code>, age → <code>int</code>, height → <code>double</code>.</p></details>
+        <details class="hint"><summary>Hint 2</summary><p>Read the name <b>first</b> with <code>getline(cin, fullName);</code> Then <code>cin &gt;&gt;</code> the numbers. That order avoids the leftover-Enter bug.</p></details>
+        <details class="hint"><summary>Hint 3</summary><p>First letter: <code>fullName[0]</code>. Number of characters: <code>fullName.length()</code>.</p></details>
+      </div>
+      <div class="card timer" data-timer data-minutes="15">
+        <p class="timer-display" style="margin-top:0">15:00</p>
+        <div class="timer-presets" role="group" aria-label="Timer presets">
+          <button type="button" class="btn ghost" data-min="10">10 min</button>
+          <button type="button" class="btn ghost" data-min="15">15 min</button>
+          <button type="button" class="btn ghost" data-min="20">20 min</button>
+        </div>
+        <div class="timer-actions">
+          <button type="button" class="btn primary" data-timer-act="toggle">Start</button>
+          <button type="button" class="btn" data-timer-act="reset">Reset</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <details class="answer">
+    <summary><span>Reveal a solution</span></summary>
+    <div class="grid-2 align-start" style="margin-top:1rem">
+<pre class="code scroll" data-cpp data-stdin="Alex Santos&#10;18&#10;1.68">
+#include &lt;iostream&gt;
+#include &lt;string&gt;
+using namespace std;
+
+int main() {
+    const string SCHOOL = "BulSU College of Engineering";
+    string fullName;
+    int age;
+    double height;
+
+    cout &lt;&lt; "Enter your full name: ";
+    getline(cin, fullName);
+    cout &lt;&lt; "Enter your age: ";
+    cin &gt;&gt; age;
+    cout &lt;&lt; "Enter your height in meters: ";
+    cin &gt;&gt; height;
+
+    cout &lt;&lt; "\n*** " &lt;&lt; SCHOOL &lt;&lt; " ***\n";
+    cout &lt;&lt; "Name:\t\"" &lt;&lt; fullName &lt;&lt; "\"\n";
+    cout &lt;&lt; "Init:\t" &lt;&lt; fullName[0] &lt;&lt; "\n";
+    cout &lt;&lt; "Length:\t" &lt;&lt; fullName.length() &lt;&lt; " characters\n";
+    cout &lt;&lt; "Age:\t" &lt;&lt; age &lt;&lt; "\n";
+    cout &lt;&lt; "Height:\t" &lt;&lt; height &lt;&lt; " m\n";
+    return 0;
+}
+</pre>
+      <div class="stack">
+        <div class="concept"><p class="box-label">What to notice</p><ul><li><code>"\n*** "</code> starts with a newline, which creates the blank line before the header.</li><li>All labels are 7 characters or less, so one <code>\t</code> lines them up at column 8.</li><li>The length (11) counts the space in "Alex Santos".</li></ul></div>
+        <div class="note-box"><p class="box-label">Extend it</p><p>Add the height in centimeters (×100) and the user's initials from both names. Which string tool would you need to find the space?</p></div>
+      </div>
+    </div>
+  </details>
+  <aside class="notes">
+    <p class="note-time">Suggested time: about 20 min (15 working, 5 review)</p>
+    <h4>Running the seatwork</h4>
+    <ul>
+      <li>This seatwork combines every topic of the day except scope: types, const, getline, escape sequences, <code>[]</code>, and <code>length()</code>. It deliberately avoids the four Lab Activity 3 tasks.</li>
+      <li>Walk around and look for the order of inputs: students who read age first and then getline the name will hit the leftover-Enter bug. Great teachable moment: send them back to the previous slide.</li>
+      <li>Accept any school or header text and any sensible label alignment; the point is the techniques.</li>
+      <li>Extension answer: <code>fullName.find(' ')</code> returns the index of the space (a preview; not required).</li>
+    </ul>
+    <h4>Common student pitfalls</h4>
+    <ul>
+      <li>Writing <code>"Name:\t"" &lt;&lt; fullName</code> (wrong quote escaping). The output needs <code>\"</code> inside the string.</li>
+      <li>Using <code>int</code> for height, which prints 1 (and breaks the next input).</li>
+      <li>Labels of 8+ characters (<code>Initial:</code>) jump to column 16 and break the alignment.</li>
+    </ul>
+    <h4>Ask the class</h4>
+    <ul>
+      <li>"What does the card show if the user enters a name with a leading space?" (Init shows a blank. Input cleanup comes later.)</li>
+    </ul>
+  </aside>
+</section>
+
+<!-- ========================= SLIDE 23 · LAB ACTIVITY 3 ========================= -->
+<!-- LOCKED-ACTIVITY:START lab-03 -->
+<section class="slide locked-slide" id="l3-lab" data-title="Laboratory Exercise No. 3 (locked)" data-section="Practice &amp; Lab" data-locked="lab-03">
+  <header class="slide-head">
+    <p class="kicker">Laboratory Exercise No. 3</p>
+    <h2>This lab activity is locked</h2>
+    <p class="lede">It opens when your instructor releases it. Enter the passphrase your instructor gives you.</p>
+  </header>
+  <div class="lock-card">
+    <svg class="lock-icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="10.5" width="14" height="10" rx="2"/><path d="M8 10.5V7.5a4 4 0 0 1 8 0v3M12 14.5v2.5"/></svg>
+    <h3>Laboratory Exercise No. 3</h3>
+    <form class="lock-form" autocomplete="off">
+      <label class="sr-only" for="unlock-lab-03">Passphrase</label>
+      <input id="unlock-lab-03" type="password" placeholder="Passphrase" autocomplete="off" spellcheck="false">
+      <button type="submit" class="btn primary">Unlock</button>
+    </form>
+    <p class="lock-msg" aria-live="polite"></p>
+    <p class="small muted">The activity is stored encrypted on this site and is unlocked in your browser. Once unlocked, it stays open on this device.</p>
+  </div>
+  <script type="application/json" class="locked-data">{"v":1,"iter":250000,"salt":"yhzg21guAT0jdmU/8sGFRQ==","iv":"zgT3JvdWqrDDUddu","data":"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"}</script>
+  <aside class="notes">
+    <p class="note-time">Locked activity (2 slides)</p>
+    <h4>Instructor</h4>
+    <ul>
+      <li>Type this lab's passphrase (private instructor package → <code>passwords.json</code>) to open the activity on the classroom PC. It stays unlocked on that browser until you press "Lock again".</li>
+      <li>To release the activity to students, announce or post the passphrase (e.g. in MS Teams).</li>
+      <li>To re-lock it for everyone, change the passphrase and rerun <code>node tools/lock-activities.js</code>.</li>
+    </ul>
+  </aside>
+</section>
+<!-- LOCKED-ACTIVITY:END lab-03 -->
+
+<!-- ========================= SLIDE 25 · WRAP-UP ========================= -->
+<section class="slide" id="l3-wrap" data-title="Wrap-up" data-section="Wrap-up">
+  <header class="slide-head">
+    <p class="kicker">Wrap-up</p>
+    <h2>Choosing the Right Box for Every Value</h2>
+  </header>
+  <div class="table-wrap">
+    <table class="table compact">
+      <thead><tr><th scope="col">If the value is…</th><th scope="col">Use</th><th scope="col">Example</th></tr></thead>
+      <tbody>
+        <tr><td><b>a whole number</b></td><td><code>int</code> (bigger: <code>long long</code>)</td><td><code>int ledCount = 8;</code></td></tr>
+        <tr><td><b>a measurement with decimals</b></td><td><code>double</code></td><td><code>double resistance = 220.5;</code></td></tr>
+        <tr><td><b>one character</b></td><td><code>char</code>, single quotes</td><td><code>char grade = 'A';</code></td></tr>
+        <tr><td><b>yes / no</b></td><td><code>bool</code></td><td><code>bool isOn = true;</code></td></tr>
+        <tr><td><b>text</b></td><td><code>string</code>, double quotes, <code>getline</code></td><td><code>string name = "Ana";</code></td></tr>
+        <tr><td><b>fixed forever</b></td><td><code>const</code> + a type</td><td><code>const double PI = 3.14159;</code></td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="grid-3">
+    <div class="card"><h3 class="card-title">Remember</h3><ul class="tight"><li><code>int</code> = 4 bytes today; check with <code>sizeof</code>.</li><li>Names: letters, digits, <code>_</code>; no leading digit; not a keyword.</li><li>Prefer locals; always initialize.</li></ul></div>
+    <div class="card"><h3 class="card-title">Exit ticket</h3><p>Declare a variable for each: a student's GWA, their year level, their section letter, whether they are enrolled, and their full name. Use good names.</p></div>
+    <div class="card"><h3 class="card-title">Next: Lab No. 4</h3><p><b>Operators and Its Hierarchy</b>: arithmetic, integer division, <code>%</code>, relational and logical operators, and precedence.</p><p><a href="lab-04.html">Open Lab 4 →</a></p></div>
+  </div>
+  <aside class="notes">
+    <p class="note-time">Suggested time: about 4 min</p>
+    <h4>Teaching tips</h4>
+    <ul>
+      <li>Exit ticket answer (one possibility): <code>double gwa; int yearLevel; char section; bool isEnrolled; string fullName;</code>. Accept snake_case too, as long as it is consistent.</li>
+      <li>Lab 4 builds on today: integer division (<code>7 / 2</code> is 3) only makes sense once students know <code>int</code> vs <code>double</code>.</li>
+      <li>Remind students of the Lab Activity 3 deadline and the test-case table.</li>
+    </ul>
+    <h4>Common student pitfalls</h4>
+    <ul>
+      <li>Exit ticket: using <code>int</code> for GWA (1.25 would become 1) or <code>string</code> for the year level.</li>
+    </ul>
+    <h4>Ask the class</h4>
+    <ul>
+      <li>"What would <code>int half = 7 / 2;</code> store? Guess now; Lab 4 will tell." (3.)</li>
+    </ul>
+  </aside>
+</section>
+
+      </div>
+    </main>
+  </div>
+</body>
+</html>

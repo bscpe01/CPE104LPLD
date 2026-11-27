@@ -1,0 +1,1359 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Lab 2 · Basics of C++ · CPE 104L</title>
+  <meta name="description" content="CPE 104L Programming Logic and Design, Lab No. 2: Basics of C++. Structure of a C++ program, compiling and running, cout and cin, comments, coding conventions, and turning pseudocode into C++.">
+  <meta name="color-scheme" content="light dark">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%232f3410'/%3E%3Cpath d='M32 11 53 32 32 53 11 32Z' fill='none' stroke='%23f5c518' stroke-width='6' stroke-linejoin='round'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="../css/styles.css">
+  <script>
+    (function () { var d = document.documentElement; d.classList.add('js');
+      try { var t = localStorage.getItem('cpe104l.theme'); if (t === 'dark' || t === 'light') d.setAttribute('data-theme', t); } catch (e) {} })();
+  </script>
+  <script src="../js/course.js" defer></script>
+  <script src="../js/search-index.js" defer></script>
+  <script src="../js/script.js" defer></script>
+  <script src="../js/labs/lab-02.js" defer></script>
+</head>
+<body data-page="lab-02" data-root="../">
+  <svg class="svg-defs" aria-hidden="true" focusable="false"><defs><marker id="arrow" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="10" markerHeight="10" markerUnits="userSpaceOnUse" orient="auto"><path class="arrowhead" d="M0 0 L10 5 L0 10 Z"/></marker></defs></svg>
+  <div class="app" id="app">
+    <main class="stage" id="stage">
+      <div class="deck" id="deck" tabindex="-1">
+<noscript><p class="noscript">JavaScript is off, so every slide is shown in one long page. Turn JavaScript on for slide navigation, speaker notes, and the live tracers.</p></noscript>
+
+<!-- ========================= SLIDE 1 · TITLE ========================= -->
+<section class="slide" id="l2-title" data-title="Title & ILOs" data-section="Introduction">
+  <div class="lab-title">
+    <div>
+      <div class="lab-badges"><span class="badge-lab">Lab No. 2</span><span class="badge-week">Week 3</span><span class="badge-co">CO1</span></div>
+      <p class="kicker">CPE 104L · Programming Logic and Design</p>
+      <h1>Basics of C++ <span>Your first programs: structure, output, and input</span></h1>
+      <p class="lede">Last week you planned the logic on paper. Today you type it, compile it, and watch it run.</p>
+      <ol class="roadmap" aria-label="Lab roadmap">
+        <li><a href="#l2-what">What is C++?</a></li>
+        <li><a href="#l2-anatomy">Anatomy of a program</a></li>
+        <li><a href="#l2-cout">cout &amp; cin</a></li>
+        <li><a href="#l2-calc">Simple calculator</a></li>
+        <li><a href="#l2-p12">Pseudocode → C++</a></li>
+        <li><a href="#l2-seatwork">Seatwork</a></li>
+        <li><a href="#l2-lab">Lab Activity 2</a></li>
+      </ol>
+    </div>
+    <div class="ilo-card">
+      <h2>Intended Learning Outcomes</h2>
+      <ol>
+        <li>Identify the structure of a basic C++ program and IDE environment.</li>
+        <li>Write, compile, and execute simple input/output C++ programs following proper coding conventions.</li>
+      </ol>
+      <div class="ilo-meta">
+        <span><b>Activities:</b> Live coding demonstrations · Class discussion · Laboratory activities</span>
+        <span><b>Tool:</b> Codechum online C++ compiler (or a desktop IDE)</span>
+        <span><b>Assessment:</b> Lab Exercise No. 2 · 5-Level Lab Rubric</span>
+      </div>
+    </div>
+  </div>
+  <aside class="notes">
+    <p class="note-time">Suggested time: about 3 min</p>
+    <h4>Teaching tips</h4>
+    <ul>
+      <li>Before class, make sure every student can log in to Codechum (or has a working IDE). Lost logins eat the first 20 minutes otherwise.</li>
+      <li>Hook: "Last week the computer could not run your pseudocode. Today it will run your code, and it will be very strict about spelling."</li>
+      <li>Read both ILOs aloud. ILO 1 is "know the parts"; ILO 2 is "make it run, neatly". Lab Activity 2 assesses both.</li>
+    </ul>
+    <h4>Common student pitfalls</h4>
+    <ul>
+      <li>Expecting to memorize everything today. Reassure them: the same seven-line skeleton appears in every program, so it becomes automatic within a week.</li>
+    </ul>
+    <h4>Ask the class</h4>
+    <ul>
+      <li>"Who has typed any code before (Scratch, Python, HTML, Arduino)?" Seat beginners next to someone with experience for the seatwork.</li>
+    </ul>
+  </aside>
+</section>
+
+<!-- ========================= SLIDE 2 · BRIDGE ========================= -->
+<section class="slide" id="l2-bridge" data-title="From Pseudocode to C++" data-section="Introduction">
+  <header class="slide-head">
+    <p class="kicker">Lab 2 · Review of Lab 1</p>
+    <h2>Every Pseudocode Keyword Has a C++ Partner</h2>
+    <p class="lede">The logic you planned in Lab 1 does not change. Only the way you write it does.</p>
+  </header>
+  <div class="grid-2 align-start">
+    <div class="table-wrap">
+      <table class="table compact">
+        <thead><tr><th scope="col">Pseudocode (Lab 1)</th><th scope="col">C++ (from today)</th></tr></thead>
+        <tbody>
+          <tr><td><code>START</code> … <code>END</code></td><td><code>int main() {</code> … <code>}</code></td></tr>
+          <tr><td><code>DISPLAY "Hi"</code></td><td><code>cout &lt;&lt; "Hi";</code></td></tr>
+          <tr><td><code>INPUT age</code></td><td><code>cin &gt;&gt; age;</code></td></tr>
+          <tr><td><code>COMPUTE sum = a + b</code></td><td><code>sum = a + b;</code></td></tr>
+          <tr><td><code>// comment</code></td><td><code>// comment</code></td></tr>
+          <tr><td><code>IF … ELSE … ENDIF</code></td><td><code>if (…) { } else { }</code> <span class="muted small">Lab 6</span></td></tr>
+          <tr><td><code>WHILE … ENDWHILE</code></td><td><code>while (…) { }</code> <span class="muted small">Lab 7</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="stack">
+      <div class="concept"><p class="box-label">What is new in C++</p>
+        <ul>
+          <li>The computer is <b>strict</b>: one wrong letter or missing <code>;</code> and the program will not build.</li>
+          <li>C++ is <b>case-sensitive</b>: <code>cout</code> works, <code>Cout</code> does not.</li>
+          <li>Every variable needs a <b>data type</b> before you use it, e.g. <code>int age;</code> (Lab 3 goes deeper).</li>
+          <li>Every statement ends with a <b>semicolon</b> <code>;</code>.</li>
+        </ul>
+      </div>
+      <div class="note-box"><p class="box-label">Keep your Lab 1 work</p><p>Lab Activity 2 asks you to turn your Battlefield Coordinates algorithm into a C++ program. Have your pseudocode and flowchart ready.</p></div>
+    </div>
+  </div>
+  <aside class="notes">
+    <p class="note-time">Suggested time: about 4 min</p>
+    <h4>Teaching tips</h4>
+    <ul>
+      <li>Point out that the logic (sequence, selection, loop) carries over unchanged. Only the syntax is new.</li>
+      <li>The last two rows are taught properly in Labs 6 and 7. Today students only <em>preview</em> <code>if</code> and <code>while</code> in the guided problems.</li>
+      <li>Remind them that Lab Activity 2 builds on their Lab 1 Battlefield Coordinates algorithm. Students who did not finish it should fix it first.</li>
+    </ul>
+    <h4>Common student pitfalls</h4>
+    <ul>
+      <li>Typing pseudocode words in C++ (<code>DISPLAY</code>, <code>INPUT</code>, <code>END</code>). The compiler does not know them.</li>
+    </ul>
+    <h4>Ask the class</h4>
+    <ul>
+      <li>"Which three structures did every algorithm in Lab 1 use?" (Sequence, selection, loop.)</li>
+    </ul>
+  </aside>
+</section>
+
+<!-- ========================= SLIDE 3 · WHAT IS C++ ========================= -->
+<section class="slide" id="l2-what" data-title="What is C++?" data-section="Meet C++">
+  <header class="slide-head">
+    <p class="kicker">Lab 2 · Meet C++</p>
+    <h2>What is C++?</h2>
+  </header>
+  <div class="grid-2 align-start">
+    <div class="stack">
+      <div class="concept big"><p class="box-label">Definition</p><p><b>C++</b> is a general-purpose programming language for building fast, high-performance applications. It was created by <b>Bjarne Stroustrup</b> as an extension of the C language.</p></div>
+      <div class="benefits">
+        <div class="benefit"><b>Cross-platform</b><span>The same source code can be compiled on Windows, macOS, Linux, and Unix.</span></div>
+        <div class="benefit"><b>Close to the hardware</b><span>Gives programmers a high level of control over system resources and memory.</span></div>
+        <div class="benefit"><b>Compiled</b><span>Your code is translated into machine code once, then runs fast.</span></div>
+        <div class="benefit"><b>Standardized</b><span>An ISO committee updates the language: C++11, 14, 17, 20, 23.</span></div>
+      </div>
+    </div>
+    <div class="card">
+      <h3 class="card-title">A short history</h3>
+      <ol class="timeline">
+        <li><b>1972</b><span>Dennis Ritchie creates the <b>C</b> language at Bell Labs.</span></li>
+        <li class="is-key"><b>1979</b><span>Bjarne Stroustrup begins <b>"C with Classes"</b> at Bell Labs: C plus features C did not have.</span></li>
+        <li class="is-key"><b>1983</b><span>Renamed <b>C++</b>. <code>++</code> means "add one": one step beyond C.</span></li>
+        <li><b>1985</b><span>First commercial release and the book <i>The C++ Programming Language</i>.</span></li>
+        <li><b>1998</b><span>First international standard (C++98).</span></li>
+        <li><b>2011+</b><span>"Modern C++": a new standard about every 3 years.</span></li>
+      </ol>
+    </div>
+  </div>
+  <aside class="notes">
+    <p class="note-time">Suggested time: about 4 min</p>
+    <h4>Teaching tips</h4>
+    <ul>
+      <li>From your deck notes: "cross-platform" means it can be used on different systems (Windows, Mac, Unix, Linux). Stress that the <em>source code</em> is portable; the compiled <code>.exe</code> is not (a Windows .exe does not run on Linux).</li>
+      <li>The "classes" in "C with Classes" are the object-oriented features students will meet in Labs 12–14.</li>
+      <li>We compile with C++17 settings, so everything shown in this course works on Codechum and current IDEs.</li>
+    </ul>
+    <h4>Common student pitfalls</h4>
+    <ul>
+      <li>Confusing C, C++, and C#. C# (Microsoft, 2000) is a different language that only looks similar.</li>
+    </ul>
+    <h4>Ask the class</h4>
+    <ul>
+      <li>"Why do you think it is called C++ and not D?" (The <code>++</code> operator adds 1, a programmer joke: "C, incremented".)</li>
+    </ul>
+  </aside>
+</section>
+
+<!-- ========================= SLIDE 4 · WHY C++ ========================= -->
+<section class="slide" id="l2-why" data-title="Why Use C++?" data-section="Meet C++">
+  <header class="slide-head">
+    <p class="kicker">Lab 2 · Meet C++</p>
+    <h2>Why Use C++?</h2>
+    <p class="lede">C++ is one of the world's most popular programming languages, and a natural fit for computer engineers.</p>
+  </header>
+  <div class="grid-3" style="margin-top:0">
+    <div class="card"><h3 class="card-title">It runs the world</h3><ul class="tight"><li><b>Operating systems</b> and device drivers</li><li><b>Graphical user interfaces</b> and web browsers</li><li><b>Embedded systems</b>: appliances, cars, medical devices</li><li>Game engines and 3D graphics</li></ul></div>
+    <div class="card"><h3 class="card-title">It organizes big programs</h3><ul class="tight"><li>C++ is <b>object-oriented</b>: classes give programs a clear structure.</li><li>Code can be <b>reused</b>, which lowers development cost.</li><li>You will build classes in Labs 12–14.</li></ul></div>
+    <div class="card"><h3 class="card-title">It transfers</h3><ul class="tight"><li>C++ syntax is close to <b>C</b>, <b>C#</b>, and <b>Java</b>.</li><li>Learn it once and switching languages is easy (both ways).</li><li>Most "hard" languages feel easy afterwards.</li></ul></div>
+  </div>
+  <div class="grid-2 align-start" style="margin-top:1.2rem">
+    <div class="note-box"><p class="box-label">CpE connection</p><p><b>Arduino</b> sketches are written in C/C++. The same <code>if</code>, loops, and variables you learn here control sensors, motors, and LEDs on microcontrollers.</p></div>
+    <div class="concept"><p class="box-label">The honest part</p><p>C++ gives you power <b>and</b> responsibility. The compiler is strict, and small mistakes are common at first. That is normal, and today's seatwork is all about fixing them.</p></div>
+  </div>
+  <aside class="notes">
+    <p class="note-time">Suggested time: about 3 min</p>
+    <h4>Teaching tips</h4>
+    <ul>
+      <li>Your deck also says "C++ is fun and easy to learn!" Keep the tone encouraging: the first week is the steepest.</li>
+      <li>CpE students respond well to the embedded angle. If you have an Arduino, show a 5-line blink sketch and point out <code>void setup()</code> / <code>void loop()</code>: same braces, same semicolons.</li>
+    </ul>
+    <h4>Common student pitfalls</h4>
+    <ul>
+      <li>Thinking "object-oriented" is required for every program. Our first programs have no classes at all; OOP comes in the last part of the course.</li>
+    </ul>
+    <h4>Ask the class</h4>
+    <ul>
+      <li>"Name one device you used today that probably runs C or C++ code." (Phone OS, router, ATM, aircon remote, car ECU…)</li>
+    </ul>
+  </aside>
+</section>
+
+<!-- ========================= SLIDE 5 · ANATOMY ========================= -->
+<section class="slide" id="l2-anatomy" data-title="Anatomy of a C++ Program" data-section="Meet C++">
+  <header class="slide-head">
+    <p class="kicker">Lab 2 · C++ Quickstart</p>
+    <h2>Anatomy of Your First C++ Program</h2>
+  </header>
+  <div class="grid-2 align-start">
+    <div class="stack">
+      <figure class="codeblock">
+        <figcaption><code>main.cpp</code></figcaption>
+<pre class="code" id="l2-hello-code" data-cpp>
+#include &lt;iostream&gt;
+using namespace std;
+
+int main() {
+    cout &lt;&lt; "Hello World!";
+    return 0;
+}
+</pre>
+      </figure>
+      <figure class="codeblock">
+        <figcaption>Output</figcaption>
+<pre class="console">Hello World!</pre>
+      </figure>
+      <div class="pitfall"><p class="box-label">Strict rules</p><ul><li>C++ is <b>case-sensitive</b>: <code>Main</code>, <code>Cout</code>, <code>Return</code> are errors.</li><li>Lines starting with <code>#</code> are directives, <b>not</b> statements: no <code>;</code>.</li></ul></div>
+    </div>
+    <div class="table-wrap">
+      <table class="table compact">
+        <thead><tr><th scope="col">Line</th><th scope="col">Part</th><th scope="col">What it does</th></tr></thead>
+        <tbody>
+          <tr><td>1</td><td><code>#include &lt;iostream&gt;</code></td><td><b>Preprocessor directive.</b> Brings in the input/output stream library, which defines <code>cout</code> and <code>cin</code>.</td></tr>
+          <tr><td>2</td><td><code>using namespace std;</code></td><td>Lets us use names from the <b>std</b> (standard) namespace, such as <code>cout</code>, without typing <code>std::</code>.</td></tr>
+          <tr><td>4</td><td><code>int main()</code></td><td>The <b>main function</b>. Every program starts running here. <code>int</code>: it returns a whole number to the OS.</td></tr>
+          <tr><td>4, 7</td><td><code>{ }</code></td><td><b>Braces</b> mark the start and end of main's body (a block).</td></tr>
+          <tr><td>5</td><td><code>cout &lt;&lt; "…";</code></td><td>A <b>statement</b>: prints the text between the quotes. Every statement ends with <code>;</code></td></tr>
+          <tr><td>6</td><td><code>return 0;</code></td><td>Ends <code>main</code> and tells the OS the program finished <b>successfully</b> (0 = OK).</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <aside class="notes">
+    <p class="note-time">Suggested time: about 8 min</p>
+    <h4>Teaching tips</h4>
+    <ul>
+      <li><b>Live-code it</b> in Codechum from an empty file instead of pasting. Codechum shows <code>Hello World!</code> and then its own "Program Terminated" line; that line is from Codechum, not from your program.</li>
+      <li>From your deck notes: a <em>namespace</em> is a region where a group of entities (variables, classes, functions) lives. <code>std</code> holds the standard library, so with <code>using namespace std;</code> the compiler is never confused about which <code>cout</code> we mean.</li>
+      <li>Blank lines and indentation are ignored by the compiler. They exist for humans (see the conventions slide).</li>
+      <li>Optional: <code>return 0;</code> may be omitted in <code>main</code> only (C++ adds it automatically), but we always write it in this course.</li>
+    </ul>
+    <h4>Common student pitfalls</h4>
+    <ul>
+      <li>Semicolon after <code>#include &lt;iostream&gt;</code> or after <code>int main()</code>.</li>
+      <li>Typing <code>iostream.h</code> (old pre-standard header, an error on modern compilers).</li>
+      <li>Curly “smart quotes” copied from Word or a PDF: <code>“Hello”</code> is not <code>"Hello"</code> to the compiler.</li>
+    </ul>
+    <h4>Ask the class</h4>
+    <ul>
+      <li>"Change the message to your own name and run it again. What else had to change?" (Nothing. Only the text inside the quotes.)</li>
+    </ul>
+  </aside>
+</section>
+
+<!-- ========================= SLIDE 6 · NAMESPACE ========================= -->
+<section class="slide" id="l2-std" data-title="Omitting using namespace std" data-section="Meet C++">
+  <header class="slide-head">
+    <p class="kicker">Lab 2 · C++ Quickstart</p>
+    <h2>Omitting <code>using namespace std;</code></h2>
+    <p class="lede">You will see programs without line 2. They write <code>std::</code> in front of each standard name instead.</p>
+  </header>
+  <div class="grid-2 align-start">
+    <div class="compare good">
+      <p class="compare-label">Style used in this course</p>
+<pre class="code" data-cpp>
+#include &lt;iostream&gt;
+using namespace std;
+
+int main() {
+    cout &lt;&lt; "Hello World!";
+    return 0;
+}
+</pre>
+    </div>
+    <div class="compare good">
+      <p class="compare-label">Also correct: the <code>std::</code> prefix</p>
+<pre class="code" data-cpp>
+#include &lt;iostream&gt;
+
+int main() {
+    std::cout &lt;&lt; "Hello World!";
+    return 0;
+}
+</pre>
+    </div>
+  </div>
+  <div class="grid-2 align-start" style="margin-top:1.2rem">
+    <div class="concept"><p class="box-label">Key idea</p><p>A <b>namespace</b> is a named group of related names. <code>std</code> is the namespace of the C++ standard library. <code>::</code> (scope resolution) means "the one that lives inside": <code>std::cout</code> is "the <code>cout</code> inside <code>std</code>".</p></div>
+    <div class="pitfall"><p class="box-label">Do neither, and the build fails</p>
+<pre class="console">main.cpp:4:5: error: 'cout' was not declared in this scope;
+did you mean 'std::cout'?</pre>
+    </div>
+  </div>
+  <aside class="notes">
+    <p class="note-time">Suggested time: about 4 min</p>
+    <h4>Teaching tips</h4>
+    <ul>
+      <li>Both programs print exactly the same <code>Hello World!</code>. Run both to prove it.</li>
+      <li>The error message shown is from g++ (Codechum's wording is similar). Teach students to read the <b>line number</b> (<code>4:5</code> = line 4, column 5) and the hint after "did you mean".</li>
+      <li>Professional teams often prefer <code>std::</code> in large projects to avoid name clashes, but for short programs <code>using namespace std;</code> is fine and matches our decks.</li>
+    </ul>
+    <h4>Common student pitfalls</h4>
+    <ul>
+      <li>Writing <code>std:cout</code> (one colon) or <code>std.cout</code>.</li>
+      <li>Writing <code>using namespace std</code> without the semicolon.</li>
+    </ul>
+    <h4>Ask the class</h4>
+    <ul>
+      <li>"If we remove line 2, which other words in a longer program need <code>std::</code>?" (<code>cin</code>, <code>endl</code>, <code>string</code>…)</li>
+    </ul>
+  </aside>
+</section>
+
+<!-- ========================= SLIDE 7 · BUILD PIPELINE ========================= -->
+<section class="slide" id="l2-build" data-title="From Code to Running Program" data-section="Meet C++">
+  <header class="slide-head">
+    <p class="kicker">Lab 2 · Compile &amp; run</p>
+    <h2>How Your Code Becomes a Running Program</h2>
+    <p class="lede">When you press <b>Run</b> in Codechum or <b>Build &amp; Run</b> in an IDE, five things happen in order.</p>
+  </header>
+  <figure class="card" style="margin:0">
+    <svg class="fc" viewBox="0 0 1000 170" role="img" aria-label="Pipeline: 1 Edit produces hello.cpp source code, 2 Preprocess handles include lines and produces expanded source, 3 Compile checks syntax and produces hello.o object code, 4 Link adds library code and produces hello.exe, 5 Run executes it and shows the output on screen.">
+      <g class="fc-node"><rect class="s-io" x="6" y="10" width="164" height="74" rx="12"/><text x="88" y="35">1 · Edit</text><text x="88" y="62" style="font-size:13px;font-weight:500">you type the code</text></g>
+      <path class="fc-line" d="M170 47 H212"/>
+      <g class="fc-node"><rect class="s-predef" x="212" y="10" width="164" height="74" rx="12"/><text x="294" y="35">2 · Preprocess</text><text x="294" y="62" style="font-size:13px;font-weight:500">handles #include</text></g>
+      <path class="fc-line" d="M376 47 H418"/>
+      <g class="fc-node"><rect class="s-process" x="418" y="10" width="164" height="74" rx="12"/><text x="500" y="35">3 · Compile</text><text x="500" y="62" style="font-size:13px;font-weight:500">checks the syntax</text></g>
+      <path class="fc-line" d="M582 47 H624"/>
+      <g class="fc-node"><rect class="s-process" x="624" y="10" width="164" height="74" rx="12"/><text x="706" y="35">4 · Link</text><text x="706" y="62" style="font-size:13px;font-weight:500">adds library code</text></g>
+      <path class="fc-line" d="M788 47 H830"/>
+      <g class="fc-node"><rect class="s-terminal" x="830" y="10" width="164" height="74" rx="12"/><text x="912" y="35">5 · Run</text><text x="912" y="62" style="font-size:13px;font-weight:500">the OS executes it</text></g>
+      <path class="fc-line plain dashed" d="M88 84 V108 M294 84 V108 M500 84 V108 M706 84 V108 M912 84 V108"/>
+      <text class="fc-label" x="88" y="126">hello.cpp</text><text class="fc-label" x="88" y="148">source code</text>
+      <text class="fc-label" x="294" y="126">expanded source</text><text class="fc-label" x="294" y="148">(iostream pasted in)</text>
+      <text class="fc-label" x="500" y="126">hello.o</text><text class="fc-label" x="500" y="148">object (machine) code</text>
+      <text class="fc-label" x="706" y="126">hello.exe</text><text class="fc-label" x="706" y="148">executable</text>
+      <text class="fc-label" x="912" y="126">Hello World!</text><text class="fc-label" x="912" y="148">output on screen</text>
+    </svg>
+  </figure>
+  <div class="grid-3">
+    <div class="pitfall"><p class="box-label">Syntax errors (compile time)</p><p>Broken grammar: missing <code>;</code>, misspelled <code>cout</code>, wrong case. The compiler <b>stops</b> and reports the line. Nothing runs.</p></div>
+    <div class="note-box"><p class="box-label">Logic errors (run time)</p><p>The program builds and runs but gives the <b>wrong answer</b>, e.g. <code>sum = x - y;</code>. Only testing catches these.</p></div>
+    <div class="concept"><p class="box-label">Where you will code</p><p><b>Codechum</b>: online compiler in the browser (one click compiles and runs). <b>Desktop IDEs</b>: Code::Blocks, Dev-C++, VS Code with g++. IDE = editor + compiler + debugger in one.</p></div>
+  </div>
+  <aside class="notes">
+    <p class="note-time">Suggested time: about 6 min</p>
+    <h4>Teaching tips</h4>
+    <ul>
+      <li>Codechum hides steps 2–4 behind one button. In Code::Blocks, show the "Build log" so students see the compiler and linker actually run.</li>
+      <li>Connect to Lab 1's program development cycle: <em>code → test → debug</em>. Syntax errors are found by the compiler; logic errors are found by your test cases (rubric criterion: Functionality, Testing &amp; Debugging).</li>
+      <li>Rule of thumb for students: fix the <b>first</b> error message first, then rebuild. One missing <code>;</code> can cause a cascade of later messages.</li>
+    </ul>
+    <h4>Common student pitfalls</h4>
+    <ul>
+      <li>Editing the code but running the old executable (desktop IDEs: "Build" was not pressed). Codechum always rebuilds.</li>
+      <li>Ignoring warnings. A warning still builds, but often points to a real logic error.</li>
+    </ul>
+    <h4>Ask the class</h4>
+    <ul>
+      <li>"If you type <code>sum = x * y;</code> instead of <code>x + y</code>, which step catches it?" (None of them. It is a logic error; only testing reveals it.)</li>
+    </ul>
+  </aside>
+</section>
+
+<!-- ========================= SLIDE 8 · COUT ========================= -->
+<section class="slide" id="l2-cout" data-title="Output with cout" data-section="Input &amp; Output">
+  <header class="slide-head">
+    <p class="kicker">Lab 2 · C++ Output</p>
+    <h2>Printing Text with <code>cout</code> and <code>&lt;&lt;</code></h2>
+    <p class="lede">The <code>cout</code> object, together with the insertion operator <code>&lt;&lt;</code>, sends values and text to the screen.</p>
+  </header>
+  <div class="code-pair">
+    <figure class="codeblock">
+      <figcaption><code>two_couts.cpp</code></figcaption>
+<pre class="code" data-cpp>
+#include &lt;iostream&gt;
+using namespace std;
+
+int main() {
+    cout &lt;&lt; "Hello World!";
+    cout &lt;&lt; "I am learning C++";
+    return 0;
+}
+</pre>
+    </figure>
+    <div class="stack">
+      <figure class="codeblock">
+        <figcaption>Output</figcaption>
+<pre class="console">Hello World!I am learning C++</pre>
+      </figure>
+      <div class="pitfall"><p class="box-label">Surprise!</p><p>You can use as many <code>cout</code> statements as you want, but <code>cout</code> does <b>not</b> add a new line by itself. Both texts end up glued on one line.</p></div>
+    </div>
+  </div>
+  <div class="grid-2 align-start" style="margin-top:1.2rem">
+    <div class="concept"><p class="box-label">Chaining with <code>&lt;&lt;</code></p><p>One <code>cout</code> can print many items. Text <b>in quotes</b> prints exactly as typed; an expression <b>without quotes</b> is computed first.</p>
+<pre class="code no-ln" data-cpp>
+cout &lt;&lt; "5 + 3 = " &lt;&lt; 5 + 3;
+</pre>
+      <p>prints <code>5 + 3 = 8</code></p>
+    </div>
+    <div class="note-box"><p class="box-label">Read it as an arrow</p><p><code>cout &lt;&lt; "Hi";</code>: the arrows point <b>toward</b> <code>cout</code>, so the data flows <b>out</b> to the screen.</p></div>
+  </div>
+  <aside class="notes">
+    <p class="note-time">Suggested time: about 5 min</p>
+    <h4>Teaching tips</h4>
+    <ul>
+      <li>From your deck notes: <code>cout</code> belongs to the iostream library, and its purpose is to display the content between the double quotes exactly as it is.</li>
+      <li>Run the two-cout program and let students be surprised by the glued output. That motivates the next slide (<code>\n</code> and <code>endl</code>).</li>
+      <li>Demo: <code>cout &lt;&lt; "5 + 3";</code> vs <code>cout &lt;&lt; 5 + 3;</code>. The first prints the text <code>5 + 3</code>, the second prints <code>8</code>.</li>
+    </ul>
+    <h4>Common student pitfalls</h4>
+    <ul>
+      <li><code>cout &gt;&gt; "Hi";</code> (arrows the wrong way). This is one of the bugs in today's seatwork.</li>
+      <li>Forgetting a space inside the quotes, so <code>"Sum:"</code> followed by a value prints <code>Sum:8</code>.</li>
+      <li>Missing closing quote: the error appears on the line, but often with a confusing message ("missing terminating " character").</li>
+    </ul>
+    <h4>Ask the class</h4>
+    <ul>
+      <li>"How would you make the output show a space between the two sentences?" (Add a space inside one of the strings.)</li>
+    </ul>
+  </aside>
+</section>
+
+<!-- ========================= SLIDE 9 · NEW LINES ========================= -->
+<section class="slide" id="l2-newline" data-title="New Lines: \n vs endl" data-section="Input &amp; Output">
+  <header class="slide-head">
+    <p class="kicker">Lab 2 · C++ New Lines</p>
+    <h2>Two Ways to Start a New Line: <code>\n</code> and <code>endl</code></h2>
+  </header>
+  <div class="grid-2 align-start">
+    <div class="stack">
+      <figure class="codeblock">
+        <figcaption>Using the <code>\n</code> character (inside the quotes)</figcaption>
+<pre class="code" data-cpp>
+#include &lt;iostream&gt;
+using namespace std;
+
+int main() {
+    cout &lt;&lt; "Hello World! \n";
+    cout &lt;&lt; "I am learning C++";
+    return 0;
+}
+</pre>
+      </figure>
+      <figure class="codeblock">
+        <figcaption>Output (both programs)</figcaption>
+<pre class="console">Hello World!
+I am learning C++</pre>
+      </figure>
+    </div>
+    <div class="stack">
+      <figure class="codeblock">
+        <figcaption>Using the <code>endl</code> manipulator (outside the quotes)</figcaption>
+<pre class="code" data-cpp>
+#include &lt;iostream&gt;
+using namespace std;
+
+int main() {
+    cout &lt;&lt; "Hello World!" &lt;&lt; endl;
+    cout &lt;&lt; "I am learning C++";
+    return 0;
+}
+</pre>
+      </figure>
+      <div class="table-wrap">
+        <table class="table compact">
+          <thead><tr><th scope="col"></th><th scope="col"><code>\n</code></th><th scope="col"><code>endl</code></th></tr></thead>
+          <tbody>
+            <tr><th scope="row">What it is</th><td>an escape character</td><td>a manipulator</td></tr>
+            <tr><th scope="row">Where it goes</th><td>inside <code>" "</code></td><td>after <code>&lt;&lt;</code>, no quotes</td></tr>
+            <tr><th scope="row">Extra</th><td>just a new line</td><td>new line + flush the output</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+  <aside class="notes">
+    <p class="note-time">Suggested time: about 5 min</p>
+    <h4>Teaching tips</h4>
+    <ul>
+      <li>From your deck notes: both <code>\n</code> and <code>endl</code> break lines, and <code>\n</code> is used more often. "Flush" means "send everything to the screen right now"; it makes <code>endl</code> slightly slower, which only matters in very large outputs. Either is fine in this course.</li>
+      <li><code>"\n\n"</code> gives a blank line. The Lab 3 activity sample output uses blank lines like that.</li>
+      <li>The deck's first program has a space before <code>\n</code>, so line 1 actually ends with an invisible space. Good moment to mention that output checkers (like Codechum test cases) may treat extra spaces as different output.</li>
+    </ul>
+    <h4>Common student pitfalls</h4>
+    <ul>
+      <li><code>/n</code> (forward slash) prints the two characters <code>/n</code>.</li>
+      <li><code>"endl"</code> in quotes prints the word <code>endl</code>.</li>
+      <li><code>cout &lt;&lt; \n;</code> without quotes does not compile.</li>
+    </ul>
+    <h4>Ask the class</h4>
+    <ul>
+      <li>"Rewrite the two-cout program from the previous slide so each sentence is on its own line, in two different ways."</li>
+    </ul>
+  </aside>
+</section>
+
+<!-- ========================= SLIDE 10 · CIN ========================= -->
+<section class="slide" id="l2-cin" data-title="Input with cin" data-section="Input &amp; Output">
+  <header class="slide-head">
+    <p class="kicker">Lab 2 · C++ User Input</p>
+    <h2>Reading Input with <code>cin</code> and <code>&gt;&gt;</code></h2>
+    <p class="lede"><code>cin</code> is a predefined object that reads data from the keyboard with the extraction operator <code>&gt;&gt;</code>.</p>
+  </header>
+  <div class="code-pair">
+    <figure class="codeblock">
+      <figcaption><code>echo_number.cpp</code></figcaption>
+<pre class="code" data-cpp data-stdin="25">
+#include &lt;iostream&gt;
+using namespace std;
+
+int main() {
+    int x;
+    // Type a number and press Enter
+    cout &lt;&lt; "Type a number: ";
+    // Get user input from the keyboard
+    cin &gt;&gt; x;
+    // Display the input value
+    cout &lt;&lt; "Your number is: " &lt;&lt; x &lt;&lt; endl;
+    return 0;
+}
+</pre>
+    </figure>
+    <div class="stack">
+      <figure class="codeblock">
+        <figcaption>Sample run</figcaption>
+<pre class="console">Type a number: <span class="in">25</span>
+Your number is: 25</pre>
+      </figure>
+      <div class="concept"><p class="box-label">Read it as an arrow</p><p><code>cin &gt;&gt; x;</code>: data flows <b>from</b> the keyboard <b>into</b> the variable <code>x</code>.</p></div>
+    </div>
+  </div>
+  <div class="grid-3">
+    <div class="card"><h3 class="card-title">Prompt first</h3><p>Always print a <b>prompt</b> before <code>cin</code> so the user knows what to type. Without <code>endl</code>, the cursor waits on the same line.</p></div>
+    <div class="card"><h3 class="card-title">Several values at once</h3><p><code>cin &gt;&gt; a &gt;&gt; b;</code> reads two values. The user separates them with a space or with Enter.</p></div>
+    <div class="pitfall"><p class="box-label">Wrong kind of input</p><p>Typing <code>abc</code> when an <code>int</code> is expected makes <code>cin</code> fail. Input validation comes in later labs.</p></div>
+  </div>
+  <aside class="notes">
+    <p class="note-time">Suggested time: about 6 min</p>
+    <h4>Teaching tips</h4>
+    <ul>
+      <li>The comments in the code come from your deck example. Mention that <code>int x;</code> creates a box for a whole number (data types are Lab 3).</li>
+      <li>Run it live and type different numbers. Then type <code>4 7</code> and show that only <code>4</code> is read; the <code>7</code> waits for the next <code>cin</code>.</li>
+      <li>Show students where Codechum (or their IDE's console window) takes keyboard input before they need it in the seatwork.</li>
+    </ul>
+    <h4>Common student pitfalls</h4>
+    <ul>
+      <li><code>cin &lt;&lt; x;</code> (arrows reversed), another seatwork bug.</li>
+      <li><code>cin &gt;&gt; "Type a number: ";</code>, trying to print a prompt with <code>cin</code>.</li>
+      <li>Using a variable that was never declared (<code>cin &gt;&gt; y;</code> with no <code>int y;</code>).</li>
+    </ul>
+    <h4>Ask the class</h4>
+    <ul>
+      <li>"Where does the typed 25 go, and how long does it stay there?" (Into <code>x</code>'s memory; until the program changes it or ends.)</li>
+    </ul>
+  </aside>
+</section>
+
+<!-- ========================= SLIDE 11 · COMMENTS ========================= -->
+<section class="slide" id="l2-comments" data-title="Comments" data-section="Input &amp; Output">
+  <header class="slide-head">
+    <p class="kicker">Lab 2 · C++ Comments</p>
+    <h2>Comments: Notes the Compiler Ignores</h2>
+    <p class="lede">Comments explain code and make it readable. They can also switch off a line while you test alternatives.</p>
+  </header>
+  <div class="code-pair">
+    <figure class="codeblock">
+      <figcaption><code>comments.cpp</code></figcaption>
+<pre class="code" data-cpp>
+#include &lt;iostream&gt;
+using namespace std;
+
+/* Program: Hello with comments
+   Purpose: shows both kinds of comments.
+   The compiler skips everything in here. */
+int main() {
+    // This is a single-line comment
+    cout &lt;&lt; "Hello World!" &lt;&lt; endl;  // after code
+    // cout &lt;&lt; "Switched off." &lt;&lt; endl;
+    return 0;
+}
+</pre>
+    </figure>
+    <div class="stack">
+      <figure class="codeblock">
+        <figcaption>Output</figcaption>
+<pre class="console">Hello World!</pre>
+      </figure>
+      <div class="table-wrap">
+        <table class="table compact">
+          <thead><tr><th scope="col">Kind</th><th scope="col">Syntax</th><th scope="col">Ends</th></tr></thead>
+          <tbody>
+            <tr><th scope="row">Single-line</th><td><code>// text</code></td><td>at the end of the line</td></tr>
+            <tr><th scope="row">Multi-line</th><td><code>/* text */</code></td><td>at <code>*/</code>, even lines later</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="note-box"><p class="box-label">Good comments say why</p><p><code>// tax rate for 2026</code> helps. <code>// add 1 to i</code> just repeats the code.</p></div>
+    </div>
+  </div>
+  <aside class="notes">
+    <p class="note-time">Suggested time: about 4 min</p>
+    <h4>Teaching tips</h4>
+    <ul>
+      <li>Require a header comment (program name, author, date, purpose) on every lab submission. It counts under <em>Structure, Readability &amp; Standards</em>.</li>
+      <li>Show "commenting out" a line as a debugging tool: switch a suspicious line off, rebuild, and see if the error disappears.</li>
+      <li>IDE shortcuts: VS Code toggles <code>//</code> on selected lines with Ctrl + /; Code::Blocks uses Ctrl + Shift + C (comment) and Ctrl + Shift + X (uncomment).</li>
+    </ul>
+    <h4>Common student pitfalls</h4>
+    <ul>
+      <li>Forgetting the closing <code>*/</code>: everything after it becomes a comment and the program loses its closing brace.</li>
+      <li>Nesting <code>/* … /* … */ … */</code>: the first <code>*/</code> ends the comment.</li>
+    </ul>
+    <h4>Ask the class</h4>
+    <ul>
+      <li>"What does the program print if we remove the <code>//</code> on line 10?" (A second line: <code>Switched off.</code>)</li>
+    </ul>
+  </aside>
+</section>
+
+<!-- ========================= SLIDE 12 · CONVENTIONS ========================= -->
+<section class="slide" id="l2-conventions" data-title="Coding Conventions" data-section="Input &amp; Output">
+  <header class="slide-head">
+    <p class="kicker">Lab 2 · Coding conventions</p>
+    <h2>Same Program, Very Different Readability</h2>
+    <p class="lede">Both programs compile and print the same output. Only one of them earns full marks for readability.</p>
+  </header>
+  <div class="grid-2 align-start">
+    <div class="stack">
+      <div class="compare bad">
+        <p class="compare-label">Hard to read</p>
+<pre class="code" data-cpp data-stdin="6 7">
+#include &lt;iostream&gt;
+using namespace std;
+int main(){int a,b;
+cout&lt;&lt;"Enter 2 numbers: ";cin&gt;&gt;a&gt;&gt;b;
+cout&lt;&lt;"Product: "&lt;&lt;a*b&lt;&lt;endl;return 0;}
+</pre>
+      </div>
+      <div class="card soft">
+        <h3 class="card-title">Conventions we follow</h3>
+        <ul class="tight">
+          <li><b>Indent</b> 4 spaces inside every <code>{ }</code>.</li>
+          <li><b>One statement per line.</b></li>
+          <li><b>Meaningful names</b>: <code>product</code>, not <code>p</code>.</li>
+          <li><b>Comments</b> for purpose; <b>blank lines</b> between input, process, output.</li>
+          <li><b>Spaces</b> around operators: <code>a * b</code>, <code>cout &lt;&lt; x</code>.</li>
+        </ul>
+      </div>
+    </div>
+    <div class="stack">
+      <div class="compare good">
+        <p class="compare-label">Easy to read</p>
+<pre class="code" data-cpp data-stdin="6 7">
+#include &lt;iostream&gt;
+using namespace std;
+
+// Multiplies two whole numbers.
+int main() {
+    int first, second;
+
+    cout &lt;&lt; "Enter 2 numbers: ";
+    cin &gt;&gt; first &gt;&gt; second;
+
+    int product = first * second;
+    cout &lt;&lt; "Product: " &lt;&lt; product &lt;&lt; endl;
+    return 0;
+}
+</pre>
+      </div>
+      <figure class="codeblock">
+        <figcaption>Output (both programs)</figcaption>
+<pre class="console">Enter 2 numbers: <span class="in">6 7</span>
+Product: 42</pre>
+      </figure>
+    </div>
+  </div>
+  <aside class="notes">
+    <p class="note-time">Suggested time: about 5 min</p>
+    <h4>Teaching tips</h4>
+    <ul>
+      <li>Ask students to find the <code>cin</code> in the left program. It takes a while, and that is the point.</li>
+      <li>Tie it to the rubric: <em>Structure, Readability &amp; Standards</em> is 25 of 100 points on every lab exercise.</li>
+      <li>Most IDEs can auto-format (Code::Blocks: Plugins → Source code formatter; VS Code: Shift + Alt + F). Still teach the habit; the Midterm Practical is typed by hand.</li>
+    </ul>
+    <h4>Common student pitfalls</h4>
+    <ul>
+      <li>Mixing tabs and spaces, so the indentation looks different on Codechum and on the projector.</li>
+      <li>Names like <code>a1</code>, <code>a2</code>, <code>xx</code> that mean nothing a week later.</li>
+    </ul>
+    <h4>Ask the class</h4>
+    <ul>
+      <li>"Which would you rather debug at 11 p.m. before a deadline?"</li>
+    </ul>
+  </aside>
+</section>
+
+<!-- ========================= SLIDE 13 · CALCULATOR (TRACER) ========================= -->
+<section class="slide" id="l2-calc" data-title="Example 1: Simple Calculator" data-section="Worked Examples">
+  <header class="slide-head">
+    <p class="kicker">Lab 2 · Example 1</p>
+    <h2>Creating a Simple Calculator</h2>
+    <p class="lede">Input, process, output: read two whole numbers, add them, and display the sum.</p>
+  </header>
+  <div class="example-grid">
+    <div class="stack">
+      <figure class="codeblock">
+        <figcaption><code>calculator.cpp</code></figcaption>
+<pre class="code" id="l2-calc-code" data-cpp data-stdin="12 30">
+#include &lt;iostream&gt;
+using namespace std;
+
+int main() {
+    int x, y;
+    int sum;
+    cout &lt;&lt; "Type a number: ";
+    cin &gt;&gt; x;
+    cout &lt;&lt; "Type another number: ";
+    cin &gt;&gt; y;
+    sum = x + y;
+    cout &lt;&lt; "Sum is: " &lt;&lt; sum &lt;&lt; endl;
+    return 0;
+}
+</pre>
+      </figure>
+      <figure class="codeblock">
+        <figcaption>Sample run</figcaption>
+<pre class="console">Type a number: <span class="in">12</span>
+Type another number: <span class="in">30</span>
+Sum is: 42</pre>
+      </figure>
+    </div>
+    <div class="tracer" data-trace="l2-calc" data-code="#l2-calc-code">
+      <div class="tracer-inputs">
+        <label>x <input type="number" data-var="x" value="12" step="1"></label>
+        <label>y <input type="number" data-var="y" value="30" step="1"></label>
+      </div>
+    </div>
+  </div>
+  <aside class="notes">
+    <p class="note-time">Suggested time: about 8 min</p>
+    <h4>Teaching tips</h4>
+    <ul>
+      <li>This is your deck's Example 1, wrapped in the full program skeleton, with <code>endl</code> added at the end so the cursor ends on a new line.</li>
+      <li>Step through with the tracer. Point at the Memory panel: after line 5–6, <code>x</code>, <code>y</code>, <code>sum</code> exist but hold unknown "garbage" values until they are given one.</li>
+      <li>Then live-code it in Codechum and change it into a subtraction, multiplication, and "average of two" calculator.</li>
+      <li>Try <code>2.5</code> for x in the tracer: <code>int</code> keeps only <code>2</code>, the leftover <code>.5</code> makes the next <code>cin</code> fail, and y becomes 0. Perfect cliffhanger for Lab 3 (data types).</li>
+    </ul>
+    <h4>Common student pitfalls</h4>
+    <ul>
+      <li>Writing <code>sum = x + y;</code> <b>before</b> the <code>cin</code> lines. Sequence matters: the computer does not "remember to compute later".</li>
+      <li>Writing <code>x + y = sum;</code>. The variable receiving the value is always on the left of <code>=</code>.</li>
+    </ul>
+    <h4>Ask the class</h4>
+    <ul>
+      <li>"Can we delete the variable <code>sum</code> entirely?" (Yes: <code>cout &lt;&lt; "Sum is: " &lt;&lt; x + y;</code>. Discuss when a named variable is clearer.)</li>
+    </ul>
+  </aside>
+</section>
+
+<!-- ========================= SLIDE 14 · PROBLEMS 1 & 2 ========================= -->
+<section class="slide" id="l2-p12" data-title="Problems 1 & 2 in C++" data-section="Worked Examples">
+  <header class="slide-head">
+    <p class="kicker">Lab 2 · From pseudocode to C++ · Sequence</p>
+    <h2>Problems 1 &amp; 2: Cody, Now in C++</h2>
+    <p class="lede">Same problems as Lab 1. Switch tabs to compare the pseudocode with the C++ line by line.</p>
+  </header>
+  <div class="grid-2 align-start">
+    <div class="stack">
+      <div class="story" style="margin:0"><p><b>Problem 1.</b> Cody the robot wants to blend in with classmates who are <b>5 years old</b>. <span class="task" style="display:block"><b>Task:</b> print the number 5.</span></p></div>
+      <div class="tabs" data-tabs>
+        <div class="tablist" role="tablist" aria-label="Problem 1 views">
+          <button type="button" role="tab" data-tab="pc" aria-selected="true">Pseudocode</button>
+          <button type="button" role="tab" data-tab="cpp">C++</button>
+        </div>
+        <div class="tabpanel" role="tabpanel" data-panel="pc">
+<pre class="code" data-pseudo>
+START
+    PRINT 5
+END
+</pre>
+        </div>
+        <div class="tabpanel" role="tabpanel" data-panel="cpp">
+<pre class="code" data-cpp>
+#include &lt;iostream&gt;
+using namespace std;
+
+int main() {
+    cout &lt;&lt; 5 &lt;&lt; endl;
+    return 0;
+}
+</pre>
+        </div>
+      </div>
+      <figure class="codeblock"><figcaption>Output</figcaption><pre class="console">5</pre></figure>
+    </div>
+    <div class="stack">
+      <div class="story" style="margin:0"><p><b>Problem 2.</b> The old man's age is <q>the sum of The Programmer's and your teacher's ages subtracted by the age of your friend, Peter.</q></p></div>
+      <div class="tabs" data-tabs>
+        <div class="tablist" role="tablist" aria-label="Problem 2 views">
+          <button type="button" role="tab" data-tab="pc" aria-selected="true">Pseudocode</button>
+          <button type="button" role="tab" data-tab="cpp">C++</button>
+        </div>
+        <div class="tabpanel" role="tabpanel" data-panel="pc">
+<pre class="code" data-pseudo>
+START
+    INPUT a          // age of The Programmer
+    INPUT b          // age of the teacher
+    INPUT c          // age of Peter
+    COMPUTE age = a + b - c
+    PRINT age
+END
+</pre>
+        </div>
+        <div class="tabpanel" role="tabpanel" data-panel="cpp">
+<pre class="code scroll" data-cpp data-stdin="30 50 10">
+#include &lt;iostream&gt;
+using namespace std;
+
+int main() {
+    int a, b, c, age;
+    cout &lt;&lt; "Age of The Programmer: ";
+    cin &gt;&gt; a;
+    cout &lt;&lt; "Age of the teacher: ";
+    cin &gt;&gt; b;
+    cout &lt;&lt; "Age of Peter: ";
+    cin &gt;&gt; c;
+    age = a + b - c;
+    cout &lt;&lt; "Age of the old man: " &lt;&lt; age &lt;&lt; endl;
+    return 0;
+}
+</pre>
+        </div>
+      </div>
+      <figure class="codeblock"><figcaption>Sample run</figcaption><pre class="console">Age of The Programmer: <span class="in">30</span>
+Age of the teacher: <span class="in">50</span>
+Age of Peter: <span class="in">10</span>
+Age of the old man: 70</pre></figure>
+    </div>
+  </div>
+  <aside class="notes">
+    <p class="note-time">Suggested time: about 8 min</p>
+    <h4>Teaching tips</h4>
+    <ul>
+      <li>The pseudocode is the version from your Lab 2 deck (<code>Print 5</code>; inputs <code>a</code>, <code>b</code>, <code>c</code>; <code>age = a + b - c</code>).</li>
+      <li>Map line by line: START/END → <code>main</code>; each INPUT → a prompt plus <code>cin</code>; COMPUTE → assignment; PRINT → <code>cout</code>.</li>
+      <li>Point out that the C++ version adds <b>prompts</b>. Pseudocode does not need them, but real users do.</li>
+      <li>Have students type Problem 2 themselves in Codechum before revealing the C++ tab.</li>
+    </ul>
+    <h4>Common student pitfalls</h4>
+    <ul>
+      <li>Forgetting to declare <code>a</code>, <code>b</code>, <code>c</code>, <code>age</code> (C++ requires it; pseudocode did not).</li>
+      <li><code>cout &lt;&lt; "5";</code> vs <code>cout &lt;&lt; 5;</code> both print 5 here. Ask why one is text and the other is a number.</li>
+    </ul>
+    <h4>Ask the class</h4>
+    <ul>
+      <li>"Rename <code>a</code>, <code>b</code>, <code>c</code> to something meaningful." (e.g., <code>programmerAge</code>, <code>teacherAge</code>, <code>peterAge</code>.)</li>
+    </ul>
+  </aside>
+</section>
+
+<!-- ========================= SLIDE 15 · PROBLEM 3 (TRACER) ========================= -->
+<section class="slide" id="l2-p3" data-title="Problem 3: Adult or Minor in C++" data-section="Worked Examples">
+  <header class="slide-head">
+    <p class="kicker">Lab 2 · From pseudocode to C++ · Preview of Lab 6</p>
+    <h2>Problem 3: Adult or Minor? (a first look at <code>if</code>)</h2>
+    <p class="lede">Cody needs to determine if <b>The Programmer</b> is an adult or a minor. An adult is anyone aged <b>18 and above</b>.</p>
+  </header>
+  <div class="example-grid">
+    <div class="stack">
+      <div class="tabs" data-tabs>
+        <div class="tablist" role="tablist" aria-label="Problem 3 views">
+          <button type="button" role="tab" data-tab="pc" aria-selected="true">Pseudocode</button>
+          <button type="button" role="tab" data-tab="cpp">C++</button>
+        </div>
+        <div class="tabpanel" role="tabpanel" data-panel="pc">
+<pre class="code" data-pseudo>
+START
+    INPUT age
+    IF age &lt; 18 THEN
+        PRINT "Minor"
+    ELSE
+        PRINT "Adult"
+    ENDIF
+END
+</pre>
+        </div>
+        <div class="tabpanel" role="tabpanel" data-panel="cpp">
+<pre class="code" id="l2-p3-code" data-cpp data-stdin="17">
+#include &lt;iostream&gt;
+using namespace std;
+
+int main() {
+    int age;
+    cout &lt;&lt; "Enter age: ";
+    cin &gt;&gt; age;
+
+    if (age &lt; 18) {
+        cout &lt;&lt; "Minor" &lt;&lt; endl;
+    } else {
+        cout &lt;&lt; "Adult" &lt;&lt; endl;
+    }
+    return 0;
+}
+</pre>
+        </div>
+      </div>
+    </div>
+    <div class="stack">
+      <div class="tracer" data-trace="l2-p3" data-code="#l2-p3-code">
+        <div class="tracer-inputs">
+          <label>age <input type="number" data-var="age" value="17" step="1"></label>
+        </div>
+      </div>
+      <div class="samples">
+        <figure class="sample"><figcaption>Sample run 1</figcaption><pre class="console">Enter age: <span class="in">17</span>
+Minor</pre></figure>
+        <figure class="sample"><figcaption>Sample run 2</figcaption><pre class="console">Enter age: <span class="in">18</span>
+Adult</pre></figure>
+      </div>
+    </div>
+  </div>
+  <aside class="notes">
+    <p class="note-time">Suggested time: about 7 min</p>
+    <h4>Teaching tips</h4>
+    <ul>
+      <li>The pseudocode is your deck's version (<code>If age &lt; 18 … Else …</code>). Lab 1's site version tested <code>&gt;= 18</code> instead; both are correct. Ask students to explain why.</li>
+      <li>This is a <b>preview</b>: students only need to recognize <code>if (condition) { … } else { … }</code>. Full selection is Lab 6.</li>
+      <li>Trace with 17, 18, and 19. Exactly 18 is the boundary test.</li>
+    </ul>
+    <h4>Common student pitfalls</h4>
+    <ul>
+      <li>A semicolon after the condition: <code>if (age &lt; 18);</code> ends the if right there (a classic silent bug).</li>
+      <li>Writing <code>else (age &gt;= 18)</code>. <code>else</code> never takes a condition.</li>
+      <li>Writing <code>If</code> / <code>Else</code> with capitals (seatwork bug).</li>
+    </ul>
+    <h4>Ask the class</h4>
+    <ul>
+      <li>"How many of the two <code>cout</code> lines run for any one input?" (Exactly one.)</li>
+    </ul>
+  </aside>
+</section>
+
+<!-- ========================= SLIDE 16 · PROBLEMS 4 & 5 ========================= -->
+<section class="slide" id="l2-p45" data-title="Problems 4 & 5 (Preview)" data-section="Worked Examples">
+  <header class="slide-head">
+    <p class="kicker">Lab 2 · From pseudocode to C++ · Preview of Labs 6–7</p>
+    <h2>Problems 4 &amp; 5: Letter Grade and Divisible by 3</h2>
+    <p class="lede">Don't memorize these yet. Notice how each pseudocode line becomes one C++ line.</p>
+  </header>
+  <div class="grid-2 align-start">
+    <div class="stack">
+      <p class="sub">Problem 4 · else-if ladder <span class="muted small">(Lab 6)</span></p>
+      <ul class="grade-scale" aria-label="Grading scale" style="margin:0"><li><b>A</b> ≥ 90</li><li><b>B</b> ≥ 80</li><li><b>C</b> ≥ 70</li><li><b>D</b> ≥ 60</li><li><b>F</b> &lt; 60</li></ul>
+      <div class="tabs" data-tabs>
+        <div class="tablist" role="tablist" aria-label="Problem 4 views">
+          <button type="button" role="tab" data-tab="pc" aria-selected="true">Pseudocode</button>
+          <button type="button" role="tab" data-tab="cpp">C++</button>
+          <button type="button" role="tab" data-tab="run">Sample run</button>
+        </div>
+        <div class="tabpanel" role="tabpanel" data-panel="pc">
+<pre class="code" data-pseudo>
+START
+    INPUT grade
+    IF grade >= 90 THEN
+        PRINT "A"
+    ELSE IF grade >= 80 THEN
+        PRINT "B"
+    ELSE IF grade >= 70 THEN
+        PRINT "C"
+    ELSE IF grade >= 60 THEN
+        PRINT "D"
+    ELSE
+        PRINT "F"
+    ENDIF
+END
+</pre>
+        </div>
+        <div class="tabpanel" role="tabpanel" data-panel="cpp">
+<pre class="code scroll" data-cpp data-stdin="85" style="max-height:44vh">
+#include &lt;iostream&gt;
+using namespace std;
+
+int main() {
+    double grade;
+    cout &lt;&lt; "Enter grade: ";
+    cin &gt;&gt; grade;
+
+    if (grade &gt;= 90) {
+        cout &lt;&lt; "A" &lt;&lt; endl;
+    } else if (grade &gt;= 80) {
+        cout &lt;&lt; "B" &lt;&lt; endl;
+    } else if (grade &gt;= 70) {
+        cout &lt;&lt; "C" &lt;&lt; endl;
+    } else if (grade &gt;= 60) {
+        cout &lt;&lt; "D" &lt;&lt; endl;
+    } else {
+        cout &lt;&lt; "F" &lt;&lt; endl;
+    }
+    return 0;
+}
+</pre>
+        </div>
+        <div class="tabpanel" role="tabpanel" data-panel="run">
+<pre class="console">Enter grade: <span class="in">85</span>
+B</pre>
+        </div>
+      </div>
+    </div>
+    <div class="stack">
+      <p class="sub">Problem 5 · while loop + <code>%</code> <span class="muted small">(Lab 7)</span></p>
+      <p class="small">Print all numbers from 1 to 100 that are divisible by 3, each on a separate line.</p>
+      <div class="tabs" data-tabs>
+        <div class="tablist" role="tablist" aria-label="Problem 5 views">
+          <button type="button" role="tab" data-tab="pc" aria-selected="true">Pseudocode</button>
+          <button type="button" role="tab" data-tab="cpp">C++</button>
+          <button type="button" role="tab" data-tab="run">Output</button>
+        </div>
+        <div class="tabpanel" role="tabpanel" data-panel="pc">
+<pre class="code" data-pseudo>
+START
+    SET i = 1
+    WHILE i &lt;= 100 DO
+        IF i % 3 == 0 THEN
+            PRINT i
+        ENDIF
+        ADD 1 TO i
+    ENDWHILE
+END
+</pre>
+        </div>
+        <div class="tabpanel" role="tabpanel" data-panel="cpp">
+<pre class="code" data-cpp>
+#include &lt;iostream&gt;
+using namespace std;
+
+int main() {
+    int i = 1;
+    while (i &lt;= 100) {
+        if (i % 3 == 0) {
+            cout &lt;&lt; i &lt;&lt; endl;
+        }
+        i = i + 1;
+    }
+    return 0;
+}
+</pre>
+        </div>
+        <div class="tabpanel" role="tabpanel" data-panel="run">
+<pre class="console" style="max-height:40vh;overflow-y:auto">3
+6
+9
+12
+15
+18
+21
+24
+27
+30
+33
+36
+39
+42
+45
+48
+51
+54
+57
+60
+63
+66
+69
+72
+75
+78
+81
+84
+87
+90
+93
+96
+99</pre>
+        </div>
+      </div>
+    </div>
+  </div>
+  <aside class="notes">
+    <p class="note-time">Suggested time: about 7 min</p>
+    <h4>Teaching tips</h4>
+    <ul>
+      <li>The pseudocode matches your deck (<code>Initialize i as 1</code>, <code>While i &lt;= 100</code>, <code>If i%3 == 0</code>, <code>Add 1 to i</code>). Keep this slide short: it is a preview, not a lesson.</li>
+      <li>Highlight the shared shapes: <code>IF … THEN</code> → <code>if (…) {</code>; <code>ENDIF</code> → <code>}</code>; <code>WHILE … DO</code> → <code>while (…) {</code>.</li>
+      <li>Problem 4 uses <code>double grade</code> so that grades like 89.5 work. That choice is explained in Lab 3.</li>
+      <li>Problem 5 prints 33 numbers. Scroll the Output tab to show 99 is last.</li>
+    </ul>
+    <h4>Common student pitfalls</h4>
+    <ul>
+      <li>Forgetting <code>i = i + 1;</code>: an infinite loop. On Codechum it times out; in an IDE, close the console window or press Ctrl + C.</li>
+      <li>Using <code>=</code> instead of <code>==</code> in a condition (<code>if (i % 3 = 0)</code> does not even compile here).</li>
+    </ul>
+    <h4>Ask the class</h4>
+    <ul>
+      <li>"In Problem 4, why can the second test be just <code>grade &gt;= 80</code>?" (We only get there when <code>grade &gt;= 90</code> was false.)</li>
+    </ul>
+  </aside>
+</section>
+
+<!-- ========================= SLIDE 17 · QUICK CHECK ========================= -->
+<section class="slide" id="l2-quick-check" data-title="Quick Check" data-section="Worked Examples">
+  <header class="slide-head">
+    <p class="kicker">Lab 2 · Quick check</p>
+    <h2>Quick Check</h2>
+    <p class="lede">Answer in your head first, then click to reveal.</p>
+  </header>
+  <div class="qa-grid">
+    <details class="qa"><summary><span class="q-num">1</span><span class="q-text">Where does every C++ program start running?</span></summary><p>In <code>int main()</code>. Execution starts at the first statement inside main's braces.</p></details>
+    <details class="qa"><summary><span class="q-num">2</span><span class="q-text">What does <code>#include &lt;iostream&gt;</code> do, and why has it no semicolon?</span></summary><p>It is a preprocessor directive that brings in the input/output library (<code>cout</code>, <code>cin</code>). Directives are not statements, so they take no <code>;</code>.</p></details>
+    <details class="qa"><summary><span class="q-num">3</span><span class="q-text">What is printed by <code>cout &lt;&lt; "A"; cout &lt;&lt; "B";</code>?</span></summary><p><code>AB</code> on one line. <code>cout</code> never adds a new line by itself; use <code>\n</code> or <code>endl</code>.</p></details>
+    <details class="qa"><summary><span class="q-num">4</span><span class="q-text">Which is correct: <code>cin &lt;&lt; x;</code> or <code>cin &gt;&gt; x;</code>?</span></summary><p><code>cin &gt;&gt; x;</code>. The arrows point where the data goes: from the keyboard into <code>x</code>.</p></details>
+    <details class="qa"><summary><span class="q-num">5</span><span class="q-text">A missing semicolon is caught at which step: compile, link, or run?</span></summary><p>At <b>compile</b> time. It is a syntax error, so no executable is produced and nothing runs.</p></details>
+    <details class="qa"><summary><span class="q-num">6</span><span class="q-text">What does <code>return 0;</code> in <code>main</code> mean?</span></summary><p>The program ends and reports success (0) to the operating system.</p></details>
+  </div>
+  <aside class="notes">
+    <p class="note-time">Suggested time: about 5 min</p>
+    <h4>Teaching tips</h4>
+    <ul>
+      <li>Cold-call or use a quick show of hands per question before revealing.</li>
+      <li>Question 5 checks that students understood the build pipeline, not just the syntax.</li>
+    </ul>
+    <h4>Common student pitfalls</h4>
+    <ul>
+      <li>Answering Q3 with two lines. Run it live if anyone doubts.</li>
+    </ul>
+    <h4>Ask the class</h4>
+    <ul>
+      <li>Bonus: "What changes if we write <code>Return 0;</code>?" (Compile error: C++ is case-sensitive.)</li>
+    </ul>
+  </aside>
+</section>
+
+<!-- ========================= SLIDE 18 · SEATWORK ========================= -->
+<section class="slide" id="l2-seatwork" data-title="Seatwork: Odd or Even" data-section="Practice &amp; Lab">
+  <header class="slide-head">
+    <p class="kicker">Lab 2 · Seatwork · Debugging</p>
+    <h2>Seatwork: Odd or Even? Fix the Program</h2>
+    <p class="lede"><b>Instruction:</b> This program should say whether an integer is EVEN or ODD, but it has <b>many</b> errors. Copy it into Codechum and fix it until it compiles and runs correctly. List every bug you fixed.</p>
+  </header>
+  <div class="grid-2 align-start" style="grid-template-columns:minmax(0,1.55fr) minmax(0,1fr)">
+    <figure class="codeblock">
+      <figcaption>Buggy program (does not compile)</figcaption>
+<pre class="code compact bad-code" data-cpp data-nocheck>
+#include &lt;ipostream&gt;
+
+int main()
+{
+    Int num;
+    Cout &gt;&gt; "Enter an integer: ";
+    cin &lt;&lt; num;
+
+    If (num%2 == 0)
+        cout &lt;&lt; "You've entered " &gt;&gt; num &lt;&lt; ", it is an EVEN number. "
+    Else
+        cout &lt;&lt; You've entered  &lt;&lt; num &lt;&lt; ", it is an ODD number. ";
+
+    return 0;
+};
+</pre>
+    </figure>
+    <div class="stack">
+      <div class="card">
+        <h3 class="card-title">Need a hint?</h3>
+        <details class="hint"><summary>Hint 1</summary><p>Start at the top. Check the library name and the line that should come right after it.</p></details>
+        <details class="hint"><summary>Hint 2</summary><p>C++ is case-sensitive. Count how many words start with a capital letter that shouldn't.</p></details>
+        <details class="hint"><summary>Hint 3</summary><p>Check every arrow: output uses <code>&lt;&lt;</code>, input uses <code>&gt;&gt;</code>. Then check every quote and every semicolon.</p></details>
+        <p class="small muted">There are at least 11 things to fix. Expected: <code>7</code> → ODD, <code>10</code> → EVEN.</p>
+      </div>
+      <div class="card timer" data-timer data-minutes="10">
+        <p class="timer-display" style="margin-top:0">10:00</p>
+        <div class="timer-presets" role="group" aria-label="Timer presets">
+          <button type="button" class="btn ghost" data-min="5">5 min</button>
+          <button type="button" class="btn ghost" data-min="10">10 min</button>
+          <button type="button" class="btn ghost" data-min="15">15 min</button>
+        </div>
+        <div class="timer-actions">
+          <button type="button" class="btn primary" data-timer-act="toggle">Start</button>
+          <button type="button" class="btn" data-timer-act="reset">Reset</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <details class="answer">
+    <summary><span>Reveal corrected program &amp; bug list</span></summary>
+    <div class="grid-2 align-start" style="margin-top:1rem">
+      <div class="stack">
+<pre class="code" data-cpp data-stdin="7">
+#include &lt;iostream&gt;
+using namespace std;
+
+int main() {
+    int num;
+    cout &lt;&lt; "Enter an integer: ";
+    cin &gt;&gt; num;
+
+    if (num % 2 == 0) {
+        cout &lt;&lt; "You've entered " &lt;&lt; num &lt;&lt; ", it is an EVEN number." &lt;&lt; endl;
+    } else {
+        cout &lt;&lt; "You've entered " &lt;&lt; num &lt;&lt; ", it is an ODD number." &lt;&lt; endl;
+    }
+
+    return 0;
+}
+</pre>
+        <div class="samples">
+          <figure class="sample"><figcaption>Run 1</figcaption><pre class="console">Enter an integer: <span class="in">7</span>
+You've entered 7, it is an ODD number.</pre></figure>
+          <figure class="sample"><figcaption>Run 2</figcaption><pre class="console">Enter an integer: <span class="in">10</span>
+You've entered 10, it is an EVEN number.</pre></figure>
+        </div>
+      </div>
+      <div class="table-wrap">
+        <table class="table compact">
+          <thead><tr><th scope="col">Line</th><th scope="col">Bug</th><th scope="col">Fix</th></tr></thead>
+          <tbody>
+            <tr><td>1</td><td><code>&lt;ipostream&gt;</code></td><td><code>&lt;iostream&gt;</code></td></tr>
+            <tr><td>2</td><td>no namespace line</td><td>add <code>using namespace std;</code></td></tr>
+            <tr><td>5</td><td><code>Int</code></td><td><code>int</code></td></tr>
+            <tr><td>6</td><td><code>Cout &gt;&gt;</code></td><td><code>cout &lt;&lt;</code> (lowercase, output arrows)</td></tr>
+            <tr><td>7</td><td><code>cin &lt;&lt;</code></td><td><code>cin &gt;&gt;</code></td></tr>
+            <tr><td>9, 11</td><td><code>If</code>, <code>Else</code></td><td><code>if</code>, <code>else</code></td></tr>
+            <tr><td>10</td><td><code>&gt;&gt; num</code> inside output</td><td><code>&lt;&lt; num</code></td></tr>
+            <tr><td>10</td><td>missing <code>;</code> at the end</td><td>add <code>;</code></td></tr>
+            <tr><td>12</td><td><code>You've entered</code> has no quotes</td><td><code>"You've entered "</code></td></tr>
+            <tr><td>15</td><td><code>};</code> after main</td><td><code>}</code> (the <code>;</code> is legal but wrong style)</td></tr>
+            <tr><td>style</td><td>no braces, <code>num%2</code></td><td>add <code>{ }</code>, write <code>num % 2</code>, end lines with <code>endl</code></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </details>
+  <aside class="notes">
+    <p class="note-time">Suggested time: about 15 min (10 working, 5 review)</p>
+    <h4>Running the seatwork</h4>
+    <ul>
+      <li>This listing combines your deck's seatwork image (wrong header, missing namespace, reversed arrows, missing quotes and semicolon) with the capitalization bugs from your deck notes (<code>Int</code>, <code>Cout</code>, <code>If</code>, <code>Else</code>, <code>};</code>).</li>
+      <li>Make students compile after each fix. g++ stops at the first fatal error (<code>ipostream: No such file or directory</code>), so they experience "fix one, the next one appears".</li>
+      <li>The stray <code>;</code> after main's closing brace is accepted by modern compilers (an empty declaration), so it will not show up as an error. Remove it anyway for style.</li>
+      <li>Ask volunteers to read their bug lists aloud before revealing.</li>
+    </ul>
+    <h4>Common student pitfalls</h4>
+    <ul>
+      <li>Fixing <code>Cout</code> to <code>cout</code> but leaving <code>&gt;&gt;</code>.</li>
+      <li>Fixing the quotes on line 12 but forgetting the space before the closing quote, so the output reads <code>You've entered7</code>.</li>
+      <li>Testing only one number. Test odd, even, 0, and a negative odd like <code>-3</code> (prints ODD because <code>-3 % 2</code> is <code>-1</code>, not 0). A version that checks <code>num % 2 == 1</code> would wrongly call -3 even.</li>
+    </ul>
+    <h4>Ask the class</h4>
+    <ul>
+      <li>"Which bugs did the compiler find for you, and which would only show up when you run and test?" (All of these are compile errors except the stray <code>};</code> and missing spaces in the messages.)</li>
+    </ul>
+  </aside>
+</section>
+
+<!-- ========================= SLIDE 19 · LAB ACTIVITY 2 ========================= -->
+<!-- LOCKED-ACTIVITY:START lab-02 -->
+<section class="slide locked-slide" id="l2-lab" data-title="Laboratory Exercise No. 2 (locked)" data-section="Practice &amp; Lab" data-locked="lab-02">
+  <header class="slide-head">
+    <p class="kicker">Laboratory Exercise No. 2</p>
+    <h2>This lab activity is locked</h2>
+    <p class="lede">It opens when your instructor releases it. Enter the passphrase your instructor gives you.</p>
+  </header>
+  <div class="lock-card">
+    <svg class="lock-icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="10.5" width="14" height="10" rx="2"/><path d="M8 10.5V7.5a4 4 0 0 1 8 0v3M12 14.5v2.5"/></svg>
+    <h3>Laboratory Exercise No. 2</h3>
+    <form class="lock-form" autocomplete="off">
+      <label class="sr-only" for="unlock-lab-02">Passphrase</label>
+      <input id="unlock-lab-02" type="password" placeholder="Passphrase" autocomplete="off" spellcheck="false">
+      <button type="submit" class="btn primary">Unlock</button>
+    </form>
+    <p class="lock-msg" aria-live="polite"></p>
+    <p class="small muted">The activity is stored encrypted on this site and is unlocked in your browser. Once unlocked, it stays open on this device.</p>
+  </div>
+  <script type="application/json" class="locked-data">{"v":1,"iter":250000,"salt":"KGN7TKXD/LttHo98OSydgg==","iv":"HOgBDvQDv1735KSM","data":"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"}</script>
+  <aside class="notes">
+    <p class="note-time">Locked activity (2 slides)</p>
+    <h4>Instructor</h4>
+    <ul>
+      <li>Type this lab's passphrase (private instructor package → <code>passwords.json</code>) to open the activity on the classroom PC. It stays unlocked on that browser until you press "Lock again".</li>
+      <li>To release the activity to students, announce or post the passphrase (e.g. in MS Teams).</li>
+      <li>To re-lock it for everyone, change the passphrase and rerun <code>node tools/lock-activities.js</code>.</li>
+    </ul>
+  </aside>
+</section>
+<!-- LOCKED-ACTIVITY:END lab-02 -->
+
+<!-- ========================= SLIDE 21 · WRAP-UP ========================= -->
+<section class="slide" id="l2-wrap" data-title="Wrap-up" data-section="Wrap-up">
+  <header class="slide-head">
+    <p class="kicker">Wrap-up</p>
+    <h2>The Skeleton You Will Type in Every Lab</h2>
+  </header>
+  <div class="grid-2 align-start">
+<pre class="code" data-cpp>
+#include &lt;iostream&gt;   // cout, cin
+using namespace std;  // standard names
+
+int main() {          // starts here
+    // input:   prompt, then cin &gt;&gt;
+    // process: compute with =
+    // output:  cout &lt;&lt; … &lt;&lt; endl;
+    return 0;         // finished OK
+}
+</pre>
+    <div class="card"><h3 class="card-title">Remember</h3><ul class="tight"><li><code>cout &lt;&lt;</code> out to the screen; <code>cin &gt;&gt;</code> in from the keyboard.</li><li><code>cout</code> adds no new line: use <code>\n</code> or <code>endl</code>.</li><li>Every statement ends with <code>;</code>. C++ is case-sensitive.</li><li>Syntax errors stop the build; logic errors need testing.</li></ul></div>
+  </div>
+  <div class="grid-2 align-start" style="margin-top:1.2rem">
+    <div class="card"><h3 class="card-title">Exit ticket</h3><p>On a ¼ sheet: write a complete C++ program that asks for <b>two whole numbers</b> and prints their <b>product</b> on its own line. Circle every semicolon.</p></div>
+    <div class="card"><h3 class="card-title">Next: Lab No. 3</h3><p><b>Data Types, Constants, Variables, and Strings</b>: why <code>int</code> could not handle 2.5, how much memory each type uses, and working with text.</p><p><a href="lab-03.html">Open Lab 3 →</a></p></div>
+  </div>
+  <aside class="notes">
+    <p class="note-time">Suggested time: about 4 min</p>
+    <h4>Teaching tips</h4>
+    <ul>
+      <li>The skeleton compiles as is (it just prints nothing). Have students save it as a starter file.</li>
+      <li>Collect exit tickets; the most common errors (missing <code>;</code>, reversed arrows) tell you what to review at the start of Lab 3.</li>
+      <li>Remind students of the Lab Activity 2 deadline and the five required test cases.</li>
+    </ul>
+    <h4>Common student pitfalls</h4>
+    <ul>
+      <li>Leaving the exit ticket program without a prompt before <code>cin</code>.</li>
+    </ul>
+    <h4>Ask the class</h4>
+    <ul>
+      <li>"In the calculator, what happened when we typed 2.5? Why?" (Leave it open: Lab 3 answers it.)</li>
+    </ul>
+  </aside>
+</section>
+
+      </div>
+    </main>
+  </div>
+</body>
+</html>

@@ -1,0 +1,1200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Lab 5 · Logical Control Structures: Sequential · CPE 104L</title>
+  <meta name="description" content="CPE 104L Programming Logic and Design, Lab No. 5: Logical Control Structures, Sequential. The IPO model, translating pseudocode and flowcharts to C++, cmath functions, formatted output with iomanip, and engineering formula programs.">
+  <meta name="color-scheme" content="light dark">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%232f3410'/%3E%3Cpath d='M32 11 53 32 32 53 11 32Z' fill='none' stroke='%23f5c518' stroke-width='6' stroke-linejoin='round'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="../css/styles.css">
+  <script>
+    (function () { var d = document.documentElement; d.classList.add('js');
+      try { var t = localStorage.getItem('cpe104l.theme'); if (t === 'dark' || t === 'light') d.setAttribute('data-theme', t); } catch (e) {} })();
+  </script>
+  <script src="../js/course.js" defer></script>
+  <script src="../js/search-index.js" defer></script>
+  <script src="../js/script.js" defer></script>
+  <script src="../js/labs/lab-05.js" defer></script>
+</head>
+<body data-page="lab-05" data-root="../">
+  <svg class="svg-defs" aria-hidden="true" focusable="false"><defs><marker id="arrow" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="10" markerHeight="10" markerUnits="userSpaceOnUse" orient="auto"><path class="arrowhead" d="M0 0 L10 5 L0 10 Z"/></marker></defs></svg>
+  <div class="app" id="app">
+    <main class="stage" id="stage">
+      <div class="deck" id="deck" tabindex="-1">
+<noscript><p class="noscript">JavaScript is off, so every slide is shown in one long page. Turn JavaScript on for slide navigation, speaker notes, and the live tracers.</p></noscript>
+
+<!-- ========================= SLIDE 1 · TITLE ========================= -->
+<section class="slide" id="l5-title" data-title="Title & ILOs" data-section="Introduction">
+  <div class="lab-title">
+    <div>
+      <div class="lab-badges"><span class="badge-lab">Lab No. 5</span><span class="badge-week">Week 6</span><span class="badge-co">CO1 · CO2</span></div>
+      <p class="kicker">CPE 104L · Programming Logic and Design</p>
+      <h1>Logical Control Structures <span>Sequential: step-by-step engineering calculations in C++</span></h1>
+      <p class="lede">Most engineering formulas are a straight line of steps: read the inputs, compute, and display the results. Today you plan those programs properly and write them in C++.</p>
+      <ol class="roadmap" aria-label="Lab roadmap">
+        <li><a href="#l5-bridge">Control structures</a></li>
+        <li><a href="#l5-ipo">IPO model</a></li>
+        <li><a href="#l5-translate">Pseudocode → C++</a></li>
+        <li><a href="#l5-cmath">&lt;cmath&gt; &amp; &lt;iomanip&gt;</a></li>
+        <li><a href="#l5-resistors">Engineering examples</a></li>
+        <li><a href="#l5-lab-1">Lab Exercise No. 5</a></li>
+      </ol>
+    </div>
+    <div class="ilo-card">
+      <h2>Intended Learning Outcome</h2>
+      <ol>
+        <li>Design sequential logic programs to solve step-by-step calculations.</li>
+      </ol>
+      <div class="ilo-meta">
+        <span><b>Activities:</b> Guided coding exercises · Incremental lab challenges · Laboratory activities</span>
+        <span><b>Assessment:</b> Lab Exercise No. 5 · 5-Level Lab Rubric</span>
+      </div>
+    </div>
+  </div>
+  <aside class="notes">
+    <p class="note-time">Suggested time: about 3 min</p>
+    <h4>Teaching tips</h4>
+    <ul>
+      <li>The syllabus pairs Lab 5 and Lab 6 in Week 6. If both run in the same week, keep this lab to about two hours and move one engineering example to self-study.</li>
+      <li>Hook: "How much does your gaming PC add to the electric bill each month?" That is a sequential program (slide 11), and students can answer it by the end of today.</li>
+      <li>CO2 enters here: from now on, every program is tested with a hand-computed case before it is trusted.</li>
+    </ul>
+    <h4>Common student pitfalls</h4>
+    <ul>
+      <li>Thinking "sequential" means "easy". Most errors in this lab are formula, unit, and type errors, not syntax errors.</li>
+    </ul>
+    <h4>Ask the class</h4>
+    <ul>
+      <li>"Name a formula from your physics or math class that a program could compute for you."</li>
+    </ul>
+  </aside>
+</section>
+
+<!-- ========================= SLIDE 2 · CONTROL STRUCTURES RECAP ========================= -->
+<section class="slide" id="l5-bridge" data-title="The Three Control Structures" data-section="Introduction">
+  <header class="slide-head">
+    <p class="kicker">Lab 5 · Review of Lab 1</p>
+    <h2>The Three Control Structures</h2>
+    <p class="lede">A <b>control structure</b> decides the order in which statements run. Every program is built from just three, each with one entry and one exit.</p>
+  </header>
+  <div class="grid-3" style="margin-top:0">
+    <article class="card">
+      <h3 class="card-title">1 · Sequence <span class="badge" style="margin:0 0 0 .3rem">Today: Lab 5</span></h3>
+      <p class="small">Statements run one after another, each exactly once.</p>
+      <svg class="fc mini" viewBox="0 0 220 230" role="img" aria-label="Sequence flowchart: input, then process, then output, in a straight line.">
+        <path class="fc-line" d="M110 0 V14"/>
+        <g class="fc-node"><polygon class="s-io" points="42,14 200,14 178,58 20,58"/><text x="110" y="36">Input celsius</text></g>
+        <path class="fc-line" d="M110 58 V88"/>
+        <g class="fc-node"><rect class="s-process" x="25" y="88" width="170" height="44"/><text x="110" y="110">Compute f, k</text></g>
+        <path class="fc-line" d="M110 132 V162"/>
+        <g class="fc-node"><polygon class="s-io" points="42,162 200,162 178,206 20,206"/><text x="110" y="184">Display f, k</text></g>
+        <path class="fc-line" d="M110 206 V228"/>
+      </svg>
+    </article>
+    <article class="card">
+      <h3 class="card-title">2 · Selection <span class="badge" style="margin:0 0 0 .3rem;background:var(--surface-2);color:var(--muted)">Lab 6</span></h3>
+      <p class="small">A condition chooses one of two paths.</p>
+      <svg class="fc mini" viewBox="0 0 300 240" role="img" aria-label="Selection flowchart: a decision asks Condition. Yes goes right to Action A, No goes down to Action B, then both paths join.">
+        <path class="fc-line" d="M110 2 V20"/>
+        <g class="fc-node"><polygon class="s-decision" points="110,20 190,58 110,96 30,58"/><text x="110" y="58">Condition?</text></g>
+        <path class="fc-line" d="M190 58 H240 V118"/>
+        <text class="fc-label" x="214" y="46">Yes</text>
+        <path class="fc-line" d="M110 96 V118"/>
+        <text class="fc-label a-start" x="118" y="108">No</text>
+        <g class="fc-node"><rect class="s-process" x="60" y="118" width="100" height="42"/><text x="110" y="139">Action B</text></g>
+        <g class="fc-node"><rect class="s-process" x="190" y="118" width="100" height="42"/><text x="240" y="139">Action A</text></g>
+        <path class="fc-line" d="M110 160 V187"/>
+        <path class="fc-line" d="M240 160 V192 H116"/>
+        <circle class="fc-dot" cx="110" cy="192" r="4.5"/>
+        <path class="fc-line" d="M110 196 V234"/>
+      </svg>
+    </article>
+    <article class="card">
+      <h3 class="card-title">3 · Repetition <span class="badge" style="margin:0 0 0 .3rem;background:var(--surface-2);color:var(--muted)">Labs 7–8</span></h3>
+      <p class="small">Steps repeat while a condition stays true.</p>
+      <svg class="fc mini" viewBox="0 0 300 240" role="img" aria-label="Loop flowchart: a decision asks Condition. Yes goes down to Action, which loops back up to the decision. No exits to the right.">
+        <path class="fc-line" d="M130 2 V40"/>
+        <g class="fc-node"><polygon class="s-decision" points="130,40 210,78 130,116 50,78"/><text x="130" y="78">Condition?</text></g>
+        <path class="fc-line" d="M130 116 V146"/>
+        <text class="fc-label a-start" x="140" y="133">Yes</text>
+        <g class="fc-node"><rect class="s-process" x="75" y="146" width="110" height="42"/><text x="130" y="167">Action</text></g>
+        <path class="fc-line" d="M75 167 H22 V20 H126"/>
+        <path class="fc-line" d="M210 78 H270 V234"/>
+        <text class="fc-label" x="240" y="66">No</text>
+      </svg>
+    </article>
+  </div>
+  <div class="concept" style="margin-top:1.2rem"><p class="box-label">Key concept</p><p>Every program you wrote in Labs 2–4 was already <b>sequential</b>. Today you learn to <b>design</b> sequential programs deliberately: plan the inputs, the formulas, and the outputs before you type.</p></div>
+  <aside class="notes">
+    <p class="note-time">Suggested time: about 4 min</p>
+    <h4>Teaching tips</h4>
+    <ul>
+      <li>Same three structures as Lab 1 (Böhm and Jacopini, 1966). The syllabus covers them in C++ over Labs 5–8, one structure at a time.</li>
+      <li>Everyday sequence: a recipe with no "if" and no "repeat until", where every step happens once, in order.</li>
+      <li>Selection and repetition contain sequences inside them, so getting sequence right comes first.</li>
+    </ul>
+    <h4>Common student pitfalls</h4>
+    <ul>
+      <li>Believing a program "knows" to wait or go back. Without selection or repetition, the computer runs each line exactly once, top to bottom.</li>
+    </ul>
+    <h4>Ask the class</h4>
+    <ul>
+      <li>"Converting 37.5 °C to °F: which structure? Checking whether a temperature is a fever? Logging a temperature every minute?" (Sequence, selection, repetition.)</li>
+    </ul>
+  </aside>
+</section>
+
+<!-- ========================= SLIDE 3 · SEQUENTIAL EXECUTION ========================= -->
+<section class="slide" id="l5-sequence" data-title="Sequential Execution: Order Matters" data-section="Sequential Logic">
+  <header class="slide-head">
+    <p class="kicker">Lab 5 · Sequence</p>
+    <h2>Sequential Execution: Order Matters</h2>
+    <p class="lede">Statements run top to bottom, each exactly once. A formula uses the values its variables have <b>at that moment</b>.</p>
+  </header>
+  <div class="grid-2 align-start">
+    <div class="stack">
+      <div class="compare bad">
+        <p class="compare-label">Wrong order</p>
+<pre class="code compact bad-code" data-cpp data-nocheck>
+double length, width, area;
+area = length * width;   // garbage * garbage!
+cout &lt;&lt; "Enter length and width (m): ";
+cin &gt;&gt; length &gt;&gt; width;
+cout &lt;&lt; "Area = " &lt;&lt; area &lt;&lt; " sq. m" &lt;&lt; endl;
+</pre>
+        <p class="small">The area is computed <b>before</b> the input exists. It prints an unpredictable value (often 0, sometimes something like <code>6.9e-310</code>), no matter what the user types.</p>
+      </div>
+      <div class="concept"><p class="box-label">Key concept</p>
+        <ul>
+          <li>C++ assignment is <b>not</b> a spreadsheet formula. <code>area</code> does not update when <code>length</code> changes later.</li>
+          <li>Safe order: <b>declare → input → process → output</b>.</li>
+        </ul>
+      </div>
+    </div>
+    <div class="stack">
+      <div class="compare good">
+        <p class="compare-label">Right order</p>
+<pre class="code compact" data-cpp data-stdin="4.5 3.2">
+#include &lt;iostream&gt;
+using namespace std;
+
+int main() {
+    double length, width, area;
+    cout &lt;&lt; "Enter length and width (m): ";
+    cin &gt;&gt; length &gt;&gt; width;
+    area = length * width;   // after the input
+    cout &lt;&lt; "Area = " &lt;&lt; area &lt;&lt; " sq. m" &lt;&lt; endl;
+    length = 10;   // area stays 14.4
+    cout &lt;&lt; "Area = " &lt;&lt; area &lt;&lt; " sq. m" &lt;&lt; endl;
+    return 0;
+}
+</pre>
+      </div>
+      <figure class="codeblock">
+        <figcaption>Sample run</figcaption>
+<pre class="console">Enter length and width (m): <span class="in">4.5 3.2</span>
+Area = 14.4 sq. m
+Area = 14.4 sq. m</pre>
+      </figure>
+    </div>
+  </div>
+  <aside class="notes">
+    <p class="note-time">Suggested time: about 6 min</p>
+    <h4>Teaching tips</h4>
+    <ul>
+      <li>Run the wrong-order version live. Depending on the compiler and settings it prints 0 or a strange tiny number, which is exactly the point: the result is unpredictable. Recent g++ versions with <code>-Wall</code> may warn that <code>length</code> "is used uninitialized".</li>
+      <li>The second "Area = 14.4" surprises students who use Excel. In a spreadsheet the cell would update; in C++ the statement already ran and will not run again.</li>
+      <li>Link to Lab 3: uninitialized local variables hold garbage.</li>
+    </ul>
+    <h4>Common student pitfalls</h4>
+    <ul>
+      <li>Writing the formula next to the declaration "to keep things together".</li>
+      <li>Printing before computing: the <code>cout</code> for the result is placed above the formula line.</li>
+    </ul>
+    <h4>Ask the class</h4>
+    <ul>
+      <li>"How would you make the second line print 32 (10 × 3.2)?" (Recompute: put <code>area = length * width;</code> again after <code>length = 10;</code>.)</li>
+    </ul>
+  </aside>
+</section>
+
+<!-- ========================= SLIDE 4 · IPO MODEL ========================= -->
+<section class="slide" id="l5-ipo" data-title="The IPO Model & IPO Chart" data-section="Sequential Logic">
+  <header class="slide-head">
+    <p class="kicker">Lab 5 · Program design</p>
+    <h2>The IPO Model: Input → Process → Output</h2>
+    <p class="lede">Before coding, list what comes <b>in</b>, what must be <b>computed</b>, and what goes <b>out</b>. That list is an <b>IPO chart</b>.</p>
+  </header>
+  <svg class="fc" viewBox="0 0 960 130" style="max-width:960px;margin-bottom:1.1rem" role="img" aria-label="IPO model: Input, shown as a parallelogram with cin, leads to Process, shown as a rectangle with formulas, which leads to Output, shown as a parallelogram with cout.">
+    <g class="fc-node"><polygon class="s-io" points="50,15 290,15 250,115 10,115"/><text x="150" y="50">INPUT</text><text x="150" y="82">cin &gt;&gt; celsius;</text></g>
+    <path class="fc-line" d="M290 65 H350"/>
+    <g class="fc-node"><rect class="s-process" x="352" y="15" width="256" height="100"/><text x="480" y="50">PROCESS</text><text x="480" y="82">formulas with =</text></g>
+    <path class="fc-line" d="M608 65 H668"/>
+    <g class="fc-node"><polygon class="s-io" points="710,15 950,15 910,115 670,115"/><text x="810" y="50">OUTPUT</text><text x="810" y="82">cout &lt;&lt; results;</text></g>
+  </svg>
+  <div class="grid-2 align-start" style="grid-template-columns:minmax(0,1.5fr) minmax(0,1fr)">
+    <div class="table-wrap">
+      <table class="table compact">
+        <caption>IPO chart: convert a sensor's Celsius reading to Fahrenheit and Kelvin</caption>
+        <thead><tr><th scope="col">Input</th><th scope="col">Process</th><th scope="col">Output</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><code>celsius</code><br><span class="small muted">double, in °C</span></td>
+            <td>1. <code>fahrenheit = celsius × 9 / 5 + 32</code><br>2. <code>kelvin = celsius + 273.15</code></td>
+            <td><code>fahrenheit</code> (°F)<br><code>kelvin</code> (K)</td>
+          </tr>
+          <tr>
+            <td><b>Test:</b> 37.5</td>
+            <td>37.5 × 9 / 5 + 32 = 99.5<br>37.5 + 273.15 = 310.65</td>
+            <td>99.5 °F<br>310.65 K</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="stack">
+      <div class="concept"><p class="box-label">How to fill it in</p>
+        <ol class="tight">
+          <li><b>Output first:</b> what does the problem ask for?</li>
+          <li><b>Input:</b> what values must the user supply? Note the units.</li>
+          <li><b>Process:</b> which formulas turn the inputs into the outputs?</li>
+          <li>Hand-compute one <b>test case</b> now, to check the program later.</li>
+        </ol>
+      </div>
+    </div>
+  </div>
+  <aside class="notes">
+    <p class="note-time">Suggested time: about 6 min</p>
+    <h4>Teaching tips</h4>
+    <ul>
+      <li>The IPO chart is the "Determine the Input and Output" step of Lab 1's 8-step method, written as a table. Gaddis and Farrell both use it.</li>
+      <li>Work backwards from the output: ask "what does the user want to see?" first. Students who start from the inputs often collect values they never use.</li>
+      <li>The test row matters for CO2: the hand-computed 99.5 is what students compare against when the program runs.</li>
+      <li>The symbols in the diagram are the same flowchart symbols from Lab 1: parallelogram for input/output, rectangle for process.</li>
+    </ul>
+    <h4>Common student pitfalls</h4>
+    <ul>
+      <li>Listing constants (9, 5, 32, 273.15) as inputs. They are fixed; they belong in the process, or as named constants.</li>
+      <li>Leaving out units, which causes the unit mistakes later (W vs kW, cm vs m).</li>
+    </ul>
+    <h4>Ask the class</h4>
+    <ul>
+      <li>"Write the IPO chart for the area of a circle given its diameter." (In: diameter. Process: radius = diameter / 2; area = π r². Out: area.)</li>
+    </ul>
+  </aside>
+</section>
+
+<!-- ========================= SLIDE 5 · PSEUDOCODE → C++ ========================= -->
+<section class="slide" id="l5-translate" data-title="Translating Pseudocode & Flowchart to C++" data-section="Sequential Logic">
+  <header class="slide-head">
+    <p class="kicker">Lab 5 · From plan to program</p>
+    <h2>Translating Pseudocode and Flowcharts to C++</h2>
+    <p class="lede">Each pseudocode line and each flowchart symbol becomes one (or two) C++ lines. Translate line by line.</p>
+  </header>
+  <div class="table-wrap">
+    <table class="table compact">
+      <thead><tr><th scope="col">Pseudocode (Lab 1 style)</th><th scope="col">Flowchart symbol</th><th scope="col">C++</th></tr></thead>
+      <tbody>
+        <tr><td><code>// This program converts …</code></td><td><span class="small muted">(goal statement)</span></td><td><code>// This program converts …</code></td></tr>
+        <tr><td><code>START</code></td><td><span class="tag">Terminal</span></td><td><code>int main() {</code></td></tr>
+        <tr><td><span class="small muted">(variables used below)</span></td><td><span class="small muted">none</span></td><td><code>double celsius, fahrenheit, kelvin;</code></td></tr>
+        <tr><td><code>PROMPT "Enter temperature in Celsius:"</code><br><code>INPUT celsius</code></td><td><span class="tag">Input / Output</span></td><td><code>cout &lt;&lt; "Enter temperature in Celsius: ";</code><br><code>cin &gt;&gt; celsius;</code></td></tr>
+        <tr><td><code>COMPUTE fahrenheit = celsius * 9 / 5 + 32</code><br><code>COMPUTE kelvin = celsius + 273.15</code></td><td><span class="tag">Process</span></td><td><code>fahrenheit = celsius * 9 / 5 + 32;</code><br><code>kelvin = celsius + 273.15;</code></td></tr>
+        <tr><td><code>DISPLAY "Fahrenheit: ", fahrenheit</code><br><code>DISPLAY "Kelvin: ", kelvin</code></td><td><span class="tag">Input / Output</span></td><td><code>cout &lt;&lt; "Fahrenheit: " &lt;&lt; fahrenheit &lt;&lt; endl;</code><br><code>cout &lt;&lt; "Kelvin: " &lt;&lt; kelvin &lt;&lt; endl;</code></td></tr>
+        <tr><td><code>END</code></td><td><span class="tag">Terminal</span></td><td><code>return 0; }</code></td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="grid-2 align-start" style="margin-top:1rem">
+    <div class="note-box"><p class="box-label">Translation rules</p><p><code>INPUT</code> / <code>GET</code> → <code>cin &gt;&gt;</code> · <code>DISPLAY</code> / <code>PROMPT</code> → <code>cout &lt;&lt;</code> · <code>SET</code> / <code>COMPUTE</code> → <code>=</code> · every statement ends with <code>;</code></p></div>
+    <div class="pitfall"><p class="box-label">Watch the operators</p><p>Translate operators too (Lab 4): <code>^</code> → <code>pow()</code>, <code>=</code> in a condition → <code>==</code>, and check every division for <code>int / int</code>.</p></div>
+  </div>
+  <aside class="notes">
+    <p class="note-time">Suggested time: about 6 min</p>
+    <h4>Teaching tips</h4>
+    <ul>
+      <li>Do this live: paste the pseudocode into Codechum as comments, then type the C++ line under each comment. Students see that the plan becomes the code's documentation.</li>
+      <li>Pseudocode doesn't declare variables, but C++ must. Collect every name that appears in the pseudocode and declare it once, near the top, with the right type.</li>
+      <li>The prompt and the input are often one parallelogram in the flowchart ("Input celsius"). That's acceptable, as in Lab 1.</li>
+    </ul>
+    <h4>Common student pitfalls</h4>
+    <ul>
+      <li>Copying pseudocode commas into <code>cout</code>: <code>cout &lt;&lt; "Kelvin: ", kelvin;</code> compiles (comma operator) but never prints kelvin. Use <code>&lt;&lt;</code> between items.</li>
+      <li>Forgetting the space at the end of a prompt string, so the typed value sticks to the colon.</li>
+    </ul>
+    <h4>Ask the class</h4>
+    <ul>
+      <li>"Translate <code>COMPUTE area = 3.1416 * radius ^ 2</code>." (<code>area = 3.1416 * pow(radius, 2);</code> with <code>&lt;cmath&gt;</code>, or <code>3.1416 * radius * radius</code>.)</li>
+    </ul>
+  </aside>
+</section>
+
+<!-- ========================= SLIDE 6 · TRACE WITH FLOWCHART ========================= -->
+<section class="slide" id="l5-temp" data-title="Trace It: Temperature Converter" data-section="Sequential Logic">
+  <header class="slide-head">
+    <p class="kicker">Lab 5 · Flowchart ↔ C++</p>
+    <h2>Trace It: Temperature Converter</h2>
+    <p class="lede">Step through the program and watch each flowchart symbol light up as its C++ line runs.</p>
+  </header>
+  <div class="example-grid">
+    <div class="stack">
+<pre class="code" id="l5-temp-code" data-cpp data-stdin="37.5">
+#include &lt;iostream&gt;
+using namespace std;
+
+int main() {
+    double celsius, fahrenheit, kelvin;
+    cout &lt;&lt; "Enter temperature in Celsius: ";
+    cin &gt;&gt; celsius;
+    fahrenheit = celsius * 9 / 5 + 32;
+    kelvin = celsius + 273.15;
+    cout &lt;&lt; "Fahrenheit: " &lt;&lt; fahrenheit &lt;&lt; endl;
+    cout &lt;&lt; "Kelvin: " &lt;&lt; kelvin &lt;&lt; endl;
+    return 0;
+}
+</pre>
+      <div class="tracer" data-trace="l5-temp" data-code="#l5-temp-code" data-chart="#l5-temp-chart">
+        <div class="tracer-inputs">
+          <label>celsius <input type="number" data-var="celsius" value="37.5" step="any"></label>
+        </div>
+      </div>
+    </div>
+    <figure class="card chart-card">
+      <figcaption>Flowchart <button type="button" class="btn ghost tiny" data-cover-toggle>Hide</button></figcaption>
+      <div class="chart-body">
+        <svg class="fc" id="l5-temp-chart" viewBox="0 0 420 450" style="max-width:440px" role="img" aria-label="Flowchart: Start, input celsius, compute fahrenheit equals celsius times 9 divided by 5 plus 32, compute kelvin equals celsius plus 273.15, display fahrenheit and kelvin, End.">
+          <g class="fc-node" data-node="start"><rect class="s-terminal" x="140" y="10" width="140" height="42" rx="21"/><text x="210" y="31">Start</text></g>
+          <path class="fc-line" d="M210 52 V82"/>
+          <g class="fc-node" data-node="in"><polygon class="s-io" points="112,82 336,82 308,130 84,130"/><text x="210" y="106">Input celsius</text></g>
+          <path class="fc-line" d="M210 130 V160"/>
+          <g class="fc-node" data-node="calcF"><rect class="s-process" x="25" y="160" width="370" height="50"/><text x="210" y="185">fahrenheit = celsius * 9 / 5 + 32</text></g>
+          <path class="fc-line" d="M210 210 V240"/>
+          <g class="fc-node" data-node="calcK"><rect class="s-process" x="25" y="240" width="370" height="50"/><text x="210" y="265">kelvin = celsius + 273.15</text></g>
+          <path class="fc-line" d="M210 290 V320"/>
+          <g class="fc-node" data-node="out"><polygon class="s-io" points="92,320 356,320 328,368 64,368"/><text x="210" y="344">Display fahrenheit, kelvin</text></g>
+          <path class="fc-line" d="M210 368 V398"/>
+          <g class="fc-node" data-node="end"><rect class="s-terminal" x="140" y="398" width="140" height="42" rx="21"/><text x="210" y="419">End</text></g>
+        </svg>
+      </div>
+    </figure>
+  </div>
+  <aside class="notes">
+    <p class="note-time">Suggested time: about 7 min</p>
+    <h4>Teaching tips</h4>
+    <ul>
+      <li>Click <b>Hide</b> on the flowchart first and ask students to draw it from the code. Then reveal it and compare.</li>
+      <li>Trace 37.5 (99.5 °F, 310.65 K), then 100 (212, 373.15), then −40 (−40 °F, the one temperature where both scales agree).</li>
+      <li>Line 8 works because <code>celsius</code> is a double: <code>celsius * 9</code> is a double, so <code>/ 5</code> is real division. Ask what <code>9 / 5 * celsius + 32</code> would print (Lab 4 pitfall: 1 × celsius + 32).</li>
+      <li>Expected output for 37.5: <code>Fahrenheit: 99.5</code>, <code>Kelvin: 310.65</code> (default <code>cout</code>, 6 significant digits).</li>
+    </ul>
+    <h4>Common student pitfalls</h4>
+    <ul>
+      <li>Declaring <code>int celsius</code>. Then 37.5 is read as 37 and the rest of the input is left unread.</li>
+      <li>Writing <code>(5 / 9)</code> when converting the other way (°F → °C). It's 0 in integer math; use <code>5.0 / 9</code>.</li>
+    </ul>
+    <h4>Ask the class</h4>
+    <ul>
+      <li>"Which symbol does line 5 (the declaration) correspond to?" (None. Declarations aren't drawn in this course's flowcharts.)</li>
+    </ul>
+  </aside>
+</section>
+
+<!-- ========================= SLIDE 7 · CMATH ========================= -->
+<section class="slide" id="l5-cmath" data-title="Math Functions in &lt;cmath&gt;" data-section="Library Tools">
+  <header class="slide-head">
+    <p class="kicker">Lab 5 · Library functions</p>
+    <h2>Math Functions in <code>&lt;cmath&gt;</code></h2>
+    <p class="lede">Add <code>#include &lt;cmath&gt;</code> and C++ gives you the functions a scientific calculator has. They return <code>double</code>.</p>
+  </header>
+  <div class="grid-2 align-start" style="grid-template-columns:minmax(0,.85fr) minmax(0,1.15fr)">
+    <div class="table-wrap">
+      <table class="table compact">
+        <thead><tr><th scope="col">Function</th><th scope="col">Meaning</th><th scope="col">Example → result</th></tr></thead>
+        <tbody>
+          <tr><td><code>pow(x, y)</code></td><td>x<sup>y</sup></td><td><code>pow(2, 10)</code> → 1024</td></tr>
+          <tr><td><code>sqrt(x)</code></td><td>square root</td><td><code>sqrt(144.0)</code> → 12</td></tr>
+          <tr><td><code>fabs(x)</code></td><td>absolute value</td><td><code>fabs(-7.5)</code> → 7.5</td></tr>
+          <tr><td><code>ceil(x)</code></td><td>round <b>up</b></td><td><code>ceil(4.2)</code> → 5</td></tr>
+          <tr><td><code>floor(x)</code></td><td>round <b>down</b></td><td><code>floor(4.8)</code> → 4</td></tr>
+          <tr><td><code>round(x)</code></td><td>nearest (.5 away from 0)</td><td><code>round(2.5)</code> → 3</td></tr>
+          <tr><td><code>sin(x)</code> <code>cos(x)</code></td><td>x in <b>radians</b></td><td><code>sin(30 * PI / 180)</code> → 0.5</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="stack">
+      <figure class="codeblock">
+        <figcaption><code>robot_distance.cpp</code></figcaption>
+<pre class="code" data-cpp>
+#include &lt;iostream&gt;
+#include &lt;cmath&gt;
+using namespace std;
+
+int main() {
+    double dx = 30.0, dy = 40.0;   // 30 m east, 40 m north
+    double distance = sqrt(pow(dx, 2) + pow(dy, 2));
+    cout &lt;&lt; "Distance      = " &lt;&lt; distance &lt;&lt; " m" &lt;&lt; endl;
+    cout &lt;&lt; "pow(2, 10)    = " &lt;&lt; pow(2, 10) &lt;&lt; endl;
+    cout &lt;&lt; "fabs(-7.5)    = " &lt;&lt; fabs(-7.5) &lt;&lt; endl;
+    cout &lt;&lt; "ceil(4.2)     = " &lt;&lt; ceil(4.2) &lt;&lt; endl;
+    cout &lt;&lt; "floor(4.8)    = " &lt;&lt; floor(4.8) &lt;&lt; endl;
+    cout &lt;&lt; "round(2.5)    = " &lt;&lt; round(2.5) &lt;&lt; endl;
+    cout &lt;&lt; "Drives needed = " &lt;&lt; ceil(100.0 / 8) &lt;&lt; endl;
+    return 0;
+}
+</pre>
+      </figure>
+      <figure class="codeblock">
+        <figcaption>Output</figcaption>
+<pre class="console">Distance      = 50 m
+pow(2, 10)    = 1024
+fabs(-7.5)    = 7.5
+ceil(4.2)     = 5
+floor(4.8)    = 4
+round(2.5)    = 3
+Drives needed = 13</pre>
+      </figure>
+    </div>
+  </div>
+  <aside class="notes">
+    <p class="note-time">Suggested time: about 7 min</p>
+    <h4>Teaching tips</h4>
+    <ul>
+      <li>The distance formula is the Pythagorean theorem, the same idea as Lab 1's battlefield coordinates: √(30² + 40²) = 50.</li>
+      <li>Last line, a real use of <code>ceil</code>: how many 8-GB flash drives hold 100 GB of files? 100 / 8 = 12.5, rounded <b>up</b> to 13. Rounding down would leave files behind.</li>
+      <li>Negatives: <code>ceil(-4.2)</code> = −4, <code>floor(-4.2)</code> = −5, <code>round(-2.5)</code> = −3. "Up" means toward +∞, not "away from zero".</li>
+      <li>There's no standard π constant before C++20 (<code>std::numbers::pi</code>), so the course defines <code>const double PI = 3.14159265358979;</code> (next slides).</li>
+    </ul>
+    <h4>Common student pitfalls</h4>
+    <ul>
+      <li>Passing degrees to <code>sin</code>/<code>cos</code>. <code>sin(30)</code> is sin of 30 <b>radians</b> (≈ −0.988).</li>
+      <li>Using <code>abs</code> on a double. <code>abs</code> also has an integer version (the C one), and with some headers or older compilers <code>abs(-7.5)</code> ends up as 7. <code>fabs</code> always works on doubles.</li>
+      <li>Writing <code>sqrt x</code> or <code>pow(x)</code>: functions need parentheses and the right number of arguments.</li>
+    </ul>
+    <h4>Ask the class</h4>
+    <ul>
+      <li>"How many 20-seat jeepneys carry 75 students?" (<code>ceil(75.0 / 20)</code> = 4.)</li>
+    </ul>
+  </aside>
+</section>
+
+<!-- ========================= SLIDE 8 · IOMANIP ========================= -->
+<section class="slide" id="l5-iomanip" data-title="Formatted Output with &lt;iomanip&gt;" data-section="Library Tools">
+  <header class="slide-head">
+    <p class="kicker">Lab 5 · Formatted output</p>
+    <h2>Formatted Output with <code>&lt;iomanip&gt;</code></h2>
+    <p class="lede">Manipulators control how <code>cout</code> prints: a fixed number of decimals and neat columns.</p>
+  </header>
+  <div class="grid-2 align-start" style="grid-template-columns:minmax(0,1.3fr) minmax(0,1fr)">
+    <div class="table-wrap">
+      <table class="table compact">
+        <thead><tr><th scope="col">Manipulator</th><th scope="col">Effect</th><th scope="col">Lasts</th></tr></thead>
+        <tbody>
+          <tr><td><code>setprecision(n)</code></td><td>Alone: <b>n significant digits</b>. With <code>fixed</code>: <b>n decimal places</b></td><td>sticky</td></tr>
+          <tr><td><code>fixed</code></td><td>Fixed-point notation (never <code>1e+06</code>), keeps trailing zeros</td><td>sticky</td></tr>
+          <tr><td><code>setw(n)</code></td><td>Print the next item in a field n characters wide</td><td><b>next item only</b></td></tr>
+          <tr><td><code>left</code> / <code>right</code></td><td>Alignment inside the field (default: right)</td><td>sticky</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="concept"><p class="box-label">Remember</p>
+      <ul>
+        <li><code>setw</code> and <code>setprecision</code> need <code>#include &lt;iomanip&gt;</code>.</li>
+        <li>For money and measurements, use <code>cout &lt;&lt; fixed &lt;&lt; setprecision(2);</code> <b>once</b>, before printing the results.</li>
+        <li><b>Sticky</b> = stays in effect until you change it.</li>
+        <li>Formatting changes only how a value <b>looks</b>, not the value stored.</li>
+      </ul>
+    </div>
+  </div>
+  <div class="code-pair" style="margin-top:1rem;grid-template-columns:minmax(0,1.9fr) minmax(0,1fr)">
+    <figure class="codeblock">
+      <figcaption><code>format_demo.cpp</code></figcaption>
+<pre class="code compact" data-cpp>
+#include &lt;iostream&gt;
+#include &lt;iomanip&gt;
+using namespace std;
+
+int main() {
+    double current_ma = 12.0 / 220 * 1000;   // 54.5454... mA
+    cout &lt;&lt; current_ma &lt;&lt; endl;                     // default
+    cout &lt;&lt; setprecision(3) &lt;&lt; current_ma &lt;&lt; endl;  // 3 sig. digits
+    cout &lt;&lt; fixed &lt;&lt; setprecision(3) &lt;&lt; current_ma &lt;&lt; endl;  // 3 decimals
+
+    cout &lt;&lt; setprecision(2);
+    cout &lt;&lt; left &lt;&lt; setw(12) &lt;&lt; "Quantity" &lt;&lt; right &lt;&lt; setw(8) &lt;&lt; "Value" &lt;&lt; endl;
+    cout &lt;&lt; left &lt;&lt; setw(12) &lt;&lt; "Voltage" &lt;&lt; right &lt;&lt; setw(8) &lt;&lt; 12.0 &lt;&lt; endl;
+    cout &lt;&lt; left &lt;&lt; setw(12) &lt;&lt; "Resistance" &lt;&lt; right &lt;&lt; setw(8) &lt;&lt; 220.0 &lt;&lt; endl;
+    cout &lt;&lt; left &lt;&lt; setw(12) &lt;&lt; "Current" &lt;&lt; right &lt;&lt; setw(8) &lt;&lt; current_ma &lt;&lt; endl;
+    return 0;
+}
+</pre>
+    </figure>
+    <figure class="codeblock">
+      <figcaption>Output</figcaption>
+<pre class="console">54.5455
+54.5
+54.545
+Quantity       Value
+Voltage        12.00
+Resistance    220.00
+Current        54.55</pre>
+    </figure>
+  </div>
+  <aside class="notes">
+    <p class="note-time">Suggested time: about 8 min</p>
+    <h4>Teaching tips</h4>
+    <ul>
+      <li>The first three lines print the same value three ways. Ask students to explain the difference between <code>54.5</code> (3 significant digits) and <code>54.545</code> (3 decimal places).</li>
+      <li>Count characters in the table output with the class: "Quantity" plus 4 spaces fills 12; "Value" is pushed right inside 8. Numbers line up on the decimal point because they all have 2 decimals and are right-aligned.</li>
+      <li><code>fixed</code>, <code>left</code>, and <code>right</code> live in <code>&lt;iostream&gt;</code>; only manipulators that take an argument (<code>setw</code>, <code>setprecision</code>) need <code>&lt;iomanip&gt;</code>. Including both is the simple rule.</li>
+      <li>To go back to default formatting: <code>cout &lt;&lt; defaultfloat &lt;&lt; setprecision(6);</code></li>
+    </ul>
+    <h4>Common student pitfalls</h4>
+    <ul>
+      <li>Expecting <code>setw</code> to apply to every later item. It resets after one item.</li>
+      <li>Putting <code>setprecision(2)</code> without <code>fixed</code> and getting <code>55</code> instead of <code>54.55</code>.</li>
+      <li>A string longer than the <code>setw</code> width is <b>not</b> cut; it just pushes the columns out of line.</li>
+    </ul>
+    <h4>Ask the class</h4>
+    <ul>
+      <li>"What does <code>cout &lt;&lt; fixed &lt;&lt; setprecision(1) &lt;&lt; 9.87;</code> print?" (9.9.)</li>
+    </ul>
+  </aside>
+</section>
+
+<!-- ========================= SLIDE 9 · RESISTORS ========================= -->
+<section class="slide" id="l5-resistors" data-title="Example: Series & Parallel Resistance" data-section="Engineering Examples">
+  <header class="slide-head">
+    <p class="kicker">Lab 5 · Engineering example 1</p>
+    <h2>Series and Parallel Resistance</h2>
+    <p class="lede">Given two resistors, compute their equivalent resistance when connected in series and in parallel.</p>
+  </header>
+  <div class="grid-2 align-start" style="grid-template-columns:minmax(0,.8fr) minmax(0,1.2fr)">
+    <div class="stack">
+      <div class="concept"><p class="box-label">Formulas</p>
+        <p class="formula">R<sub>series</sub> = R1 + R2</p>
+        <p class="formula">R<sub>parallel</sub> = (R1 × R2) / (R1 + R2)</p>
+        <p class="small">"Product over sum" works for exactly two resistors. The general form is 1 / (1/R1 + 1/R2).</p>
+      </div>
+      <div class="table-wrap">
+        <table class="table compact">
+          <thead><tr><th scope="col">Input</th><th scope="col">Process</th><th scope="col">Output</th></tr></thead>
+          <tbody><tr><td><code>r1</code>, <code>r2</code> (Ω)</td><td>series and parallel formulas</td><td><code>r_series</code>, <code>r_parallel</code> (Ω, 2 decimals)</td></tr></tbody>
+        </table>
+      </div>
+      <div class="pitfall"><p class="box-label">Common pitfall</p><p>With <code>int r1, r2;</code> the general form <code>1 / r1</code> is <b>0</b> (integer division) for any resistor above 1 Ω. Keep measurements in <code>double</code>, or write <code>1.0 / r1</code>.</p></div>
+    </div>
+    <div class="stack">
+      <figure class="codeblock">
+        <figcaption><code>resistors.cpp</code></figcaption>
+<pre class="code compact" data-cpp data-stdin="1000 470">
+#include &lt;iostream&gt;
+#include &lt;iomanip&gt;
+using namespace std;
+
+int main() {
+    double r1, r2;
+    cout &lt;&lt; "Enter R1 and R2 (ohms): ";
+    cin &gt;&gt; r1 &gt;&gt; r2;
+    double r_series = r1 + r2;
+    double r_parallel = (r1 * r2) / (r1 + r2);   // product over sum
+    cout &lt;&lt; fixed &lt;&lt; setprecision(2);
+    cout &lt;&lt; "Series   : " &lt;&lt; r_series &lt;&lt; " ohms" &lt;&lt; endl;
+    cout &lt;&lt; "Parallel : " &lt;&lt; r_parallel &lt;&lt; " ohms" &lt;&lt; endl;
+    return 0;
+}
+</pre>
+      </figure>
+      <figure class="codeblock">
+        <figcaption>Sample run</figcaption>
+<pre class="console">Enter R1 and R2 (ohms): <span class="in">1000 470</span>
+Series   : 1470.00 ohms
+Parallel : 319.73 ohms</pre>
+      </figure>
+    </div>
+  </div>
+  <aside class="notes">
+    <p class="note-time">Suggested time: about 6 min</p>
+    <h4>Teaching tips</h4>
+    <ul>
+      <li>Hand check first: 1000 × 470 = 470,000; 470,000 / 1470 = 319.73. A quick sanity check: the parallel value is always <b>smaller</b> than the smaller resistor.</li>
+      <li>Try 220 and 220: series 440, parallel 110 (two equal resistors in parallel give half).</li>
+      <li>The parentheses in line 10 are required: without them, <code>r1 * r2 / r1 + r2</code> = r2 + r2.</li>
+      <li>Output uses "ohms" rather than Ω, since the Ω symbol may not display in a Windows console.</li>
+    </ul>
+    <h4>Common student pitfalls</h4>
+    <ul>
+      <li>Dropping the parentheses around the denominator.</li>
+      <li>Entering kΩ values for one resistor and Ω for the other (1 and 470). Units must match.</li>
+      <li>R1 = R2 = 0 divides 0 by 0 and prints <code>nan</code> or <code>-nan</code>. Guarding against it needs <code>if</code> (Lab 6).</li>
+    </ul>
+    <h4>Ask the class</h4>
+    <ul>
+      <li>"Two 1 kΩ resistors in parallel: predict the output before running." (500.00 ohms.)</li>
+    </ul>
+  </aside>
+</section>
+
+<!-- ========================= SLIDE 10 · ENERGY COST (TRACER) ========================= -->
+<section class="slide" id="l5-energy" data-title="Example: Power, Energy & Cost" data-section="Engineering Examples">
+  <header class="slide-head">
+    <p class="kicker">Lab 5 · Engineering example 2</p>
+    <h2>How Much Does Your PC Cost to Run?</h2>
+    <p class="lede">Energy (kWh) = power (W) × hours ÷ 1000. Cost = energy × rate per kWh.</p>
+  </header>
+  <div class="example-grid" style="grid-template-columns:minmax(0,1.12fr) minmax(0,1fr)">
+    <div class="stack">
+<pre class="code compact" id="l5-energy-code" data-cpp data-stdin="450 6 30 11.85">
+#include &lt;iostream&gt;
+#include &lt;iomanip&gt;
+using namespace std;
+
+int main() {
+    double watts, hours, days, rate;
+    cout &lt;&lt; "Power rating (W): ";
+    cin &gt;&gt; watts;
+    cout &lt;&lt; "Hours used per day: ";
+    cin &gt;&gt; hours;
+    cout &lt;&lt; "Number of days: ";
+    cin &gt;&gt; days;
+    cout &lt;&lt; "Rate (PHP per kWh): ";
+    cin &gt;&gt; rate;
+    double energy_kwh = watts * hours * days / 1000;
+    double cost = energy_kwh * rate;
+    cout &lt;&lt; fixed &lt;&lt; setprecision(2);
+    cout &lt;&lt; "Energy used: " &lt;&lt; energy_kwh &lt;&lt; " kWh" &lt;&lt; endl;
+    cout &lt;&lt; "Cost: PHP " &lt;&lt; cost &lt;&lt; endl;
+    return 0;
+}
+</pre>
+    </div>
+    <div class="stack">
+      <div class="tracer" data-trace="l5-energy" data-code="#l5-energy-code" data-title="Trace it: gaming PC">
+        <div class="tracer-inputs">
+          <label>watts <input type="number" data-var="watts" value="450" step="any"></label>
+          <label>hours <input type="number" data-var="hours" value="6" step="any"></label>
+          <label>days <input type="number" data-var="days" value="30" step="any"></label>
+          <label>rate <input type="number" data-var="rate" value="11.85" step="any"></label>
+        </div>
+      </div>
+      <figure class="codeblock">
+        <figcaption>Sample run</figcaption>
+<pre class="console">Power rating (W): <span class="in">450</span>
+Hours used per day: <span class="in">6</span>
+Number of days: <span class="in">30</span>
+Rate (PHP per kWh): <span class="in">11.85</span>
+Energy used: 81.00 kWh
+Cost: PHP 959.85</pre>
+      </figure>
+    </div>
+  </div>
+  <aside class="notes">
+    <p class="note-time">Suggested time: about 8 min</p>
+    <h4>Teaching tips</h4>
+    <ul>
+      <li>₱11.85/kWh is a sample rate. Ask a student to look up the current Meralco (or local electric cooperative) residential rate and re-run with it.</li>
+      <li>Try other appliances in the tracer: a 1200 W aircon for 8 h/day, a 60 W laptop for 10 h/day, a 10 W Wi-Fi router for 24 h/day. Students are often surprised how much the "always on" router adds up.</li>
+      <li>Units: watts × hours = watt-hours; ÷ 1000 gives kilowatt-hours, which is what the meter counts.</li>
+      <li>The program prints "PHP" because the ₱ sign may not display in a Windows console.</li>
+    </ul>
+    <h4>Common student pitfalls</h4>
+    <ul>
+      <li>Forgetting the ÷ 1000, so the bill is 1000 times too large.</li>
+      <li>Declaring <code>int watts, days</code>. Here it would still work, because <code>hours</code> is a double and the expression is evaluated left to right. But <code>watts / 1000 * hours * days</code> with an int <code>watts</code> would give 0 for anything under 1000 W. Use doubles for measurements.</li>
+      <li>Placing <code>fixed &lt;&lt; setprecision(2)</code> after the <code>cout</code> lines it should format.</li>
+    </ul>
+    <h4>Ask the class</h4>
+    <ul>
+      <li>"Which output line would change if the rate went up by ₱1?" (Only the cost.)</li>
+    </ul>
+  </aside>
+</section>
+
+<!-- ========================= SLIDE 11 · CONSTANTS + TANK ========================= -->
+<section class="slide" id="l5-tank" data-title="Example: Named Constants & Water Tank" data-section="Engineering Examples">
+  <header class="slide-head">
+    <p class="kicker">Lab 5 · Engineering example 3</p>
+    <h2>Named Constants: Volume of a Water Tank</h2>
+    <p class="lede">A cylindrical tank holds V = π r² h cubic meters, and 1 m³ = 1000 L. Fixed values get a name.</p>
+  </header>
+  <div class="grid-2 align-start" style="grid-template-columns:minmax(0,.8fr) minmax(0,1.2fr)">
+    <div class="stack">
+      <div class="concept"><p class="box-label">Why named constants?</p>
+        <ul>
+          <li><b>Readable:</b> <code>LITERS_PER_CUBIC_M</code> explains itself; <code>1000</code> does not.</li>
+          <li><b>One place to change:</b> update the value once, and every formula follows.</li>
+          <li><b>Protected:</b> the compiler rejects any change.</li>
+        </ul>
+        <p class="syntax" style="margin-top:.5rem">const double PI = 3.14159265358979;<br>const double GRAVITY = 9.81;   // m/s^2</p>
+        <p class="small" style="margin-top:.4rem">Convention: <code>UPPER_SNAKE_CASE</code> names, so constants stand out from variables.</p>
+      </div>
+      <div class="pitfall"><p class="box-label">Common pitfall</p><p><code>PI = 3.14;</code> later in the program → <i>error: assignment of read-only variable 'PI'</i>. A <code>const</code> must get its value when it is declared.</p></div>
+      <figure class="codeblock">
+        <figcaption>Sample run</figcaption>
+<pre class="console">Tank diameter and height (m): <span class="in">1.2 1.5</span>
+Volume   : 1.70 cubic m
+Capacity : 1696.46 L
+20-L jugs to fill it: 85</pre>
+      </figure>
+    </div>
+    <div class="stack">
+      <figure class="codeblock">
+        <figcaption><code>water_tank.cpp</code></figcaption>
+<pre class="code compact" data-cpp data-stdin="1.2 1.5">
+#include &lt;iostream&gt;
+#include &lt;iomanip&gt;
+#include &lt;cmath&gt;
+using namespace std;
+
+int main() {
+    const double PI = 3.14159265358979;
+    const double LITERS_PER_CUBIC_M = 1000.0;
+    const double JUG_LITERS = 20.0;   // one water jug
+    double diameter, height;
+    cout &lt;&lt; "Tank diameter and height (m): ";
+    cin &gt;&gt; diameter &gt;&gt; height;
+    double volume_m3 = PI * pow(diameter / 2, 2) * height;
+    double liters = volume_m3 * LITERS_PER_CUBIC_M;
+    int jugs = static_cast&lt;int&gt;(ceil(liters / JUG_LITERS));
+    cout &lt;&lt; fixed &lt;&lt; setprecision(2);
+    cout &lt;&lt; "Volume   : " &lt;&lt; volume_m3 &lt;&lt; " cubic m" &lt;&lt; endl;
+    cout &lt;&lt; "Capacity : " &lt;&lt; liters &lt;&lt; " L" &lt;&lt; endl;
+    cout &lt;&lt; "20-L jugs to fill it: " &lt;&lt; jugs &lt;&lt; endl;
+    return 0;
+}
+</pre>
+      </figure>
+    </div>
+  </div>
+  <aside class="notes">
+    <p class="note-time">Suggested time: about 7 min</p>
+    <h4>Teaching tips</h4>
+    <ul>
+      <li>Hand check: r = 0.6 m, π × 0.36 × 1.5 ≈ 1.6965 m³ ≈ 1696.46 L. 1696.46 / 20 = 84.8, rounded <b>up</b> to 85 jugs.</li>
+      <li>Line 15 combines Lab 4 and today: <code>ceil</code> returns a double (85.0), and <code>static_cast&lt;int&gt;</code> makes it a whole count so it prints as <code>85</code>, not <code>85.00</code>.</li>
+      <li>Typical rooftop tanks in the Philippines hold 500–2000 L, so 1696 L is a realistic answer. Sanity-checking magnitudes is part of testing.</li>
+      <li>Lab 3 introduced <code>const</code>; here the point is <em>which</em> numbers deserve a name: physical constants and conversion factors, not the 2 in "diameter / 2".</li>
+    </ul>
+    <h4>Common student pitfalls</h4>
+    <ul>
+      <li>Using the diameter as the radius, which makes the volume 4 times too large.</li>
+      <li>Mixing units: the diameter in cm and the height in m.</li>
+      <li>Using <code>round</code> instead of <code>ceil</code> for the jug count. Here both give 85, but a tank needing 84.3 jugs would round down to 84 and be left short.</li>
+    </ul>
+    <h4>Ask the class</h4>
+    <ul>
+      <li>"Which values in this program are inputs, which are constants, and which are computed?"</li>
+    </ul>
+  </aside>
+</section>
+
+<!-- ========================= SLIDE 12 · FREE FALL ========================= -->
+<section class="slide" id="l5-freefall" data-title="Example: Free-Fall Kinematics" data-section="Engineering Examples">
+  <header class="slide-head">
+    <p class="kicker">Lab 5 · Engineering example 4</p>
+    <h2>Free Fall: How Long, How Fast?</h2>
+    <p class="lede">Dropped from height h (no air resistance), an object falls for t = √(2h / g) and lands at v = g·t.</p>
+  </header>
+  <div class="grid-2 align-start" style="grid-template-columns:minmax(0,.8fr) minmax(0,1.2fr)">
+    <div class="stack">
+      <div class="concept"><p class="box-label">From formula to code</p>
+        <p class="formula">h = ½ g t²  ⇒  t = √(2h / g)</p>
+        <p class="formula">v = g t      ·      1 m/s = 3.6 km/h</p>
+        <p class="small">Solve for the unknown on paper first, then code the rearranged formula.</p>
+      </div>
+      <div class="pitfall"><p class="box-label">Common pitfall</p>
+        <p><code>1 / 2 * GRAVITY * t * t</code> is always <b>0</b>: <code>1 / 2</code> is integer division (Lab 4). Write <code>0.5 * GRAVITY * t * t</code> or <code>GRAVITY * t * t / 2</code>.</p>
+      </div>
+      <figure class="codeblock">
+        <figcaption>Sample run</figcaption>
+<pre class="console">Drop height (m): <span class="in">20</span>
+Fall time    : 2.02 s
+Impact speed : 19.81 m/s
+             = 71.31 km/h
+Drop at t/2  : 5.00 m</pre>
+      </figure>
+    </div>
+    <div class="stack">
+      <figure class="codeblock">
+        <figcaption><code>free_fall.cpp</code></figcaption>
+<pre class="code compact" data-cpp data-stdin="20">
+#include &lt;iostream&gt;
+#include &lt;iomanip&gt;
+#include &lt;cmath&gt;
+using namespace std;
+
+int main() {
+    const double GRAVITY = 9.81;   // m/s^2
+    double height;
+    cout &lt;&lt; "Drop height (m): ";
+    cin &gt;&gt; height;
+    double fall_time = sqrt(2 * height / GRAVITY);
+    double speed = GRAVITY * fall_time;
+    double speed_kmh = speed * 3.6;
+    double half_time_drop = 0.5 * GRAVITY * pow(fall_time / 2, 2);
+    cout &lt;&lt; fixed &lt;&lt; setprecision(2);
+    cout &lt;&lt; "Fall time    : " &lt;&lt; fall_time &lt;&lt; " s" &lt;&lt; endl;
+    cout &lt;&lt; "Impact speed : " &lt;&lt; speed &lt;&lt; " m/s" &lt;&lt; endl;
+    cout &lt;&lt; "             = " &lt;&lt; speed_kmh &lt;&lt; " km/h" &lt;&lt; endl;
+    cout &lt;&lt; "Drop at t/2  : " &lt;&lt; half_time_drop &lt;&lt; " m" &lt;&lt; endl;
+    return 0;
+}
+</pre>
+      </figure>
+    </div>
+  </div>
+  <aside class="notes">
+    <p class="note-time">Suggested time: about 7 min</p>
+    <h4>Teaching tips</h4>
+    <ul>
+      <li>Story: a phone slips from a 2nd-floor balcony (about 6 m). Run with 6: 1.11 s, 10.85 m/s (39.06 km/h). That's why phones break.</li>
+      <li>Hand check for 20 m: 2 × 20 / 9.81 = 4.077; √4.077 = 2.019 s; 9.81 × 2.019 = 19.81 m/s.</li>
+      <li>The variable is called <code>fall_time</code>, not <code>time</code>, to avoid confusion with the library function <code>time()</code>.</li>
+      <li>The last output line is a physics check: after half the fall time, the object has dropped only <b>a quarter</b> of the height (5 m of 20 m), because distance grows with t².</li>
+      <li>Same structure as every example today: constants, input, process (several formulas, each using earlier results), formatted output.</li>
+    </ul>
+    <h4>Common student pitfalls</h4>
+    <ul>
+      <li>Writing <code>sqrt(2 * height) / GRAVITY</code>. The parentheses must enclose the whole fraction.</li>
+      <li>Using g = 9.8 in one place and 9.81 in another. A named constant prevents that.</li>
+      <li>Entering a negative height: <code>sqrt</code> of a negative number gives <code>nan</code>. Validation comes in Lab 6.</li>
+    </ul>
+    <h4>Ask the class</h4>
+    <ul>
+      <li>"If the height is 4 times larger, what happens to the fall time?" (It doubles: t grows with √h.)</li>
+    </ul>
+  </aside>
+</section>
+
+<!-- ========================= SLIDE 13 · UNIT CONVERSIONS ========================= -->
+<section class="slide" id="l5-units" data-title="Example: Unit Conversions" data-section="Engineering Examples">
+  <header class="slide-head">
+    <p class="kicker">Lab 5 · Engineering example 5</p>
+    <h2>Unit Conversions: Bytes and Speeds</h2>
+    <p class="lede">Most conversions multiply or divide by one factor. Name the factor once, and the formula explains itself.</p>
+  </header>
+  <div class="grid-2 align-start" style="grid-template-columns:minmax(0,.85fr) minmax(0,1.15fr)">
+    <div class="stack">
+      <div class="table-wrap">
+        <table class="table compact">
+          <thead><tr><th scope="col">From → to</th><th scope="col">Factor</th><th scope="col">Formula</th></tr></thead>
+          <tbody>
+            <tr><td>bytes → KB</td><td>1 KB = 1024 B</td><td><code>bytes / 1024.0</code></td></tr>
+            <tr><td>KB → MB</td><td>1 MB = 1024 KB</td><td><code>kb / 1024.0</code></td></tr>
+            <tr><td>km/h → m/s</td><td>1000 m / 3600 s</td><td><code>kmh * 1000.0 / 3600</code></td></tr>
+            <tr><td>m/s → km/h</td><td>× 3.6</td><td><code>ms * 3.6</code></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="note-box"><p class="box-label">KB or KiB?</p><p>Operating systems usually count 1 KB as <b>1024</b> bytes (strictly, a <i>kibibyte</i>, KiB). Storage makers use <b>1000</b>. That's why a "500 GB" drive shows about 465 GB on your PC.</p></div>
+      <figure class="codeblock">
+        <figcaption>Sample run</figcaption>
+<pre class="console">File size (bytes): <span class="in">3456789</span>
+Speed (km/h): <span class="in">60</span>
+Size  = 3375.77 KB = 3.30 MB
+Speed = 16.67 m/s</pre>
+      </figure>
+    </div>
+    <div class="stack">
+      <figure class="codeblock">
+        <figcaption><code>conversions.cpp</code></figcaption>
+<pre class="code compact" data-cpp data-stdin="3456789 60">
+#include &lt;iostream&gt;
+#include &lt;iomanip&gt;
+using namespace std;
+
+int main() {
+    const double BYTES_PER_KB = 1024.0;
+    const double KMH_TO_MS = 1000.0 / 3600.0;   // = 1 / 3.6
+    long long bytes;
+    double speed_kmh;
+    cout &lt;&lt; "File size (bytes): ";
+    cin &gt;&gt; bytes;
+    cout &lt;&lt; "Speed (km/h): ";
+    cin &gt;&gt; speed_kmh;
+    double kb = bytes / BYTES_PER_KB;
+    double mb = kb / BYTES_PER_KB;
+    double speed_ms = speed_kmh * KMH_TO_MS;
+    cout &lt;&lt; fixed &lt;&lt; setprecision(2);
+    cout &lt;&lt; "Size  = " &lt;&lt; kb &lt;&lt; " KB = " &lt;&lt; mb &lt;&lt; " MB" &lt;&lt; endl;
+    cout &lt;&lt; "Speed = " &lt;&lt; speed_ms &lt;&lt; " m/s" &lt;&lt; endl;
+    return 0;
+}
+</pre>
+      </figure>
+    </div>
+  </div>
+  <aside class="notes">
+    <p class="note-time">Suggested time: about 6 min</p>
+    <h4>Teaching tips</h4>
+    <ul>
+      <li>CpE context: file sizes, memory, and network speeds come in many units. Mixing them up is a classic bug (and a classic exam question).</li>
+      <li><code>long long</code> (8 bytes) is used for <code>bytes</code> because file sizes easily exceed the <code>int</code> limit of about 2.1 billion (a 3 GB video is already over it).</li>
+      <li>Hand check: 60 km/h × 1000 / 3600 = 16.666… → 16.67 m/s. Quick mental rule: divide km/h by 3.6.</li>
+      <li>Ask students to convert their own phone's free storage (in bytes, from Settings) to GB.</li>
+    </ul>
+    <h4>Common student pitfalls</h4>
+    <ul>
+      <li>Multiplying when they should divide (bytes × 1024). A sanity check catches it: KB must be a <b>smaller</b> number than bytes.</li>
+      <li>Dividing <code>long long bytes</code> by <code>1024</code> (an int): integer division gives 3375, losing the fraction. The program divides by the double constant <code>1024.0</code>.</li>
+      <li>Writing <code>KMH_TO_MS = 1000 / 3600;</code>, which is 0 (integer division) even though the constant is a double.</li>
+    </ul>
+    <h4>Ask the class</h4>
+    <ul>
+      <li>"A 100 Mbps connection downloads at most how many MB per second?" (100 / 8 = 12.5 MB/s, since 1 byte = 8 bits. This sets up the seatwork.)</li>
+    </ul>
+  </aside>
+</section>
+
+<!-- ========================= SLIDE 14 · CHECKLIST & PITFALLS ========================= -->
+<section class="slide" id="l5-checklist" data-title="Design Checklist & Pitfalls" data-section="Practice">
+  <header class="slide-head">
+    <p class="kicker">Lab 5 · Program design</p>
+    <h2>Sequential Program Design Checklist</h2>
+    <p class="lede">Use this for every problem in the lab exercise. It is also how the rubric's <em>Problem Analysis</em> criterion is judged.</p>
+  </header>
+  <div class="grid-2 align-start">
+    <div class="practice"><p class="box-label">Checklist</p>
+      <ol>
+        <li><b>IPO chart:</b> list the inputs and outputs, with <b>units</b>.</li>
+        <li><b>Formulas:</b> write each one on paper; solve for the unknown; convert units first (W → kW, cm → m, degrees → radians).</li>
+        <li><b>Types:</b> <code>double</code> for measurements, <code>int</code> for counts, <code>const</code> for fixed values.</li>
+        <li><b>Order:</b> declare → input → process → output.</li>
+        <li><b>Test:</b> hand-compute one case <b>before</b> running; then try a boundary (0) and a typical value.</li>
+        <li><b>Output:</b> labels, units, <code>fixed</code> + <code>setprecision</code>.</li>
+      </ol>
+    </div>
+    <div class="pitfall"><p class="box-label">Common pitfalls</p>
+      <ul>
+        <li>Using a variable <b>before</b> it has a value (formula above <code>cin</code>).</li>
+        <li><b>Uninitialized</b> variables: <code>double total; total += x;</code> adds to garbage. Start with <code>double total = 0;</code></li>
+        <li><b>Integer division</b> in formulas: <code>9 / 5</code>, <code>1 / 2</code>, <code>1 / r</code>.</li>
+        <li>Forgetting <code>#include &lt;cmath&gt;</code> or <code>&lt;iomanip&gt;</code> ("'sqrt' was not declared in this scope").</li>
+        <li><b>Unit mistakes:</b> degrees into <code>sin</code>, W vs kW, diameter vs radius.</li>
+        <li><code>^</code> for powers. Use <code>pow</code> or multiply.</li>
+      </ul>
+    </div>
+  </div>
+  <aside class="notes">
+    <p class="note-time">Suggested time: about 5 min</p>
+    <h4>Teaching tips</h4>
+    <ul>
+      <li>Map the checklist to the rubric. Steps 1–2 are <em>Problem Analysis &amp; Algorithm Formulation</em>; step 5 is <em>Functionality, Testing &amp; Debugging</em>; steps 3, 4, and 6 are <em>Structure, Readability &amp; Standards</em>.</li>
+      <li>Have students copy the checklist into the top of their lab file as a comment block and tick items off.</li>
+      <li>Step 5 is CO2 in action: a program is "correct" only when its output matches a value you computed independently.</li>
+    </ul>
+    <h4>Common student pitfalls</h4>
+    <ul>
+      <li>Testing only with the sample input. The rubric's Functionality level depends on normal, boundary, and edge cases.</li>
+      <li>Trusting output that "looks reasonable" without a hand check.</li>
+    </ul>
+    <h4>Ask the class</h4>
+    <ul>
+      <li>"Which pitfall have you already hit this semester?" (Quick poll; most will say integer division.)</li>
+    </ul>
+  </aside>
+</section>
+
+<!-- ========================= SLIDE 15 · QUICK CHECK ========================= -->
+<section class="slide" id="l5-quick-check" data-title="Quick Check" data-section="Practice">
+  <header class="slide-head">
+    <p class="kicker">Lab 5 · Quick check</p>
+    <h2>Quick Check</h2>
+    <p class="lede">Answer on paper first, then click to reveal.</p>
+  </header>
+  <div class="qa-grid">
+    <details class="qa"><summary><span class="q-num">1</span><span class="q-text">Which control structure runs every statement exactly once, top to bottom?</span></summary><p><b>Sequence.</b> Selection (Lab 6) may skip statements; repetition (Labs 7–8) may run them many times.</p></details>
+    <details class="qa"><summary><span class="q-num">2</span><span class="q-text">A program prints a strange area like <code>6.9e-310</code> no matter what is typed. What is the most likely bug?</span></summary><p>The formula runs <b>before</b> <code>cin</code>, so it uses uninitialized (garbage) values. Move it after the input.</p></details>
+    <details class="qa"><summary><span class="q-num">3</span><span class="q-text">What do <code>cout &lt;&lt; setprecision(2) &lt;&lt; 3.14159;</code> and <code>cout &lt;&lt; fixed &lt;&lt; setprecision(2) &lt;&lt; 3.14159;</code> print?</span></summary><p><b>3.1</b> (2 significant digits) and <b>3.14</b> (2 decimal places).</p></details>
+    <details class="qa"><summary><span class="q-num">4</span><span class="q-text">Evaluate <code>sqrt(pow(3, 2) + pow(4, 2))</code>, <code>ceil(7.1)</code>, and <code>floor(-7.1)</code>.</span></summary><p><b>5</b>, <b>8</b>, and <b>−8</b> (floor rounds toward −∞).</p></details>
+    <details class="qa"><summary><span class="q-num">5</span><span class="q-text">With <code>double c = 100;</code>, why does <code>f = 9 / 5 * c + 32;</code> give 132 instead of 212?</span></summary><p><code>9 / 5</code> is integer division = 1, so f = 100 + 32. Write <code>c * 9 / 5 + 32</code> or <code>9.0 / 5 * c + 32</code>.</p></details>
+    <details class="qa"><summary><span class="q-num">6</span><span class="q-text">What does <code>cout &lt;&lt; setw(5) &lt;&lt; 42 &lt;&lt; "|" &lt;&lt; 7 &lt;&lt; "|";</code> print?</span></summary><p><code>&nbsp;&nbsp;&nbsp;42|7|</code>: three spaces, then 42 right-aligned in 5 characters. <code>setw</code> affects only the next item, so 7 has no padding.</p></details>
+  </div>
+  <aside class="notes">
+    <p class="note-time">Suggested time: about 6 min</p>
+    <h4>Teaching tips</h4>
+    <ul>
+      <li>Run as a think-pair-share, or have students hold up fingers for multiple-choice versions.</li>
+      <li>Q3 and Q6 are the most-missed. If many students miss them, re-run the format demo slide with their suggested values.</li>
+      <li>Q5 links back to Lab 4; it is the most common bug in temperature-conversion programs.</li>
+    </ul>
+    <h4>Common student pitfalls</h4>
+    <ul>
+      <li>Q4: answering −7 for <code>floor(-7.1)</code>.</li>
+      <li>Q6: padding the 7 as well.</li>
+    </ul>
+    <h4>Ask the class</h4>
+    <ul>
+      <li>"Which checklist step would have caught the bug in Q5?" (Step 5: hand-compute 100 °C → 212 °F first.)</li>
+    </ul>
+  </aside>
+</section>
+
+<!-- ========================= SLIDE 16 · SEATWORK ========================= -->
+<section class="slide" id="l5-seatwork" data-title="Seatwork: Download Time" data-section="Practice">
+  <header class="slide-head">
+    <p class="kicker">Lab 5 · Seatwork</p>
+    <h2>Seatwork: How Long Will the Download Take?</h2>
+  </header>
+  <div class="story">
+    <p>You need to download a 4.7 GB IDE installer and course files before the next lab. Your home internet is 25 Mbps. Will it finish before the jeep ride to school?</p>
+    <p class="task"><b>Instruction:</b> Make an <b>IPO chart</b>, then write a C++ program that reads the file size (GB) and the internet speed (Mbps) and displays the download time in seconds and in minutes, with 2 decimal places. Use 1 GB = 1000 MB and 1 byte = 8 bits.</p>
+  </div>
+  <div class="grid-2 align-start">
+    <div class="card">
+      <h3 class="card-title">Need a hint?</h3>
+      <details class="hint"><summary>Hint 1</summary><p>Speed is in mega<b>bits</b> per second, size is in giga<b>bytes</b>. Convert the size to megabits first: GB × 1000 × 8.</p></details>
+      <details class="hint"><summary>Hint 2</summary><p>time (s) = size in megabits ÷ speed in Mbps. Minutes = seconds ÷ 60.</p></details>
+      <details class="hint"><summary>Hint 3</summary><p>Hand check: 4.7 × 8000 = 37,600 Mb; 37,600 ÷ 25 = 1504 s, a little over 25 minutes.</p></details>
+    </div>
+    <div class="card timer" data-timer data-minutes="15">
+      <h3 class="card-title">Seatwork timer</h3>
+      <p class="timer-display" aria-live="off">15:00</p>
+      <div class="timer-presets" role="group" aria-label="Timer presets">
+        <button type="button" class="btn ghost" data-min="10">10 min</button>
+        <button type="button" class="btn ghost" data-min="15">15 min</button>
+        <button type="button" class="btn ghost" data-min="20">20 min</button>
+      </div>
+      <div class="timer-actions">
+        <button type="button" class="btn primary" data-timer-act="toggle">Start</button>
+        <button type="button" class="btn" data-timer-act="reset">Reset</button>
+      </div>
+    </div>
+  </div>
+  <details class="answer">
+    <summary><span>Reveal answer</span></summary>
+    <div class="table-wrap" style="margin-top:1rem">
+      <table class="table compact">
+        <thead><tr><th scope="col">Input</th><th scope="col">Process</th><th scope="col">Output</th></tr></thead>
+        <tbody><tr><td><code>size_gb</code> (GB), <code>speed_mbps</code> (Mbps)</td><td><code>seconds = size_gb × 8000 / speed_mbps</code>; <code>minutes = seconds / 60</code></td><td><code>seconds</code>, <code>minutes</code> (2 decimals)</td></tr></tbody>
+      </table>
+    </div>
+    <div class="code-pair" style="margin-top:1rem">
+      <figure class="codeblock">
+        <figcaption><code>download_time.cpp</code></figcaption>
+<pre class="code" data-cpp data-stdin="4.7 25">
+#include &lt;iostream&gt;
+#include &lt;iomanip&gt;
+using namespace std;
+
+int main() {
+    const double MEGABITS_PER_GB = 8000.0;  // 1 GB = 1000 MB = 8000 Mb
+    double size_gb, speed_mbps;
+    cout &lt;&lt; "File size (GB): ";
+    cin &gt;&gt; size_gb;
+    cout &lt;&lt; "Internet speed (Mbps): ";
+    cin &gt;&gt; speed_mbps;
+    double seconds = size_gb * MEGABITS_PER_GB / speed_mbps;
+    double minutes = seconds / 60;
+    cout &lt;&lt; fixed &lt;&lt; setprecision(2);
+    cout &lt;&lt; "Download time: " &lt;&lt; seconds &lt;&lt; " s" &lt;&lt; endl;
+    cout &lt;&lt; "             = " &lt;&lt; minutes &lt;&lt; " min" &lt;&lt; endl;
+    return 0;
+}
+</pre>
+      </figure>
+      <figure class="codeblock">
+        <figcaption>Sample run</figcaption>
+<pre class="console">File size (GB): <span class="in">4.7</span>
+Internet speed (Mbps): <span class="in">25</span>
+Download time: 1504.00 s
+             = 25.07 min</pre>
+      </figure>
+    </div>
+  </details>
+  <aside class="notes">
+    <p class="note-time">Suggested time: about 20 min (15 working, 5 review)</p>
+    <h4>Running the seatwork</h4>
+    <ul>
+      <li>Require the IPO chart on paper <b>before</b> anyone opens the IDE. Walk around and check the units in the charts first.</li>
+      <li>Open hints only if many students are stuck after 5 minutes. Hint 3 gives the hand check; it's fine to show it to everyone near the end.</li>
+      <li>Extension for fast finishers: also print the time as whole minutes and seconds using <code>static_cast&lt;int&gt;</code> and <code>%</code> (Lab 4), e.g. 1504 s = 25 min 4 s.</li>
+      <li>Real downloads are slower than the rated speed (overhead, Wi-Fi). The program computes the ideal minimum.</li>
+    </ul>
+    <h4>Common student pitfalls</h4>
+    <ul>
+      <li>Forgetting the × 8 (bytes vs bits) and getting 188 s.</li>
+      <li>Using 1024 instead of 1000. Accept it if the student states the assumption; the answer becomes 1540.10 s.</li>
+      <li>Dividing in the wrong order (speed ÷ size).</li>
+    </ul>
+    <h4>Ask the class</h4>
+    <ul>
+      <li>"How fast must the internet be to finish in 10 minutes?" (37,600 Mb ÷ 600 s ≈ 62.7 Mbps.)</li>
+    </ul>
+  </aside>
+</section>
+
+<!-- ========================= SLIDE 17 · LAB EXERCISE (1, 2) ========================= -->
+<!-- LOCKED-ACTIVITY:START lab-05 -->
+<section class="slide locked-slide" id="l5-lab-1" data-title="Laboratory Exercise No. 5 (locked)" data-section="Lab No. 5 & Wrap-up" data-locked="lab-05">
+  <header class="slide-head">
+    <p class="kicker">Laboratory Exercise No. 5</p>
+    <h2>This lab activity is locked</h2>
+    <p class="lede">It opens when your instructor releases it. Enter the passphrase your instructor gives you.</p>
+  </header>
+  <div class="lock-card">
+    <svg class="lock-icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="10.5" width="14" height="10" rx="2"/><path d="M8 10.5V7.5a4 4 0 0 1 8 0v3M12 14.5v2.5"/></svg>
+    <h3>Laboratory Exercise No. 5</h3>
+    <form class="lock-form" autocomplete="off">
+      <label class="sr-only" for="unlock-lab-05">Passphrase</label>
+      <input id="unlock-lab-05" type="password" placeholder="Passphrase" autocomplete="off" spellcheck="false">
+      <button type="submit" class="btn primary">Unlock</button>
+    </form>
+    <p class="lock-msg" aria-live="polite"></p>
+    <p class="small muted">The activity is stored encrypted on this site and is unlocked in your browser. Once unlocked, it stays open on this device.</p>
+  </div>
+  <script type="application/json" class="locked-data">{"v":1,"iter":250000,"salt":"xwK9cCCkQfl1eW9tflsxgQ==","iv":"mQK4vsgTPjK50+Da","data":"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"}</script>
+  <aside class="notes">
+    <p class="note-time">Locked activity (2 slides)</p>
+    <h4>Instructor</h4>
+    <ul>
+      <li>Type this lab's passphrase (private instructor package → <code>passwords.json</code>) to open the activity on the classroom PC. It stays unlocked on that browser until you press "Lock again".</li>
+      <li>To release the activity to students, announce or post the passphrase (e.g. in MS Teams).</li>
+      <li>To re-lock it for everyone, change the passphrase and rerun <code>node tools/lock-activities.js</code>.</li>
+    </ul>
+  </aside>
+</section>
+<!-- LOCKED-ACTIVITY:END lab-05 -->
+
+<!-- ========================= SLIDE 19 · WRAP-UP ========================= -->
+<section class="slide" id="l5-wrap-up" data-title="Wrap-up" data-section="Lab No. 5 & Wrap-up">
+  <header class="slide-head">
+    <p class="kicker">Wrap-up</p>
+    <h2>Sequential Programs: What to Remember</h2>
+  </header>
+  <div class="grid-2 align-start">
+    <div class="card">
+      <h3 class="card-title">Key takeaways</h3>
+      <ul class="tight">
+        <li><b>Sequence</b>: every statement runs once, top to bottom, so order matters.</li>
+        <li>Plan with an <b>IPO chart</b>, then translate pseudocode/flowchart line by line.</li>
+        <li><code>&lt;cmath&gt;</code>: <code>pow</code>, <code>sqrt</code>, <code>fabs</code>, <code>ceil</code>, <code>floor</code>, <code>round</code>, <code>sin</code> (radians!).</li>
+        <li><code>&lt;iomanip&gt;</code>: <code>fixed</code> + <code>setprecision(2)</code> for results, <code>setw</code> for columns.</li>
+        <li>Name fixed values with <code>const</code>; watch units and integer division.</li>
+        <li>Trust a program only after it matches a <b>hand-computed</b> test case.</li>
+      </ul>
+    </div>
+    <div class="stack">
+      <div class="card"><h3 class="card-title">Exit ticket</h3><p>On a ¼ sheet: write the IPO chart for a program that reads the length and width of a rectangular PCB in <b>millimeters</b> and displays its area in <b>square centimeters</b>.</p></div>
+      <div class="card"><h3 class="card-title">Next: Lab No. 6</h3><p><b>Logical Control Structures: Selection</b>. Programs that make decisions with <code>if</code>, <code>if-else</code>, nested <code>if</code>, and <code>switch</code>, including the R = 0 check we skipped today.</p><p><a href="lab-06.html">Open Lab 6 →</a></p></div>
+    </div>
+  </div>
+  <aside class="notes">
+    <p class="note-time">Suggested time: about 3 min</p>
+    <h4>Teaching tips</h4>
+    <ul>
+      <li>Exit ticket answer: Input: length_mm, width_mm. Process: area_mm2 = length_mm × width_mm; area_cm2 = area_mm2 / 100 (1 cm² = 100 mm²). Output: area_cm2. Many students will divide by 10. That's the unit lesson.</li>
+      <li>Collect the tickets and use the wrong conversions as warm-up examples for Lab 6.</li>
+      <li>Preview Lab 6 with today's gaps: division by zero, negative heights, invalid readings. All need a decision, which is selection.</li>
+    </ul>
+    <h4>Common student pitfalls</h4>
+    <ul>
+      <li>Thinking sequential programs can't be "wrong" because they have no branches. Most of today's bugs were formula, type, and unit errors.</li>
+    </ul>
+  </aside>
+</section>
+
+      </div>
+    </main>
+  </div>
+</body>
+</html>

@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <!-- EDIT: page title -->
+  <title>Lab Template & Component Gallery · CPE 104L</title>
+  <meta name="description" content="Copy this file to create a new lab. Every slide component is demonstrated here.">
+  <meta name="color-scheme" content="light dark">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%232f3410'/%3E%3Cpath d='M32 11 53 32 32 53 11 32Z' fill='none' stroke='%23f5c518' stroke-width='6' stroke-linejoin='round'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="../css/styles.css">
+  <script>
+    (function () { var d = document.documentElement; d.classList.add('js');
+      try { var t = localStorage.getItem('cpe104l.theme'); if (t === 'dark' || t === 'light') d.setAttribute('data-theme', t); } catch (e) {} })();
+  </script>
+  <script src="../js/course.js" defer></script>
+  <script src="../js/search-index.js" defer></script>
+  <script src="../js/script.js" defer></script>
+  <!-- EDIT: optional per-lab script with tracers (delete this line if the lab has none) -->
+  <script src="../js/labs/_template.js" defer></script>
+</head>
+<!-- EDIT: data-page must match the lab's id in js/course.js (e.g. lab-07) -->
+<body data-page="template" data-root="../">
+  <svg class="svg-defs" aria-hidden="true" focusable="false"><defs><marker id="arrow" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="10" markerHeight="10" markerUnits="userSpaceOnUse" orient="auto"><path class="arrowhead" d="M0 0 L10 5 L0 10 Z"/></marker></defs></svg>
+  <div class="app" id="app">
+    <main class="stage" id="stage">
+      <div class="deck" id="deck" tabindex="-1">
+
+<!-- =====================================================================
+     SLIDE: Lab title (use this layout for slide 1 of every lab)
+     ===================================================================== -->
+<section class="slide" id="title" data-title="Title & ILOs" data-section="Introduction">
+  <div class="lab-title">
+    <div>
+      <div class="lab-badges"><span class="badge-lab">Lab No. N</span><span class="badge-week">Week N</span><span class="badge-co">CO1 · CO2</span></div>
+      <p class="kicker">CPE 104L · Programming Logic and Design</p>
+      <h1>Main Title <span>Subtitle of the lab</span></h1>
+      <p class="lede">One sentence that tells students why this lab matters.</p>
+      <ol class="roadmap" aria-label="Lab roadmap">
+        <li><a href="#concept">Key concepts</a></li>
+        <li><a href="#code">C++ code</a></li>
+        <li><a href="#trace">Trace it</a></li>
+        <li><a href="#exercise">Lab exercise</a></li>
+      </ol>
+    </div>
+    <div class="ilo-card">
+      <h2>Intended Learning Outcomes</h2>
+      <ol>
+        <li>First ILO copied from the syllabus.</li>
+        <li>Second ILO copied from the syllabus.</li>
+      </ol>
+      <div class="ilo-meta">
+        <span><b>Activities:</b> Live coding demonstrations · Laboratory activities</span>
+        <span><b>Assessment:</b> Lab Exercise No. N · 5-Level Lab Rubric</span>
+      </div>
+    </div>
+  </div>
+  <aside class="notes">
+    <p class="note-time">Suggested time: about 3 min</p>
+    <h4>Teaching tips</h4>
+    <ul><li>Notes are hidden until the instructor presses N.</li></ul>
+    <h4>Common student pitfalls</h4>
+    <ul><li>…</li></ul>
+  </aside>
+</section>
+
+<!-- =====================================================================
+     SLIDE: Concept + pitfall boxes
+     ===================================================================== -->
+<section class="slide" id="concept" data-title="Content boxes" data-section="Components">
+  <header class="slide-head">
+    <p class="kicker">Lab N · Section name</p>
+    <h2>Concept, Pitfall, Practice &amp; Note Boxes</h2>
+    <p class="lede">Each kind of content has its own color so students can scan a slide.</p>
+  </header>
+  <div class="grid-2 align-start">
+    <div class="stack">
+      <div class="concept big"><p class="box-label">Key concept</p><p>A <b>variable</b> is a named memory location whose value can change while the program runs.</p></div>
+      <div class="pitfall"><p class="box-label">Common pitfall</p><ul><li>Using a variable before giving it a value.</li></ul></div>
+    </div>
+    <div class="stack">
+      <div class="practice"><p class="box-label">Practice</p><ol><li>Declare an <code>int</code> named <code>age</code>.</li><li>Print it with <code>cout</code>.</li></ol></div>
+      <div class="note-box"><p class="box-label">Note</p><p>Use for side facts, version differences, or "good to know".</p></div>
+      <p class="callout tip">Small tip callout (existing style).</p>
+    </div>
+  </div>
+  <aside class="notes"><h4>Teaching tips</h4><ul><li>…</li></ul></aside>
+</section>
+
+<!-- =====================================================================
+     SLIDE: C++ code with output. Write < as &lt; and & as &amp; inside <pre>!
+     data-cpp = C++ highlighting + line numbers + copy button. data-pseudo = pseudocode.
+     ===================================================================== -->
+<section class="slide" id="code" data-title="Code and output" data-section="Components">
+  <header class="slide-head">
+    <p class="kicker">Lab N · C++</p>
+    <h2>Code Block with Output</h2>
+  </header>
+  <div class="code-pair">
+    <figure class="codeblock">
+      <figcaption><code>average.cpp</code></figcaption>
+<pre class="code" id="demo-code" data-cpp>
+#include &lt;iostream&gt;
+using namespace std;
+
+int main() {
+    double q1, q2, q3;
+    cout &lt;&lt; "Enter 3 quiz scores: ";
+    cin &gt;&gt; q1 &gt;&gt; q2 &gt;&gt; q3;
+    double average = (q1 + q2 + q3) / 3;
+    cout &lt;&lt; "Average = " &lt;&lt; average &lt;&lt; endl;
+    return 0;
+}
+</pre>
+    </figure>
+    <figure class="codeblock">
+      <figcaption>Sample run</figcaption>
+<pre class="console">Enter 3 quiz scores: <span class="in">85 90 78</span>
+Average = 84.3333</pre>
+    </figure>
+  </div>
+  <p class="syntax">Syntax: <i>type</i> <i>name</i> = <i>value</i>;</p>
+  <aside class="notes"><h4>Teaching tips</h4><ul><li>Typed input in a sample run goes in <code>&lt;span class="in"&gt;</code>.</li></ul></aside>
+</section>
+
+<!-- =====================================================================
+     SLIDE: Tracer. Registered in js/labs/<lab>.js with CPE104L.addTrace('name', fn)
+     data-code / data-chart point to the code block and (optional) flowchart SVG.
+     ===================================================================== -->
+<section class="slide" id="trace" data-title="Tracer" data-section="Components">
+  <header class="slide-head">
+    <p class="kicker">Lab N · Trace</p>
+    <h2>Step Through a Program</h2>
+  </header>
+  <div class="example-grid">
+    <div class="stack">
+<pre class="code" id="demo-code-2" data-cpp>
+#include &lt;iostream&gt;
+using namespace std;
+
+int main() {
+    double q1, q2, q3;
+    cout &lt;&lt; "Enter 3 quiz scores: ";
+    cin &gt;&gt; q1 &gt;&gt; q2 &gt;&gt; q3;
+    double average = (q1 + q2 + q3) / 3;
+    cout &lt;&lt; "Average = " &lt;&lt; average &lt;&lt; endl;
+    return 0;
+}
+</pre>
+    </div>
+    <div class="tracer" data-trace="demo-average" data-code="#demo-code-2" data-chart="#demo-chart">
+      <div class="tracer-inputs">
+        <label>q1 <input type="number" data-var="q1" value="85" step="any"></label>
+        <label>q2 <input type="number" data-var="q2" value="90" step="any"></label>
+        <label>q3 <input type="number" data-var="q3" value="78" step="any"></label>
+      </div>
+    </div>
+  </div>
+  <aside class="notes"><h4>Teaching tips</h4><ul><li>Inputs with data-type="text" pass strings instead of numbers.</li></ul></aside>
+</section>
+
+<!-- =====================================================================
+     SLIDE: Flowchart (inline SVG). Shapes: s-terminal, s-process, s-decision,
+     s-io, s-prep, s-predef, s-conn. Lines: path.fc-line (arrow added). Labels: text.fc-label.
+     Wrap shape+text in <g class="fc-node" data-node="id"> so tracers can highlight it.
+     ===================================================================== -->
+<section class="slide" id="flow" data-title="Flowchart" data-section="Components">
+  <header class="slide-head">
+    <p class="kicker">Lab N · Flowchart</p>
+    <h2>Inline SVG Flowchart</h2>
+  </header>
+  <div class="grid-2 align-start">
+    <figure class="card chart-card">
+      <figcaption>Flowchart <button type="button" class="btn ghost tiny" data-cover-toggle>Hide</button></figcaption>
+      <div class="chart-body">
+        <svg class="fc" id="demo-chart" viewBox="0 0 400 420" style="max-width:420px" role="img" aria-label="Flowchart: Start, input q1 q2 q3, compute average, display average, End.">
+          <g class="fc-node" data-node="start"><rect class="s-terminal" x="130" y="14" width="140" height="42" rx="21"/><text x="200" y="35">Start</text></g>
+          <path class="fc-line" d="M200 56 V88"/>
+          <g class="fc-node" data-node="in"><polygon class="s-io" points="86,88 340,88 314,138 60,138"/><text x="200" y="113">Input q1, q2, q3</text></g>
+          <path class="fc-line" d="M200 138 V170"/>
+          <g class="fc-node" data-node="calc"><rect class="s-process" x="40" y="170" width="320" height="50"/><text x="200" y="195">average = (q1 + q2 + q3) / 3</text></g>
+          <path class="fc-line" d="M200 220 V252"/>
+          <g class="fc-node" data-node="out"><polygon class="s-io" points="86,252 340,252 314,302 60,302"/><text x="200" y="277">Display average</text></g>
+          <path class="fc-line" d="M200 302 V334"/>
+          <g class="fc-node" data-node="end"><rect class="s-terminal" x="130" y="334" width="140" height="42" rx="21"/><text x="200" y="355">End</text></g>
+        </svg>
+      </div>
+    </figure>
+    <div class="stack">
+      <div class="mem" aria-label="Memory diagram">
+        <div class="mem-cell"><span class="mem-name">q1</span><span class="mem-val">85</span><span class="mem-addr">0x7ffd10</span></div>
+        <div class="mem-cell is-hl"><span class="mem-name">average</span><span class="mem-val">84.33</span><span class="mem-addr">0x7ffd28</span></div>
+        <div class="mem-cell is-pointer"><span class="mem-name">p</span><span class="mem-val">0x7ffd10</span><span class="mem-addr">0x7ffd30</span></div>
+      </div>
+      <div class="mem array" aria-label="Array diagram">
+        <div class="mem-cell"><span class="mem-name">[0]</span><span class="mem-val">12</span></div>
+        <div class="mem-cell"><span class="mem-name">[1]</span><span class="mem-val">7</span></div>
+        <div class="mem-cell"><span class="mem-name">[2]</span><span class="mem-val">30</span></div>
+      </div>
+      <div class="table-wrap">
+        <table class="table compact trace-table">
+          <caption>Trace (desk-check) table</caption>
+          <thead><tr><th scope="col">i</th><th scope="col">i &lt;= 3?</th><th scope="col">sum</th></tr></thead>
+          <tbody><tr><td>1</td><td>true</td><td>1</td></tr><tr class="is-hl"><td>2</td><td>true</td><td>3</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+  <aside class="notes"><h4>Teaching tips</h4><ul><li>…</li></ul></aside>
+</section>
+
+<!-- =====================================================================
+     SLIDE: Tabs (pseudocode ↔ C++), reveal steps, quick check
+     ===================================================================== -->
+<section class="slide" id="interactive" data-title="Tabs, reveal & quick check" data-section="Components">
+  <header class="slide-head">
+    <p class="kicker">Lab N · Interactive</p>
+    <h2>Tabs, Step Reveal &amp; Quick Check</h2>
+  </header>
+  <div class="grid-2 align-start">
+    <div class="tabs" data-tabs>
+      <div class="tablist" role="tablist" aria-label="Solution views">
+        <button type="button" role="tab" data-tab="pc" aria-selected="true">Pseudocode</button>
+        <button type="button" role="tab" data-tab="cpp">C++</button>
+      </div>
+      <div class="tabpanel" role="tabpanel" data-panel="pc">
+<pre class="code" data-pseudo>
+START
+    INPUT age
+    IF age >= 18 THEN
+        DISPLAY "Adult"
+    ENDIF
+END
+</pre>
+      </div>
+      <div class="tabpanel" role="tabpanel" data-panel="cpp">
+<pre class="code" data-cpp>
+if (age >= 18) {
+    cout &lt;&lt; "Adult" &lt;&lt; endl;
+}
+</pre>
+      </div>
+    </div>
+    <div class="card reveal" data-reveal>
+      <p class="eyebrow">Evaluate step by step</p>
+      <p class="expr"><code>2 + 3 * 4</code></p>
+      <ol class="reveal-steps">
+        <li data-step><code>3 * 4 = 12</code> <span>→ 2 + 12</span></li>
+        <li data-step class="final"><code>2 + 12 = 14</code> <span>Answer: 14</span></li>
+      </ol>
+      <div class="reveal-actions">
+        <button type="button" class="btn primary" data-reveal-next>Show next step</button>
+        <button type="button" class="btn ghost" data-reveal-reset>Reset</button>
+      </div>
+    </div>
+  </div>
+  <div class="qa-grid" style="margin-top:1.2rem">
+    <details class="qa"><summary><span class="q-num">1</span><span class="q-text">Question text with <code>code</code>?</span></summary><p>Answer text.</p></details>
+    <details class="qa"><summary><span class="q-num">2</span><span class="q-text">Another question?</span></summary><p>Answer text.</p></details>
+  </div>
+  <aside class="notes"><h4>Teaching tips</h4><ul><li>…</li></ul></aside>
+</section>
+
+<!-- =====================================================================
+     SLIDE: Seatwork (timer + hints + hidden answer)
+     ===================================================================== -->
+<section class="slide" id="seatwork" data-title="Seatwork" data-section="Practice">
+  <header class="slide-head">
+    <p class="kicker">Lab N · Seatwork</p>
+    <h2>Seatwork Title</h2>
+  </header>
+  <div class="story"><p class="task"><b>Instruction:</b> Describe the task.</p></div>
+  <div class="grid-2 align-start">
+    <div class="card">
+      <h3 class="card-title">Need a hint?</h3>
+      <details class="hint"><summary>Hint 1</summary><p>…</p></details>
+    </div>
+    <div class="card timer" data-timer data-minutes="10">
+      <h3 class="card-title">Seatwork timer</h3>
+      <p class="timer-display">10:00</p>
+      <div class="timer-presets" role="group" aria-label="Timer presets">
+        <button type="button" class="btn ghost" data-min="5">5 min</button>
+        <button type="button" class="btn ghost" data-min="10">10 min</button>
+        <button type="button" class="btn ghost" data-min="15">15 min</button>
+      </div>
+      <div class="timer-actions">
+        <button type="button" class="btn primary" data-timer-act="toggle">Start</button>
+        <button type="button" class="btn" data-timer-act="reset">Reset</button>
+      </div>
+    </div>
+  </div>
+  <details class="answer">
+    <summary><span>Reveal answer</span></summary>
+    <div class="stack" style="margin-top:1rem">
+<pre class="code" data-cpp>
+cout &lt;&lt; "answer" &lt;&lt; endl;
+</pre>
+    </div>
+  </details>
+  <aside class="notes"><h4>Running the seatwork</h4><ul><li>…</li></ul></aside>
+</section>
+
+<!-- =====================================================================
+     SLIDE: Lab exercise (graded). Never include the answer key here (the site is public).
+     ===================================================================== -->
+<section class="slide" id="exercise" data-title="Lab Exercise" data-section="Laboratory Exercise">
+  <header class="slide-head">
+    <p class="kicker">Laboratory Exercise No. N</p>
+    <h2>Exercise Title</h2>
+    <p class="lede">Create a C++ program that …</p>
+  </header>
+  <div class="grid-2 align-start">
+    <div class="practice"><p class="box-label">Tasks</p><ol><li>…</li><li>…</li></ol></div>
+    <figure class="codeblock"><figcaption>Sample output</figcaption><pre class="console">Enter a number: <span class="in">5</span>
+Result: 25</pre></figure>
+  </div>
+  <p class="small muted">Graded with the 5-Level Lab Rubric (100 pts). See <a href="orientation.html#rubrics">Course Orientation → Rubrics</a>.</p>
+  <aside class="notes"><h4>Teaching tips</h4><ul><li>No answer key on the public site.</li></ul></aside>
+</section>
+
+      </div>
+    </main>
+  </div>
+</body>
+</html>

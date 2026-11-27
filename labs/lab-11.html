@@ -1,0 +1,1403 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Lab 11 · Functions · CPE 104L</title>
+  <meta name="description" content="CPE 104L Programming Logic and Design, Lab No. 11: Functions. Modular design, prototypes, parameters and return values, pass-by-value vs pass-by-reference, overloading, scope, and top-down decomposition in C++.">
+  <meta name="color-scheme" content="light dark">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%232f3410'/%3E%3Cpath d='M32 11 53 32 32 53 11 32Z' fill='none' stroke='%23f5c518' stroke-width='6' stroke-linejoin='round'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="../css/styles.css">
+  <script>
+    (function () { var d = document.documentElement; d.classList.add('js');
+      try { var t = localStorage.getItem('cpe104l.theme'); if (t === 'dark' || t === 'light') d.setAttribute('data-theme', t); } catch (e) {} })();
+  </script>
+  <script src="../js/course.js" defer></script>
+  <script src="../js/search-index.js" defer></script>
+  <script src="../js/script.js" defer></script>
+  <script src="../js/labs/lab-11.js" defer></script>
+</head>
+<body data-page="lab-11" data-root="../">
+  <svg class="svg-defs" aria-hidden="true" focusable="false"><defs><marker id="arrow" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="10" markerHeight="10" markerUnits="userSpaceOnUse" orient="auto"><path class="arrowhead" d="M0 0 L10 5 L0 10 Z"/></marker></defs></svg>
+  <div class="app" id="app">
+    <main class="stage" id="stage">
+      <div class="deck" id="deck" tabindex="-1">
+<noscript><p class="noscript">JavaScript is off, so every slide is shown in one long page. Turn JavaScript on for slide navigation, speaker notes, and the live tracers.</p></noscript>
+
+<!-- ========================= SLIDE 1 · TITLE ========================= -->
+<section class="slide" id="l11-title" data-title="Title & ILOs" data-section="Introduction">
+  <div class="lab-title">
+    <div>
+      <div class="lab-badges"><span class="badge-lab">Lab No. 11</span><span class="badge-week">Week 12</span><span class="badge-co">CO1 · CO2</span></div>
+      <p class="kicker">CPE 104L · Programming Logic and Design</p>
+      <h1>Functions <span>Modular programs, parameters, and return values</span></h1>
+      <p class="lede">Big programs are built from small, named, testable pieces. Today you write your own functions and decide how data goes in and comes out.</p>
+      <ol class="roadmap" aria-label="Lab roadmap" style="margin-top:1rem">
+        <li><a href="#l11-why">Why functions</a></li>
+        <li><a href="#l11-anatomy">Anatomy</a></li>
+        <li><a href="#l11-flow">Flow of control</a></li>
+        <li><a href="#l11-pass-modes">Value vs reference</a></li>
+        <li><a href="#l11-arrays">Arrays as parameters</a></li>
+        <li><a href="#l11-topdown">Top-down design</a></li>
+        <li><a href="#l11-exercise-1">Lab exercise</a></li>
+      </ol>
+    </div>
+    <div class="ilo-card">
+      <h2>Intended Learning Outcomes</h2>
+      <ol>
+        <li>Apply modular programming principles by decomposing problems into user-defined functions.</li>
+        <li>Differentiate pass-by-value and pass-by-reference parameter passing.</li>
+      </ol>
+      <div class="ilo-meta">
+        <span><b>Activities:</b> Modular design exercises · Laboratory activities</span>
+        <span><b>Assessment:</b> Lab Exercise No. 11 · 5-Level Lab Rubric</span>
+      </div>
+    </div>
+  </div>
+  <aside class="notes">
+    <p class="note-time">Suggested time: about 3 min</p>
+    <h4>Teaching tips</h4>
+    <ul>
+      <li>Hook: "Your Midterm program was one long <code>main()</code>. Imagine a 2,000-line <code>main()</code>. How would a team of five work on it?" Functions are the answer.</li>
+      <li>Two threads run through today: <b>decomposition</b> (ILO 1, breaking a problem into functions) and <b>parameter passing</b> (ILO 2, using last week's references).</li>
+      <li>The final project rubric rewards "modular structure"; today is where that starts.</li>
+    </ul>
+    <h4>Common student pitfalls</h4>
+    <ul>
+      <li>Thinking functions are "extra" syntax. Stress that every professional program is mostly functions calling functions.</li>
+    </ul>
+    <h4>Ask the class</h4>
+    <ul>
+      <li>"Which built-in functions have you already called?" (<code>sqrt</code>, <code>pow</code>, <code>getline</code>, and even <code>main</code>.)</li>
+    </ul>
+  </aside>
+</section>
+
+<!-- ========================= SLIDE 2 · BRIDGE ========================= -->
+<section class="slide" id="l11-bridge" data-title="From Predefined Process to Function" data-section="Introduction">
+  <header class="slide-head">
+    <p class="kicker">Lab 11 · Review &amp; bridge</p>
+    <h2>You Have Seen Functions Before: the Predefined Process</h2>
+    <p class="lede">In Lab 1, a <b>Predefined Process</b> box stood for a step "detailed in a separate flowchart". In C++, that separate flowchart is a <b>function</b>.</p>
+  </header>
+  <div class="grid-2 align-start">
+    <figure class="card chart-card">
+      <figcaption>Main flowchart and the module it calls</figcaption>
+      <div class="chart-body">
+        <svg class="fc" viewBox="0 0 640 330" role="img" aria-label="Left: main flowchart. Start, input 4 grades, predefined process computeAverage, display average, End. A dashed arrow links computeAverage to a separate flowchart on the right: computeAverage, add up the grades, average equals sum divided by n, return average.">
+          <g class="fc-node"><rect class="s-terminal" x="90" y="10" width="120" height="40" rx="20"/><text x="150" y="30">Start</text></g>
+          <path class="fc-line" d="M150 50 V76"/>
+          <g class="fc-node"><polygon class="s-io" points="76,76 244,76 224,120 56,120"/><text x="150" y="98">Input 4 grades</text></g>
+          <path class="fc-line" d="M150 120 V146"/>
+          <g class="fc-node"><rect class="s-predef" x="50" y="146" width="200" height="48"/><path class="s-predef-line" d="M64 146 V194 M236 146 V194"/><text x="150" y="170">computeAverage</text></g>
+          <path class="fc-line" d="M150 194 V220"/>
+          <g class="fc-node"><polygon class="s-io" points="76,220 244,220 224,264 56,264"/><text x="150" y="242">Display average</text></g>
+          <path class="fc-line" d="M150 264 V290"/>
+          <g class="fc-node"><rect class="s-terminal" x="90" y="290" width="120" height="40" rx="20"/><text x="150" y="310">End</text></g>
+          <path class="fc-line dashed" d="M250 170 H316 V30 H378"/>
+          <g class="fc-node"><rect class="s-terminal" x="380" y="10" width="200" height="40" rx="20"/><text x="480" y="30">computeAverage</text></g>
+          <path class="fc-line" d="M480 50 V76"/>
+          <g class="fc-node"><rect class="s-process" x="390" y="76" width="180" height="44"/><text x="480" y="98">Add up the grades</text></g>
+          <path class="fc-line" d="M480 120 V146"/>
+          <g class="fc-node"><rect class="s-process" x="390" y="146" width="180" height="48"/><text x="480" y="170">average = sum / n</text></g>
+          <path class="fc-line" d="M480 194 V220"/>
+          <g class="fc-node"><rect class="s-terminal" x="390" y="220" width="180" height="40" rx="20"/><text x="480" y="240">Return average</text></g>
+          <text class="fc-label" x="480" y="286">A separate flowchart</text>
+          <text class="fc-label" x="480" y="304">= a separate function</text>
+        </svg>
+      </div>
+    </figure>
+    <div class="stack">
+      <div class="table-wrap">
+        <table class="table compact">
+          <thead><tr><th scope="col">Earlier labs</th><th scope="col">Lab 11</th></tr></thead>
+          <tbody>
+            <tr><td>Lab 1: Predefined Process symbol</td><td>a <b>function call</b>: <code>computeAverage(grades, 4)</code></td></tr>
+            <tr><td>Lab 1, step 4: high-level algorithm</td><td><code>main()</code> lists the big steps as calls</td></tr>
+            <tr><td>Lab 1, step 5: refine</td><td>write each function's body separately</td></tr>
+            <tr><td>Lab 10: <code>int&amp; r = x;</code></td><td><b>pass-by-reference</b> parameters</td></tr>
+            <tr><td>Lab 9: arrays + loops</td><td>pass an array and its size to a function</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="concept"><p class="box-label">Key concept</p><p>A <b>function</b> is a named block of code that does <b>one task</b>. You <b>call</b> it by name, give it inputs (<b>arguments</b>), and it may give back a result (<b>return value</b>).</p></div>
+    </div>
+  </div>
+  <aside class="notes">
+    <p class="note-time">Suggested time: about 5 min</p>
+    <h4>Teaching tips</h4>
+    <ul>
+      <li>Open Lab 1's symbols slide if students don't remember the Predefined Process (rectangle with double vertical edges).</li>
+      <li>Walk the left chart: main does not care <em>how</em> the average is computed; it only needs the result. That separation is the whole idea of a function.</li>
+      <li>Steps 4–5 of "How to Write an Algorithm" (Lab 1) are stepwise refinement: write the big steps first (main), then refine each one (function bodies).</li>
+    </ul>
+    <h4>Common student pitfalls</h4>
+    <ul>
+      <li>Thinking the module's flowchart runs "in parallel" with main. Control goes to the module, finishes it, then comes back.</li>
+    </ul>
+    <h4>Ask the class</h4>
+    <ul>
+      <li>"In your Midterm program, which block of code could have been its own Predefined Process?"</li>
+    </ul>
+  </aside>
+</section>
+
+<!-- ========================= SLIDE 3 · WHY FUNCTIONS ========================= -->
+<section class="slide" id="l11-why" data-title="Why Functions?" data-section="Introduction">
+  <header class="slide-head">
+    <p class="kicker">Lab 11 · Modular programming · ILO 1</p>
+    <h2>Why Write Functions?</h2>
+    <p class="lede">Divide and conquer: split a big problem into small tasks, solve each one once, then combine them.</p>
+  </header>
+  <div class="grid-2 align-start">
+    <div class="stack">
+      <div class="grid-2 tight-gap">
+        <div class="card"><h3 class="card-title">Modular</h3><p>Each function does one job. <code>main()</code> reads like an outline.</p></div>
+        <div class="card"><h3 class="card-title">Reusable</h3><p>Write <code>power()</code> once, call it from anywhere, any number of times.</p></div>
+        <div class="card"><h3 class="card-title">Testable</h3><p>Test one small function at a time; find bugs faster.</p></div>
+        <div class="card"><h3 class="card-title">Team-friendly</h3><p>Different people can write different functions at the same time.</p></div>
+      </div>
+      <div class="note-box"><p class="box-label">Note</p><p>Duplicated code is a warning sign. If you copy and paste a block, it probably wants to be a function.</p></div>
+    </div>
+    <div class="stack">
+      <figure class="codeblock">
+        <figcaption>You already call library functions</figcaption>
+<pre class="code" data-cpp>
+#include &lt;iostream&gt;
+#include &lt;cmath&gt;
+using namespace std;
+
+int main() {
+    double a = 3.0, b = 4.0;
+    double c = sqrt(pow(a, 2) + pow(b, 2));
+    cout &lt;&lt; "Hypotenuse = " &lt;&lt; c &lt;&lt; endl;
+    return 0;
+}
+</pre>
+      </figure>
+      <figure class="codeblock">
+        <figcaption>Output</figcaption>
+<pre class="console">Hypotenuse = 5</pre>
+      </figure>
+      <div class="concept"><p class="box-label">Key concept</p><p><code>sqrt</code> and <code>pow</code> were written by someone else; you only needed their <b>name</b>, <b>inputs</b>, and <b>result</b>. Today you write your own.</p></div>
+    </div>
+  </div>
+  <aside class="notes">
+    <p class="note-time">Suggested time: about 4 min</p>
+    <h4>Teaching tips</h4>
+    <ul>
+      <li>Point out that students already used the "black box" idea: nobody looked inside <code>sqrt</code>. A good user-defined function should be just as easy to use.</li>
+      <li>Engineering analogy: an IC chip on a breadboard. You need its pinout (inputs and outputs), not its internal transistors.</li>
+      <li>The final project rubric (Algorithmic Design &amp; System Architecture) explicitly rewards "well-structured C++ functions".</li>
+    </ul>
+    <h4>Common student pitfalls</h4>
+    <ul>
+      <li>Forgetting <code>#include &lt;cmath&gt;</code> for <code>sqrt</code> and <code>pow</code>.</li>
+      <li>Making one giant function that does everything (input, compute, output). One task per function.</li>
+    </ul>
+    <h4>Ask the class</h4>
+    <ul>
+      <li>"In <code>pow(a, 2)</code>, what are the inputs and what comes back?" (Inputs a and 2; it returns a².)</li>
+    </ul>
+  </aside>
+</section>
+
+<!-- ========================= SLIDE 4 · ANATOMY ========================= -->
+<section class="slide" id="l11-anatomy" data-title="Anatomy of a Function" data-section="Function Basics">
+  <header class="slide-head">
+    <p class="kicker">Lab 11 · Function basics · ILO 1</p>
+    <h2>Anatomy of a Function</h2>
+    <p class="lede">The <b>header</b> says what goes in and what comes out; the <b>body</b> says how.</p>
+  </header>
+  <figure class="card" style="margin:0">
+    <svg class="fc" viewBox="0 0 1000 312" style="max-width:1000px" role="img" aria-label="Annotated function. Return type double, function name seriesResistance, parameter list double r1, double r2. Together they form the header. The body between braces contains double total equals r1 plus r2, and the return statement return total, which sends total back to the caller.">
+      <text class="fc-label" x="80" y="20" style="font-size:15px">Return type</text>
+      <text class="fc-label" x="286" y="20" style="font-size:15px">Function name</text>
+      <text class="fc-label" x="612" y="20" style="font-size:15px">Parameter list</text>
+      <path class="fc-line" d="M80 32 V62"/>
+      <path class="fc-line" d="M286 32 V62"/>
+      <path class="fc-line" d="M612 32 V62"/>
+      <rect class="s-io" x="20" y="64" width="120" height="48" rx="8"/><text x="80" y="88" style="font-family:var(--font-mono);font-size:20px">double</text>
+      <rect class="s-predef" x="156" y="64" width="260" height="48" rx="8"/><text x="286" y="88" style="font-family:var(--font-mono);font-size:20px">seriesResistance</text>
+      <rect class="s-decision" x="432" y="64" width="360" height="48" rx="8"/><text x="612" y="88" style="font-family:var(--font-mono);font-size:20px">(double r1, double r2)</text>
+      <text x="818" y="88" style="font-family:var(--font-mono);font-size:24px">{</text>
+      <path class="fc-line plain" d="M20 122 V130 H792 V122"/>
+      <text class="fc-label" x="406" y="146" style="font-size:15px">Header: what goes in, what comes out</text>
+      <rect class="s-conn" x="60" y="166" width="620" height="112" rx="10"/>
+      <text class="a-start" x="84" y="196" style="font-family:var(--font-mono);font-size:20px">double total = r1 + r2;</text>
+      <rect class="s-terminal" x="80" y="218" width="230" height="44" rx="8"/><text x="195" y="240" style="font-family:var(--font-mono);font-size:20px">return total;</text>
+      <text class="fc-label a-start" x="326" y="240" style="font-size:15px">return statement: sends total back</text>
+      <text class="fc-label a-start" x="700" y="202" style="font-size:15px">Body: the statements</text>
+      <text class="fc-label a-start" x="700" y="224" style="font-size:15px">between { and }</text>
+      <text x="40" y="296" style="font-family:var(--font-mono);font-size:24px">}</text>
+    </svg>
+  </figure>
+  <div class="grid-2 align-start" style="margin-top:1.2rem">
+    <div class="stack">
+      <p class="syntax"><i>returnType</i> <i>functionName</i>(<i>type</i> <i>param1</i>, <i>type</i> <i>param2</i>) { <i>statements</i>; return <i>value</i>; }</p>
+      <div class="concept"><p class="box-label">Calling it</p><p><code>double rt = seriesResistance(100, 220);</code> → rt is 320. The values 100 and 220 are copied into <code>r1</code> and <code>r2</code>.</p></div>
+    </div>
+    <div class="note-box"><p class="box-label">Naming</p><ul><li>Use a verb + noun in camelCase: <code>computeAverage</code>, <code>printReport</code>, <code>readGrades</code>.</li><li>The return type and the returned value must match (<code>double</code> ↔ <code>total</code>).</li></ul></div>
+  </div>
+  <aside class="notes">
+    <p class="note-time">Suggested time: about 5 min</p>
+    <h4>Teaching tips</h4>
+    <ul>
+      <li>Read the header aloud as a sentence: "seriesResistance takes two doubles, r1 and r2, and gives back a double."</li>
+      <li>Series resistance (R<sub>T</sub> = R1 + R2) comes from their circuits course, so the math is not a distraction.</li>
+      <li>The body could be one line (<code>return r1 + r2;</code>). Show both: the local variable version is easier to trace.</li>
+    </ul>
+    <h4>Common student pitfalls</h4>
+    <ul>
+      <li>Putting a semicolon after the header of a definition: <code>double f(double x); { … }</code>. That turns it into a prototype followed by a stray block (compile error).</li>
+      <li>Writing types in the call: <code>seriesResistance(double 100, double 220)</code>.</li>
+    </ul>
+    <h4>Ask the class</h4>
+    <ul>
+      <li>"Write the header of a function that takes a voltage and a resistance and returns the current." (<code>double current(double volts, double ohms)</code>.)</li>
+    </ul>
+  </aside>
+</section>
+
+<!-- ========================= SLIDE 5 · PROTOTYPE / DEFINITION / CALL ========================= -->
+<section class="slide" id="l11-prototype" data-title="Prototype, Definition, and Call" data-section="Function Basics">
+  <header class="slide-head">
+    <p class="kicker">Lab 11 · Function basics · ILO 1</p>
+    <h2>Prototype, Definition, and Call</h2>
+    <p class="lede">C++ reads a file from top to bottom. A <b>prototype</b> above <code>main()</code> announces a function whose <b>definition</b> comes later.</p>
+  </header>
+  <div class="code-pair">
+    <figure class="codeblock">
+      <figcaption><code>ohm.cpp</code> (Lab 1's Ohm's law, now with a function)</figcaption>
+<pre class="code" data-cpp data-stdin="12 4">
+#include &lt;iostream&gt;
+using namespace std;
+
+// 1. Prototype (declaration)
+double current(double volts, double ohms);
+
+int main() {
+    double v, r;
+    cout &lt;&lt; "Enter V and R: ";
+    cin &gt;&gt; v &gt;&gt; r;
+    double amps = current(v, r);     // 2. Call
+    cout &lt;&lt; "Current = " &lt;&lt; amps &lt;&lt; " A" &lt;&lt; endl;
+    return 0;
+}
+
+// 3. Definition: the actual work
+double current(double volts, double ohms) {
+    return volts / ohms;
+}
+</pre>
+    </figure>
+    <div class="stack">
+      <figure class="codeblock">
+        <figcaption>Sample run</figcaption>
+<pre class="console">Enter V and R: <span class="in">12 4</span>
+Current = 3 A</pre>
+      </figure>
+      <div class="table-wrap">
+        <table class="table compact">
+          <thead><tr><th scope="col">Part</th><th scope="col">Where</th><th scope="col">Looks like</th></tr></thead>
+          <tbody>
+            <tr><th scope="row">Prototype</th><td>above <code>main()</code></td><td>header + <code>;</code></td></tr>
+            <tr><th scope="row">Call</th><td>inside <code>main()</code> (or any function)</td><td><code>current(v, r)</code></td></tr>
+            <tr><th scope="row">Definition</th><td>below <code>main()</code></td><td>header + <code>{ body }</code></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="note-box"><p class="box-label">Note</p><p>If you define a function <b>above</b> <code>main()</code>, you don't need a prototype. With many functions, prototypes at the top work like a table of contents.</p></div>
+    </div>
+  </div>
+  <aside class="notes">
+    <p class="note-time">Suggested time: about 6 min</p>
+    <h4>Teaching tips</h4>
+    <ul>
+      <li>Demo: delete the prototype and compile. g++ reports "'current' was not declared in this scope". Put it back and it compiles. Errors are the best teacher here.</li>
+      <li>Parameter names are optional in a prototype (<code>double current(double, double);</code>), but keeping them documents the meaning.</li>
+      <li>The prototype and the definition header must match in return type, name, and parameter types.</li>
+      <li>This version has no R = 0 check, to keep the focus on structure. Ask what Lab 1's refine step added (the division-by-zero guard); the lab exercise requires it.</li>
+    </ul>
+    <h4>Common student pitfalls</h4>
+    <ul>
+      <li>Forgetting the semicolon at the end of the prototype.</li>
+      <li>Changing the definition (e.g. to <code>int ohms</code>) but not the prototype: the linker then reports "undefined reference to current(double, double)".</li>
+    </ul>
+    <h4>Ask the class</h4>
+    <ul>
+      <li>"Which line runs first: line 11 or line 18?" (Line 11, the call. The definition only runs when called.)</li>
+    </ul>
+  </aside>
+</section>
+
+<!-- ========================= SLIDE 6 · FLOW OF CONTROL (TRACER 1) ========================= -->
+<section class="slide" id="l11-flow" data-title="Trace: Calling and Returning" data-section="Function Basics">
+  <header class="slide-head">
+    <p class="kicker">Lab 11 · Flow of control · ILO 1</p>
+    <h2>Trace It: Jumping Into a Function and Back</h2>
+    <p class="lede">A call pauses <code>main()</code>, copies the arguments into the parameters, runs the function, then returns.</p>
+  </header>
+  <div class="example-grid" style="grid-template-columns:minmax(0,1.2fr) minmax(0,1fr)">
+<pre class="code compact" id="l11-flow-code" data-cpp data-stdin="220 0.5">
+#include &lt;iostream&gt;
+using namespace std;
+
+double power(double volts, double amps);
+
+int main() {
+    double voltage, current;
+    cout &lt;&lt; "Enter volts and amps: ";
+    cin &gt;&gt; voltage &gt;&gt; current;
+
+    double p1 = power(voltage, current);
+    cout &lt;&lt; "Power = " &lt;&lt; p1 &lt;&lt; " W" &lt;&lt; endl;
+
+    double p2 = power(voltage, current * 2);
+    cout &lt;&lt; "2x current: " &lt;&lt; p2 &lt;&lt; " W" &lt;&lt; endl;
+    return 0;
+}
+
+double power(double volts, double amps) {
+    double watts = volts * amps;
+    return watts;
+}
+</pre>
+    <div class="stack">
+      <div class="tracer" data-trace="l11-flow" data-code="#l11-flow-code" data-title="Trace: function calls">
+        <div class="tracer-inputs">
+          <label>voltage <input type="number" data-var="voltage" value="220" step="any"></label>
+          <label>current <input type="number" data-var="current" value="0.5" step="any"></label>
+        </div>
+      </div>
+      <figure class="codeblock">
+        <figcaption>Sample run</figcaption>
+<pre class="console">Enter volts and amps: <span class="in">220 0.5</span>
+Power = 110 W
+2x current: 220 W</pre>
+      </figure>
+    </div>
+  </div>
+  <aside class="notes">
+    <p class="note-time">Suggested time: about 8 min</p>
+    <h4>Teaching tips</h4>
+    <ul>
+      <li>Press Step slowly. Watch the highlighted line jump from 11 down to 19, then back up to 11. Students often believe code always runs top to bottom; this breaks that belief.</li>
+      <li>The Memory panel labels the function's variables <code>[power] …</code>. They appear on the call and disappear on return: parameters and locals live only while the function runs.</li>
+      <li>The second call shows reuse: the same code runs with different arguments (<code>current * 2</code> is evaluated first, then copied).</li>
+      <li>Try other inputs, e.g. 12 V and 1.5 A (18 W and 36 W).</li>
+    </ul>
+    <h4>Common student pitfalls</h4>
+    <ul>
+      <li>Expecting the names to match. <code>voltage</code> in main and <code>volts</code> in power are different variables; only the <b>values</b> are copied, by <b>position</b>.</li>
+      <li>Thinking <code>watts</code> can be used in main. It is local to <code>power</code>.</li>
+    </ul>
+    <h4>Ask the class</h4>
+    <ul>
+      <li>"How many times does line 20 run?" (Twice, once per call.)</li>
+    </ul>
+  </aside>
+</section>
+
+<!-- ========================= SLIDE 7 · VOID, VALUE, PARAMETERS VS ARGUMENTS ========================= -->
+<section class="slide" id="l11-void-params" data-title="void vs Value-Returning; Parameters vs Arguments" data-section="Function Basics">
+  <header class="slide-head">
+    <p class="kicker">Lab 11 · Function basics · ILO 1</p>
+    <h2><code>void</code> vs Value-Returning · Parameters vs Arguments</h2>
+    <p class="lede">A <code>void</code> function does a job; a value-returning function computes an answer you can use.</p>
+  </header>
+  <div class="code-pair">
+<pre class="code compact" data-cpp>
+#include &lt;iostream&gt;
+using namespace std;
+
+void printLine(int width) {      // returns nothing
+    for (int i = 0; i &lt; width; i++) {
+        cout &lt;&lt; "-";
+    }
+    cout &lt;&lt; endl;
+}
+
+int cube(int n) {                // returns an int
+    return n * n * n;
+}
+
+int main() {
+    printLine(20);               // a statement
+    cout &lt;&lt; "3 cubed = " &lt;&lt; cube(3) &lt;&lt; endl;
+    int side = 4;
+    int volume = cube(side);     // side → n
+    cout &lt;&lt; "Volume = " &lt;&lt; volume &lt;&lt; endl;
+    printLine(20);
+    return 0;
+}
+</pre>
+    <div class="stack">
+      <figure class="codeblock">
+        <figcaption>Output</figcaption>
+<pre class="console">--------------------
+3 cubed = 27
+Volume = 64
+--------------------</pre>
+      </figure>
+      <div class="table-wrap">
+        <table class="table compact">
+          <thead><tr><th scope="col"></th><th scope="col">Parameter</th><th scope="col">Argument</th></tr></thead>
+          <tbody>
+            <tr><th scope="row">Where</th><td>in the function header</td><td>in the call</td></tr>
+            <tr><th scope="row">Example</th><td><code>int n</code></td><td><code>side</code>, <code>3</code></td></tr>
+            <tr><th scope="row">What it is</th><td>a local variable that receives a value</td><td>the value (or variable) you send</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="pitfall"><p class="box-label">Common pitfall</p><p><code>int x = printLine(5);</code> does not compile: a <code>void</code> function has no value to store.</p></div>
+    </div>
+  </div>
+  <aside class="notes">
+    <p class="note-time">Suggested time: about 6 min</p>
+    <h4>Teaching tips</h4>
+    <ul>
+      <li>Memory hook: <b>p</b>arameter = <b>p</b>laceholder (in the header); <b>a</b>rgument = <b>a</b>ctual value (in the call).</li>
+      <li>A value-returning call can go anywhere a value can: inside <code>cout</code>, on the right of <code>=</code>, inside another call (<code>cube(cube(2))</code> is 512).</li>
+      <li>A <code>void</code> function may still use <code>return;</code> (with no value) to leave early.</li>
+    </ul>
+    <h4>Common student pitfalls</h4>
+    <ul>
+      <li>Calling a value-returning function as a statement and ignoring the result: <code>cube(3);</code> compiles but does nothing useful.</li>
+      <li>Printing inside a function that should return the value. "Return, don't print" makes functions reusable.</li>
+      <li>Passing the wrong number of arguments: "too few arguments to function".</li>
+    </ul>
+    <h4>Ask the class</h4>
+    <ul>
+      <li>"Should a function that checks if a resistor value is valid be <code>void</code> or return something?" (Return <code>bool</code>.)</li>
+    </ul>
+  </aside>
+</section>
+
+<!-- ========================= SLIDE 8 · PASS-BY-VALUE VS PASS-BY-REFERENCE ========================= -->
+<section class="slide" id="l11-pass-modes" data-title="Pass-by-Value vs Pass-by-Reference" data-section="Parameter Passing">
+  <header class="slide-head">
+    <p class="kicker">Lab 11 · Parameter passing · ILO 2</p>
+    <h2>Pass-by-Value vs Pass-by-Reference</h2>
+    <p class="lede">One character makes the difference: <code>int x</code> receives a <b>copy</b>; <code>int&amp; x</code> becomes <b>another name</b> for the caller's variable (Lab 10).</p>
+  </header>
+  <div class="grid-2 align-start">
+    <div class="card">
+      <h3 class="card-title">By value: <code>void swapByValue(int x, int y)</code></h3>
+      <p class="small muted">Memory just before the function returns:</p>
+      <div class="stack" style="gap:.6rem">
+        <div class="mem" aria-label="main: a is 5, b is 9">
+          <div class="mem-cell"><span class="mem-name">a</span><span class="mem-val">5</span><span class="mem-addr">main</span></div>
+          <div class="mem-cell"><span class="mem-name">b</span><span class="mem-val">9</span><span class="mem-addr">main</span></div>
+        </div>
+        <div class="mem" aria-label="swapByValue copies: x is 9, y is 5, temp is 5">
+          <div class="mem-cell is-hl"><span class="mem-name">x</span><span class="mem-val">9</span><span class="mem-addr">copy</span></div>
+          <div class="mem-cell is-hl"><span class="mem-name">y</span><span class="mem-val">5</span><span class="mem-addr">copy</span></div>
+          <div class="mem-cell"><span class="mem-name">temp</span><span class="mem-val">5</span><span class="mem-addr">local</span></div>
+        </div>
+      </div>
+      <p style="margin-top:.6rem">Only the <b>copies</b> were swapped. <code>a</code> and <code>b</code> are unchanged.</p>
+    </div>
+    <div class="card">
+      <h3 class="card-title">By reference: <code>void swapByReference(int&amp; x, int&amp; y)</code></h3>
+      <p class="small muted">Memory just before the function returns:</p>
+      <div class="stack" style="gap:.6rem">
+        <div class="mem" aria-label="a and x are one box holding 9; b and y are one box holding 5">
+          <div class="mem-cell is-hl"><span class="mem-name">a · x</span><span class="mem-val">9</span><span class="mem-addr">main</span></div>
+          <div class="mem-cell is-hl"><span class="mem-name">b · y</span><span class="mem-val">5</span><span class="mem-addr">main</span></div>
+        </div>
+        <div class="mem" aria-label="swapByReference local: temp is 5">
+          <div class="mem-cell"><span class="mem-name">temp</span><span class="mem-val">5</span><span class="mem-addr">local</span></div>
+        </div>
+      </div>
+      <p style="margin-top:.6rem"><code>x</code> and <code>y</code> are other names for <code>a</code> and <code>b</code>, so <code>a</code> and <code>b</code> are swapped.</p>
+    </div>
+  </div>
+  <div class="table-wrap" style="margin-top:1.2rem">
+    <table class="table compact">
+      <thead><tr><th scope="col">Mode</th><th scope="col">Parameter</th><th scope="col">Function gets</th><th scope="col">Can change caller?</th><th scope="col">Use for</th></tr></thead>
+      <tbody>
+        <tr><th scope="row">By value</th><td><code>int x</code></td><td>a copy</td><td>No</td><td>small inputs (<code>int</code>, <code>double</code>, <code>char</code>)</td></tr>
+        <tr><th scope="row">By reference</th><td><code>int&amp; x</code></td><td>an alias</td><td><b>Yes</b></td><td>outputs, swaps, several results</td></tr>
+        <tr><th scope="row">By const reference</th><td><code>const string&amp; s</code></td><td>a read-only alias</td><td>No</td><td>big inputs (<code>string</code>) without copying</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <aside class="notes">
+    <p class="note-time">Suggested time: about 7 min</p>
+    <h4>Teaching tips</h4>
+    <ul>
+      <li>This is ILO 2. Draw both pictures on the board before showing the code on the next slide.</li>
+      <li>Analogy: pass-by-value is giving someone a <b>photocopy</b> of your notes (they can scribble on it; your notes are safe). Pass-by-reference is lending them your <b>actual notebook</b>.</li>
+      <li>The only change in the code is <code>&amp;</code> after the type in the parameter list. The call looks exactly the same: <code>swapByReference(a, b)</code>.</li>
+    </ul>
+    <h4>Common student pitfalls</h4>
+    <ul>
+      <li>Putting <code>&amp;</code> in the call (<code>swapByReference(&amp;a, &amp;b)</code>). That passes addresses (pointers) and does not compile with <code>int&amp;</code> parameters.</li>
+      <li>Passing a literal to a non-const reference: <code>swapByReference(5, 9)</code> does not compile (a reference needs a variable). A <code>const</code> reference accepts literals.</li>
+    </ul>
+    <h4>Ask the class</h4>
+    <ul>
+      <li>"Which mode would you use for a function that reads two numbers from the keyboard into the caller's variables?" (By reference.)</li>
+    </ul>
+  </aside>
+</section>
+
+<!-- ========================= SLIDE 9 · SWAP BOTH WAYS (TRACER 2) ========================= -->
+<section class="slide" id="l11-swap-trace" data-title="Trace: Swap by Value and by Reference" data-section="Parameter Passing">
+  <header class="slide-head">
+    <p class="kicker">Lab 11 · Parameter passing · ILO 2</p>
+    <h2>Trace It: The Classic Swap, Both Ways</h2>
+    <p class="lede">Same body, same call. Only the parameter types differ.</p>
+  </header>
+  <div class="example-grid" style="grid-template-columns:minmax(0,1.25fr) minmax(0,1fr)">
+<pre class="code compact" id="l11-swap-code" data-cpp>
+#include &lt;iostream&gt;
+using namespace std;
+
+void swapByValue(int x, int y) {
+    int temp = x;
+    x = y;
+    y = temp;
+}
+
+void swapByReference(int&amp; x, int&amp; y) {
+    int temp = x;
+    x = y;
+    y = temp;
+}
+
+int main() {
+    int a = 5, b = 9;
+    swapByValue(a, b);
+    cout &lt;&lt; "By val: a=" &lt;&lt; a &lt;&lt; " b=" &lt;&lt; b &lt;&lt; endl;
+    swapByReference(a, b);
+    cout &lt;&lt; "By ref: a=" &lt;&lt; a &lt;&lt; " b=" &lt;&lt; b &lt;&lt; endl;
+    return 0;
+}
+</pre>
+    <div class="stack">
+      <div class="tracer" data-trace="l11-swap" data-code="#l11-swap-code" data-title="Trace: swap"></div>
+      <figure class="codeblock">
+        <figcaption>Real output</figcaption>
+<pre class="console">By val: a=5 b=9
+By ref: a=9 b=5</pre>
+      </figure>
+    </div>
+  </div>
+  <aside class="notes">
+    <p class="note-time">Suggested time: about 7 min</p>
+    <h4>Teaching tips</h4>
+    <ul>
+      <li>Before stepping, ask for a prediction of both output lines. Many students predict "a=9 b=5" for both.</li>
+      <li>During <code>swapByValue</code>, the Memory panel shows <code>x (copy of a)</code> and <code>y (copy of b)</code> changing while a and b stay put. During <code>swapByReference</code>, <code>x (alias of a)</code> always shows the same value as a.</li>
+      <li>Notice the names <code>swapByValue</code>/<code>swapByReference</code>. C++ already has a <code>std::swap</code>; distinct names avoid confusion.</li>
+    </ul>
+    <h4>Common student pitfalls</h4>
+    <ul>
+      <li>Believing the function "forgot" to swap. It swapped its own copies, which are destroyed on return.</li>
+      <li>Adding <code>&amp;</code> to only one parameter: then only one of the two values changes.</li>
+    </ul>
+    <h4>Ask the class</h4>
+    <ul>
+      <li>"If we called <code>swapByReference</code> twice in a row, what would a and b be?" (Back to 5 and 9.)</li>
+    </ul>
+  </aside>
+</section>
+
+<!-- ========================= SLIDE 10 · REFERENCE PARAMETERS IN PRACTICE ========================= -->
+<section class="slide" id="l11-ref-params" data-title="Several Results & const References" data-section="Parameter Passing">
+  <header class="slide-head">
+    <p class="kicker">Lab 11 · Parameter passing · ILO 2</p>
+    <h2>Reference Parameters in Practice</h2>
+    <p class="lede"><code>return</code> gives back one value; reference parameters can fill in several. <code>const&amp;</code> reads without copying.</p>
+  </header>
+  <div class="grid-2 align-start">
+    <figure class="codeblock">
+      <figcaption>Inputs by value, outputs by reference</figcaption>
+<pre class="code compact" data-cpp data-stdin="31 27 34">
+#include &lt;iostream&gt;
+using namespace std;
+
+void minMax(int a, int b, int c,
+            int&amp; low, int&amp; high) {
+    low = a;
+    high = a;
+    if (b &lt; low)  { low = b; }
+    if (c &lt; low)  { low = c; }
+    if (b &gt; high) { high = b; }
+    if (c &gt; high) { high = c; }
+}
+
+int main() {
+    int t1, t2, t3, lowest, highest;
+    cout &lt;&lt; "Enter 3 temperatures: ";
+    cin &gt;&gt; t1 &gt;&gt; t2 &gt;&gt; t3;
+    minMax(t1, t2, t3, lowest, highest);
+    cout &lt;&lt; "Lowest: " &lt;&lt; lowest &lt;&lt; endl;
+    cout &lt;&lt; "Highest: " &lt;&lt; highest &lt;&lt; endl;
+    return 0;
+}
+</pre>
+    </figure>
+    <div class="stack">
+<pre class="console">Enter 3 temperatures: <span class="in">31 27 34</span>
+Lowest: 27
+Highest: 34</pre>
+      <figure class="codeblock">
+        <figcaption>Read-only input: <code>const string&amp;</code></figcaption>
+<pre class="code compact" data-cpp>
+#include &lt;iostream&gt;
+#include &lt;string&gt;
+using namespace std;
+
+void report(const string&amp; label, double value) {
+    cout &lt;&lt; label &lt;&lt; ": " &lt;&lt; value &lt;&lt; endl;
+}
+
+int main() {
+    string sensor = "Bulacan Station, Sensor A";
+    report(sensor, 31.5);         // no copy made
+    report("Humidity (%)", 78);   // literal is OK
+    return 0;
+}
+</pre>
+      </figure>
+<pre class="console">Bulacan Station, Sensor A: 31.5
+Humidity (%): 78</pre>
+    </div>
+  </div>
+  <aside class="notes">
+    <p class="note-time">Suggested time: about 7 min</p>
+    <h4>Teaching tips</h4>
+    <ul>
+      <li><code>minMax</code> is <code>void</code> because it "returns" through its reference parameters: <code>a</code>, <code>b</code>, <code>c</code> are inputs (by value), <code>low</code>, <code>high</code> are outputs (by reference). Students need this pattern in Problem 2 of the lab exercise.</li>
+      <li>The argument names (<code>lowest</code>, <code>highest</code>) differ from the parameter names (<code>low</code>, <code>high</code>). They are bound by position.</li>
+      <li><code>const string&amp;</code>: a <code>string</code> can be long, so copying it costs time and memory. A const reference gives the function access without a copy and promises not to change it: adding <code>label = "x";</code> inside <code>report</code> would not compile. For small types like <code>int</code> and <code>double</code>, plain pass-by-value is fine.</li>
+      <li>A <code>const</code> reference can also bind to a literal (<code>"Humidity (%)"</code>); a plain <code>string&amp;</code> cannot.</li>
+    </ul>
+    <h4>Common student pitfalls</h4>
+    <ul>
+      <li>Forgetting the <code>&amp;</code> on an output parameter: the program compiles, but main's variables stay uninitialized (garbage).</li>
+      <li>Marking an output parameter <code>const</code>: then the function cannot assign to it (compile error).</li>
+    </ul>
+    <h4>Ask the class</h4>
+    <ul>
+      <li>"How would you also return the average of the three?" (Add a <code>double&amp; average</code> parameter, or return it as the function's value.)</li>
+    </ul>
+  </aside>
+</section>
+
+<!-- ========================= SLIDE 11 · PASSING ARRAYS ========================= -->
+<section class="slide" id="l11-arrays" data-title="Passing Arrays to Functions" data-section="Parameter Passing">
+  <header class="slide-head">
+    <p class="kicker">Lab 11 · Parameter passing · ILO 2</p>
+    <h2>Passing Arrays to Functions</h2>
+  </header>
+  <div class="code-pair">
+<pre class="code compact" data-cpp>
+#include &lt;iostream&gt;
+using namespace std;
+
+double average(const int a[], int n) {   // read-only
+    double sum = 0;
+    for (int i = 0; i &lt; n; i++) {
+        sum += a[i];
+    }
+    return sum / n;
+}
+
+void calibrate(int a[], int n, int offset) {
+    for (int i = 0; i &lt; n; i++) {
+        a[i] += offset;   // caller's array!
+    }
+}
+
+int main() {
+    int readings[5] = {12, 7, 30, 18, 25};
+    cout &lt;&lt; "Average: " &lt;&lt; average(readings, 5) &lt;&lt; endl;
+    calibrate(readings, 5, -2);
+    cout &lt;&lt; "After:   " &lt;&lt; average(readings, 5) &lt;&lt; endl;
+    return 0;
+}
+</pre>
+    <div class="stack">
+      <figure class="codeblock">
+        <figcaption>Output</figcaption>
+<pre class="console">Average: 18.4
+After:   16.4</pre>
+      </figure>
+      <div class="concept"><p class="box-label">Key concept</p>
+        <ul>
+          <li>Pass the array <b>and its size</b>: <code>int a[]</code> (empty brackets) plus <code>int n</code>.</li>
+          <li>Call with the array name only: <code>average(readings, 5)</code>.</li>
+          <li>The function receives the address of element 0 (Lab 10), so arrays are effectively <b>passed by reference</b>: <code>calibrate</code> changed <code>readings</code>.</li>
+          <li>Add <code>const</code> when the function should only read.</li>
+        </ul>
+      </div>
+      <div class="pitfall"><p class="box-label">Common pitfall</p><p>Inside the function, <code>sizeof(a)</code> is the size of a <b>pointer</b> (8), not of the array. That is why the size travels as a separate parameter.</p></div>
+    </div>
+  </div>
+  <aside class="notes">
+    <p class="note-time">Suggested time: about 6 min</p>
+    <h4>Teaching tips</h4>
+    <ul>
+      <li>Connect to Lab 10: <code>readings</code> converts to <code>&amp;readings[0]</code>, so the function gets a pointer to the caller's elements. <code>int a[]</code> in a parameter list really means <code>int* a</code>.</li>
+      <li>Why <code>const</code>? If <code>average</code> accidentally wrote <code>a[i] = 0</code>, the compiler would stop it. Use <code>const</code> for every array a function only reads.</li>
+      <li>12 + 7 + 30 + 18 + 25 = 92, and 92 / 5 = 18.4. After subtracting 2 from each, 82 / 5 = 16.4.</li>
+    </ul>
+    <h4>Common student pitfalls</h4>
+    <ul>
+      <li>Calling with brackets: <code>average(readings[], 5)</code> or <code>average(readings[5], 5)</code>. The second passes one (out-of-bounds) element.</li>
+      <li>Hard-coding 5 inside the function instead of using <code>n</code>.</li>
+      <li>Integer division: if <code>sum</code> were an <code>int</code>, <code>sum / n</code> would truncate to 18.</li>
+    </ul>
+    <h4>Ask the class</h4>
+    <ul>
+      <li>"Write the header of a function that returns the largest element of an array of doubles." (<code>double largest(const double a[], int n)</code>.)</li>
+    </ul>
+  </aside>
+</section>
+
+<!-- ========================= SLIDE 12 · DEFAULT ARGUMENTS & OVERLOADING ========================= -->
+<section class="slide" id="l11-default-overload" data-title="Default Arguments & Overloading" data-section="Features & Design">
+  <header class="slide-head">
+    <p class="kicker">Lab 11 · More function features</p>
+    <h2>Default Arguments &amp; Function Overloading</h2>
+    <p class="lede">Defaults let callers skip trailing arguments; overloads share one name with different parameter lists.</p>
+  </header>
+  <div class="grid-2 align-start">
+    <div class="stack">
+      <figure class="codeblock">
+        <figcaption>Default arguments (filled from the right)</figcaption>
+<pre class="code compact" data-cpp>
+#include &lt;iostream&gt;
+using namespace std;
+
+void printLine(int width = 20, char ch = '-') {
+    for (int i = 0; i &lt; width; i++) {
+        cout &lt;&lt; ch;
+    }
+    cout &lt;&lt; endl;
+}
+
+int main() {
+    printLine();          // width 20, ch '-'
+    printLine(10, '*');   // width 10, ch '*'
+    printLine(5);         // width 5,  ch '-'
+    return 0;
+}
+</pre>
+      </figure>
+<pre class="console">--------------------
+**********
+-----</pre>
+    </div>
+    <div class="stack">
+      <figure class="codeblock">
+        <figcaption>Overloading (return type alone is not enough)</figcaption>
+<pre class="code compact" data-cpp>
+#include &lt;iostream&gt;
+using namespace std;
+
+double area(double radius) {
+    return 3.14159 * radius * radius;   // circle
+}
+
+double area(double length, double width) {
+    return length * width;   // rectangle
+}
+
+int main() {
+    cout &lt;&lt; "Circle: " &lt;&lt; area(2.0) &lt;&lt; endl;
+    cout &lt;&lt; "Rectangle: " &lt;&lt; area(3.0, 4.5) &lt;&lt; endl;
+    return 0;
+}
+</pre>
+      </figure>
+<pre class="console">Circle: 12.5664
+Rectangle: 13.5</pre>
+    </div>
+  </div>
+  <aside class="notes">
+    <p class="note-time">Suggested time: about 6 min</p>
+    <h4>Teaching tips</h4>
+    <ul>
+      <li>Defaults fill from the right: you cannot skip the first argument and give the second (<code>printLine(, '*')</code> is not C++). Put the parameter most likely to change first.</li>
+      <li>With a prototype, write the default values in the prototype only, not again in the definition.</li>
+      <li>The compiler picks the overload whose parameter list matches the call: by number of parameters (shown) or by types, e.g. <code>int maxOf(int, int)</code> and <code>double maxOf(double, double)</code>.</li>
+      <li>12.5664 is <code>cout</code>'s default 6 significant digits of 12.56636.</li>
+      <li>Problem 3 of today's lab exercise uses overloading.</li>
+    </ul>
+    <h4>Common student pitfalls</h4>
+    <ul>
+      <li>Repeating the default value in both the prototype and the definition: "default argument given for parameter 1 … after previous specification".</li>
+      <li>Two overloads that differ only in return type: "ambiguating new declaration".</li>
+      <li>Ambiguous calls, e.g. <code>maxOf(3, 4.5)</code> with the two versions above: the compiler cannot choose.</li>
+    </ul>
+    <h4>Ask the class</h4>
+    <ul>
+      <li>"What does <code>printLine(3, '=')</code> print?" (<code>===</code>.)</li>
+    </ul>
+  </aside>
+</section>
+
+<!-- ========================= SLIDE 13 · SCOPE AND LIFETIME ========================= -->
+<section class="slide" id="l11-scope" data-title="Scope and Lifetime" data-section="Features & Design">
+  <header class="slide-head">
+    <p class="kicker">Lab 11 · Scope &amp; lifetime</p>
+    <h2>Scope and Lifetime: Where Variables Live</h2>
+    <p class="lede"><b>Scope</b> = where a name can be used. <b>Lifetime</b> = how long the variable exists.</p>
+  </header>
+  <div class="grid-2 align-start" style="grid-template-columns:minmax(0,1.1fr) minmax(0,1fr)">
+<pre class="code compact" data-cpp>
+#include &lt;iostream&gt;
+using namespace std;
+
+int callCount() {
+    static int count = 0;   // created once
+    count++;
+    return count;
+}
+
+int plainCount() {
+    int count = 0;          // new on every call
+    count++;
+    return count;
+}
+
+int main() {
+    for (int i = 0; i &lt; 3; i++) {
+        cout &lt;&lt; "static " &lt;&lt; callCount();
+        cout &lt;&lt; ", plain " &lt;&lt; plainCount() &lt;&lt; endl;
+    }
+    return 0;
+}
+</pre>
+    <div class="stack">
+<pre class="console">static 1, plain 1
+static 2, plain 1
+static 3, plain 1</pre>
+      <div class="table-wrap">
+        <table class="table compact">
+          <thead><tr><th scope="col">Kind</th><th scope="col">Visible in</th><th scope="col">Exists</th></tr></thead>
+          <tbody>
+            <tr><th scope="row">Local</th><td>its block <code>{ }</code></td><td>until the block ends</td></tr>
+            <tr><th scope="row">Parameter</th><td>its function</td><td>during the call</td></tr>
+            <tr><th scope="row"><code>static</code> local</td><td>its function</td><td>whole program run</td></tr>
+            <tr><th scope="row">Global</th><td>every function below it</td><td>whole program run</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="pitfall"><p class="box-label">Avoid global variables</p><p>Any function can change a global, so bugs are hard to trace. Pass values as parameters instead. Global <b>constants</b> (<code>const int SIZE = 4;</code>) are fine.</p></div>
+    </div>
+  </div>
+  <aside class="notes">
+    <p class="note-time">Suggested time: about 6 min</p>
+    <h4>Teaching tips</h4>
+    <ul>
+      <li>The output shows the difference in one glance: the static counter keeps counting, the plain one restarts at 1.</li>
+      <li>Both functions have a local named <code>count</code>; they are different variables. The loop's <code>i</code> exists only inside the <code>for</code>.</li>
+      <li>Use case for <code>static</code> locals: counting how many times a function ran, or generating ID numbers. Use sparingly.</li>
+      <li>The final project rubric's top level asks for "zero global variables". Global constants are allowed.</li>
+    </ul>
+    <h4>Common student pitfalls</h4>
+    <ul>
+      <li>Using a variable from main inside another function ("'x' was not declared in this scope"). Pass it as a parameter.</li>
+      <li>Declaring a variable inside an <code>if</code> block and using it after the block.</li>
+      <li>"Fixing" scope errors by making everything global.</li>
+    </ul>
+    <h4>Ask the class</h4>
+    <ul>
+      <li>"What would <code>callCount()</code> return on its 10th call?" (10.)</li>
+    </ul>
+  </aside>
+</section>
+
+<!-- ========================= SLIDE 14 · TOP-DOWN DESIGN ========================= -->
+<section class="slide" id="l11-topdown" data-title="Top-Down Design: Structure Chart" data-section="Features & Design">
+  <header class="slide-head">
+    <p class="kicker">Lab 11 · Modular design exercise · ILO 1</p>
+    <h2>Top-Down Design: From Problem to Structure Chart</h2>
+    <p class="lede"><b>Problem:</b> read a student's name and 4 grades, then print the average and a letter grade.</p>
+  </header>
+  <figure class="card" style="margin:0">
+    <svg class="fc" viewBox="0 0 640 180" style="max-width:760px" role="img" aria-label="Structure chart: main calls readGrades, computeAverage, letterGrade, and printReport, in that order from left to right.">
+      <g class="fc-node"><rect class="s-process" x="250" y="8" width="140" height="46"/><text x="320" y="31">main</text></g>
+      <path class="fc-line plain" d="M320 54 V84 M80 84 H560"/>
+      <path class="fc-line" d="M80 84 V122"/><path class="fc-line" d="M240 84 V122"/><path class="fc-line" d="M400 84 V122"/><path class="fc-line" d="M560 84 V122"/>
+      <text class="fc-label a-start" x="88" y="103">1</text><text class="fc-label a-start" x="248" y="103">2</text><text class="fc-label a-start" x="408" y="103">3</text><text class="fc-label a-start" x="568" y="103">4</text>
+      <g class="fc-node"><rect class="s-predef" x="5" y="124" width="150" height="48"/><path class="s-predef-line" d="M17 124 V172 M143 124 V172"/><text x="80" y="148" style="font-size:14px">readGrades</text></g>
+      <g class="fc-node"><rect class="s-predef" x="165" y="124" width="150" height="48"/><path class="s-predef-line" d="M177 124 V172 M303 124 V172"/><text x="240" y="148" style="font-size:14px">computeAverage</text></g>
+      <g class="fc-node"><rect class="s-predef" x="325" y="124" width="150" height="48"/><path class="s-predef-line" d="M337 124 V172 M463 124 V172"/><text x="400" y="148" style="font-size:14px">letterGrade</text></g>
+      <g class="fc-node"><rect class="s-predef" x="485" y="124" width="150" height="48"/><path class="s-predef-line" d="M497 124 V172 M623 124 V172"/><text x="560" y="148" style="font-size:14px">printReport</text></g>
+    </svg>
+  </figure>
+  <div class="grid-2 align-start" style="margin-top:1.2rem;grid-template-columns:minmax(0,1.2fr) minmax(0,1fr)">
+    <div class="table-wrap">
+      <table class="table compact">
+        <thead><tr><th scope="col">Module</th><th scope="col">Gets</th><th scope="col">Gives back</th></tr></thead>
+        <tbody>
+          <tr><td><code>readGrades</code></td><td>array, n</td><td>fills the array</td></tr>
+          <tr><td><code>computeAverage</code></td><td>array, n</td><td>returns the average</td></tr>
+          <tr><td><code>letterGrade</code></td><td>average</td><td>returns 'A'–'F'</td></tr>
+          <tr><td><code>printReport</code></td><td>name, average, letter</td><td>nothing (<code>void</code>)</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="practice"><p class="box-label">How to decompose (stepwise refinement)</p>
+      <ol>
+        <li>Write <code>main()</code> as a list of big steps.</li>
+        <li>Turn each step into a function with a verb name.</li>
+        <li>Decide inputs and outputs → parameters and return type.</li>
+        <li>Write and test one function at a time.</li>
+      </ol>
+    </div>
+  </div>
+  <aside class="notes">
+    <p class="note-time">Suggested time: about 6 min</p>
+    <h4>Teaching tips</h4>
+    <ul>
+      <li>This is the "modular design exercise" activity. Build the chart <b>with</b> the class: ask "What are the big steps?" and draw the boxes on the board before revealing this slide.</li>
+      <li>A structure chart shows <b>who calls whom</b>, not the order of every statement; the small numbers show the order main calls them. The modules are drawn as Predefined Process boxes to connect with Lab 1.</li>
+      <li>The table is the design contract: once the headers are agreed, different students could write different functions (team-friendly).</li>
+      <li>Step 4 tip: a function can first be a "stub" (e.g. <code>return 'A';</code>) so the program compiles while the rest is unfinished.</li>
+    </ul>
+    <h4>Common student pitfalls</h4>
+    <ul>
+      <li>Boxes that are too big ("doEverything") or too tiny ("addOne"). Each box should be one clear task you can name with a verb.</li>
+      <li>Reading input inside <code>computeAverage</code>: mixing tasks makes a function harder to reuse and test.</li>
+    </ul>
+    <h4>Ask the class</h4>
+    <ul>
+      <li>"We now also want the highest grade. Where does the new box go, and what is its header?" (Under main: <code>double highestGrade(const double grades[], int n)</code>.)</li>
+    </ul>
+  </aside>
+</section>
+
+<section class="slide" id="l11-topdown-code" data-title="Top-Down Design: The Code" data-section="Features & Design">
+  <header class="slide-head">
+    <p class="kicker">Lab 11 · Modular design exercise · ILO 1</p>
+    <h2>Top-Down Design: The Modular Code</h2>
+    <p class="lede">Prototypes first, a short <code>main()</code> that reads like the algorithm, then one definition per box.</p>
+  </header>
+  <div class="code-pair">
+    <figure class="codeblock">
+      <figcaption><code>grade_report.cpp</code> (scroll to see every function)</figcaption>
+<pre class="code scroll" data-cpp data-stdin="Ana Cruz&#10;88 92 79 85">
+#include &lt;iostream&gt;
+#include &lt;iomanip&gt;
+#include &lt;string&gt;
+using namespace std;
+
+const int SIZE = 4;     // a global constant is fine
+
+void readGrades(double grades[], int n);
+double computeAverage(const double grades[], int n);
+char letterGrade(double average);
+void printReport(const string&amp; name, double average,
+                 char letter);
+
+int main() {
+    string name;
+    double grades[SIZE];
+    cout &lt;&lt; "Student name: ";
+    getline(cin, name);
+    readGrades(grades, SIZE);
+    double average = computeAverage(grades, SIZE);
+    printReport(name, average, letterGrade(average));
+    return 0;
+}
+
+void readGrades(double grades[], int n) {
+    for (int i = 0; i &lt; n; i++) {
+        cout &lt;&lt; "Grade " &lt;&lt; (i + 1) &lt;&lt; ": ";
+        cin &gt;&gt; grades[i];
+    }
+}
+
+double computeAverage(const double grades[], int n) {
+    double sum = 0;
+    for (int i = 0; i &lt; n; i++) {
+        sum += grades[i];
+    }
+    return sum / n;
+}
+
+char letterGrade(double average) {
+    if (average &gt;= 90) {
+        return 'A';
+    } else if (average &gt;= 80) {
+        return 'B';
+    } else if (average &gt;= 70) {
+        return 'C';
+    } else if (average &gt;= 60) {
+        return 'D';
+    }
+    return 'F';
+}
+
+void printReport(const string&amp; name, double average,
+                 char letter) {
+    cout &lt;&lt; fixed &lt;&lt; setprecision(2);
+    cout &lt;&lt; "Report for " &lt;&lt; name &lt;&lt; endl;
+    cout &lt;&lt; "Average: " &lt;&lt; average;
+    cout &lt;&lt; " (" &lt;&lt; letter &lt;&lt; ")" &lt;&lt; endl;
+}
+</pre>
+    </figure>
+    <div class="stack">
+      <figure class="codeblock">
+        <figcaption>Sample run</figcaption>
+<pre class="console">Student name: <span class="in">Ana Cruz</span>
+Grade 1: <span class="in">88</span>
+Grade 2: <span class="in">92</span>
+Grade 3: <span class="in">79</span>
+Grade 4: <span class="in">85</span>
+Report for Ana Cruz
+Average: 86.00 (B)</pre>
+      </figure>
+      <div class="concept"><p class="box-label">Read main() first</p><p>Lines 14–23 are the whole algorithm: get the name, then four calls to our own functions.</p></div>
+      <div class="note-box"><p class="box-label">Every passing mode appears</p>
+        <ul>
+          <li>Array to <code>readGrades</code>: filled in (effectively by reference).</li>
+          <li><code>const double grades[]</code>: read-only.</li>
+          <li><code>const string&amp; name</code>: no copy.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+  <aside class="notes">
+    <p class="note-time">Suggested time: about 8 min</p>
+    <h4>Teaching tips</h4>
+    <ul>
+      <li>Scroll the code slowly. Match each definition to its box on the previous slide.</li>
+      <li>Read <code>main()</code> aloud: it reads like pseudocode. That is stepwise refinement from Lab 1 (steps 4 and 5) turned into C++.</li>
+      <li>(88 + 92 + 79 + 85) / 4 = 86 → B. The program on the slide was compiled and run with exactly this input.</li>
+      <li><code>SIZE</code> is a global <b>constant</b>, which is fine; it is not a global variable.</li>
+    </ul>
+    <h4>Common student pitfalls</h4>
+    <ul>
+      <li>Prototype and definition headers that drift apart while editing (linker error). Copy and paste the header.</li>
+      <li>Mixing <code>getline</code> after <code>cin &gt;&gt;</code> (the leftover newline problem). Here <code>getline</code> comes first, so it is safe.</li>
+    </ul>
+    <h4>Ask the class</h4>
+    <ul>
+      <li>"If the passing grade changes from 60 to 75, how many functions must change?" (Only <code>letterGrade</code>: the benefit of modular code.)</li>
+    </ul>
+  </aside>
+</section>
+
+<!-- ========================= SLIDE 15 · RECURSION (BRIEF) ========================= -->
+<section class="slide" id="l11-recursion" data-title="(Optional) Recursion: Factorial" data-section="Features & Design">
+  <header class="slide-head">
+    <p class="kicker">Lab 11 · Optional preview</p>
+    <h2>(Optional) Recursion: A Function That Calls Itself</h2>
+    <p class="lede">Solve a smaller version of the same problem, until a <b>base case</b> can be answered directly.</p>
+  </header>
+  <div class="grid-2 align-start" style="grid-template-columns:minmax(0,1.2fr) minmax(0,1fr)">
+<pre class="code" data-cpp data-stdin="5">
+#include &lt;iostream&gt;
+using namespace std;
+
+long long factorial(int n) {
+    if (n &lt;= 1) {                 // base case
+        return 1;
+    }
+    return n * factorial(n - 1);  // recursive case
+}
+
+int main() {
+    int n;
+    cout &lt;&lt; "Enter n: ";
+    cin &gt;&gt; n;
+    cout &lt;&lt; n &lt;&lt; "! = " &lt;&lt; factorial(n) &lt;&lt; endl;
+    return 0;
+}
+</pre>
+    <div class="stack">
+<pre class="console">Enter n: <span class="in">5</span>
+5! = 120</pre>
+      <div class="card reveal" data-reveal>
+        <p class="eyebrow">Unfold factorial(5)</p>
+        <ol class="reveal-steps">
+          <li data-step><code>factorial(5)</code> <span>= 5 × factorial(4)</span></li>
+          <li data-step><code>factorial(4)</code> <span>= 4 × factorial(3)</span></li>
+          <li data-step><code>factorial(3)</code> <span>= 3 × factorial(2)</span></li>
+          <li data-step><code>factorial(2)</code> <span>= 2 × factorial(1)</span></li>
+          <li data-step><code>factorial(1)</code> <span>= 1 (base case: stop)</span></li>
+          <li data-step class="final"><code>2 × 1 = 2, 3 × 2 = 6, 4 × 6 = 24, 5 × 24 = 120</code> <span>Answer: 120</span></li>
+        </ol>
+        <div class="reveal-actions">
+          <button type="button" class="btn primary" data-reveal-next>Show next step</button>
+          <button type="button" class="btn ghost" data-reveal-reset>Reset</button>
+        </div>
+      </div>
+      <div class="pitfall"><p class="box-label">Common pitfall</p><p>No base case (or one that is never reached) means the calls never stop, and the program crashes with a <b>stack overflow</b>.</p></div>
+    </div>
+  </div>
+  <aside class="notes">
+    <p class="note-time">Suggested time: about 4 min (skip if short on time)</p>
+    <h4>Teaching tips</h4>
+    <ul>
+      <li>Optional slide; recursion is not assessed in Lab Exercise 11. Use it if the class is ahead of schedule.</li>
+      <li>Every call gets its <b>own</b> copy of <code>n</code>, just like the two calls to <code>power()</code> earlier. The calls stack up, then return in reverse order.</li>
+      <li><code>long long</code> holds up to 20!; 21! overflows even a <code>long long</code>.</li>
+      <li>A loop version works too (Lab 1 notes had one). Recursion shines later for problems like tree traversal.</li>
+    </ul>
+    <h4>Common student pitfalls</h4>
+    <ul>
+      <li>Writing <code>return factorial(n);</code> (same size, never shrinks) instead of <code>factorial(n - 1)</code>.</li>
+      <li>Negative input: with <code>n &lt;= 1</code> as the base case, it returns 1 instead of looping forever, but mathematically the answer is undefined. Validate input.</li>
+    </ul>
+    <h4>Ask the class</h4>
+    <ul>
+      <li>"How many calls to factorial happen for n = 5?" (5.)</li>
+    </ul>
+  </aside>
+</section>
+
+<!-- ========================= SLIDE 16 · PITFALLS ========================= -->
+<section class="slide" id="l11-pitfalls" data-title="Common Function Mistakes" data-section="Features & Design">
+  <header class="slide-head">
+    <p class="kicker">Lab 11 · Debugging</p>
+    <h2>Common Function Mistakes</h2>
+    <p class="lede">Read the compiler message: most of these have a recognizable error or warning.</p>
+  </header>
+  <div class="table-wrap">
+    <table class="table compact">
+      <thead><tr><th scope="col">Mistake</th><th scope="col">Example</th><th scope="col">What happens</th><th scope="col">Fix</th></tr></thead>
+      <tbody>
+        <tr><th scope="row">Missing <code>return</code> in a non-void function</th><td><code>int larger(int a, int b) {</code><br><code>&nbsp;&nbsp;if (a &gt; b) { return a; }</code><br><code>}</code></td><td>Warning "control reaches end of non-void function"; garbage when a ≤ b</td><td>Return a value on <b>every</b> path</td></tr>
+        <tr><th scope="row">Prototype ≠ definition</th><td><code>double area(double r);</code><br><code>double area(int r) { … }</code></td><td>Linker error: "undefined reference to area(double)"</td><td>Copy the header exactly</td></tr>
+        <tr><th scope="row">Expecting a by-value parameter to change the caller</th><td><code>void addBonus(int score) {</code><br><code>&nbsp;&nbsp;score += 5; }</code></td><td>Compiles; the caller's score is unchanged</td><td>Use <code>int&amp; score</code>, or return the new value</td></tr>
+        <tr><th scope="row">Calling before declaring</th><td>call in <code>main()</code>, definition below, no prototype</td><td>"'area' was not declared in this scope"</td><td>Add a prototype above <code>main()</code></td></tr>
+        <tr><th scope="row">Returning a reference to a local</th><td><code>int&amp; bad() {</code><br><code>&nbsp;&nbsp;int x = 5; return x; }</code></td><td>Warning; the local is destroyed, so the reference dangles (Lab 10)</td><td>Return by value: <code>int good()</code></td></tr>
+      </tbody>
+    </table>
+  </div>
+  <aside class="notes">
+    <p class="note-time">Suggested time: about 5 min</p>
+    <h4>Teaching tips</h4>
+    <ul>
+      <li>Optional live demo: compile each example with <code>g++ -Wall</code> to show the exact message. Students recognize errors faster once they have seen them on purpose.</li>
+      <li>Row 1 is a <b>warning</b>, not an error, so the program runs and gives wrong answers. Insist that warnings be fixed (the rubric's Functionality criterion).</li>
+      <li>Row 5 connects to Lab 10's dangling pointers: returning the address of a local (<code>int* f() { int x; return &amp;x; }</code>) is the same mistake.</li>
+    </ul>
+    <h4>Common student pitfalls</h4>
+    <ul>
+      <li>"It compiled, so it's correct." Rows 1, 3, and 5 compile.</li>
+    </ul>
+    <h4>Ask the class</h4>
+    <ul>
+      <li>"Which two fixes would you use for row 3, and when would you choose each?" (Reference parameter if the function must update the variable; return value if it computes a single new value.)</li>
+    </ul>
+  </aside>
+</section>
+
+<!-- ========================= SLIDE 17 · QUICK CHECK ========================= -->
+<section class="slide" id="l11-quick-check" data-title="Quick Check" data-section="Practice">
+  <header class="slide-head">
+    <p class="kicker">Lab 11 · Check your understanding</p>
+    <h2>Quick Check</h2>
+    <p class="lede">Answer on paper first, then click to compare.</p>
+  </header>
+  <div class="qa-grid">
+    <details class="qa"><summary><span class="q-num">1</span><span class="q-text">In <code>int cube(int n)</code> called as <code>cube(side)</code>, which is the parameter and which is the argument?</span></summary><p><code>n</code> is the parameter (in the header); <code>side</code> is the argument (in the call). Its value is copied into <code>n</code>.</p></details>
+    <details class="qa"><summary><span class="q-num">2</span><span class="q-text"><code>void addOne(int n) { n++; }</code> … <code>int x = 5; addOne(x); cout &lt;&lt; x;</code> prints?</span></summary><p>5. <code>n</code> is a copy (pass-by-value); changing it does not change <code>x</code>.</p></details>
+    <details class="qa"><summary><span class="q-num">3</span><span class="q-text">What one-character change makes Q2 print 6?</span></summary><p>Make the parameter a reference: <code>void addOne(int&amp; n)</code>. Now <code>n</code> is another name for <code>x</code>.</p></details>
+    <details class="qa"><summary><span class="q-num">4</span><span class="q-text">Why write <code>const string&amp; name</code> instead of <code>string name</code>?</span></summary><p>No copy of the (possibly long) string is made, and <code>const</code> guarantees the function cannot change it.</p></details>
+    <details class="qa"><summary><span class="q-num">5</span><span class="q-text">Can two functions share a name if they differ only in return type?</span></summary><p>No. Overloads must differ in their <b>parameter lists</b> (number or types of parameters).</p></details>
+    <details class="qa"><summary><span class="q-num">6</span><span class="q-text">A function with <code>static int count = 0; count++; return count;</code> is called 4 times. What does the 4th call return?</span></summary><p>4. A <code>static</code> local is created once and keeps its value between calls.</p></details>
+  </div>
+  <aside class="notes">
+    <p class="note-time">Suggested time: about 6 min</p>
+    <h4>Teaching tips</h4>
+    <ul>
+      <li>Think-pair-share: 2 minutes alone, 1 minute with a seatmate, then open the answers.</li>
+      <li>Q2–Q3 are ILO 2 in miniature. If many miss Q2, replay the swap tracer.</li>
+    </ul>
+    <h4>Common student pitfalls</h4>
+    <ul>
+      <li>Q3: answering "add <code>&amp;</code> in the call" (<code>addOne(&amp;x)</code>). That passes an address and does not compile with an <code>int</code> parameter.</li>
+      <li>Q6: answering 1 (thinking the initializer runs every call).</li>
+    </ul>
+    <h4>Ask the class</h4>
+    <ul>
+      <li>"Which question was hardest?" Use the answer to choose what to review before the lab exercise.</li>
+    </ul>
+  </aside>
+</section>
+
+<!-- ========================= SLIDE 18 · SEATWORK (TRACER 3) ========================= -->
+<section class="slide" id="l11-seatwork" data-title="Seatwork: sortTwo" data-section="Practice">
+  <header class="slide-head">
+    <p class="kicker">Lab 11 · Seatwork · Pass-by-reference</p>
+    <h2>Seatwork: Sort Three Numbers with One Small Function</h2>
+  </header>
+  <div class="story">
+    <p class="task" style="margin-top:0;padding-top:0;border-top:0"><b>Instruction:</b> Write <code>void sortTwo(int&amp; first, int&amp; second)</code> that swaps its arguments only if <code>first &gt; second</code>. Then, in <code>main()</code>, read three integers and sort them in ascending order using <b>only</b> calls to <code>sortTwo</code>.</p>
+  </div>
+  <div class="grid-2 align-start">
+    <div class="card">
+      <h3 class="card-title">Need a hint?</h3>
+      <details class="hint"><summary>Hint 1</summary><p>The body is the swap from the earlier slide, wrapped in <code>if (first &gt; second) { … }</code>.</p></details>
+      <details class="hint"><summary>Hint 2</summary><p>Three calls are enough: compare (a, b), then (b, c), then (a, b) again. It's a tiny bubble sort (Lab 9).</p></details>
+      <details class="hint"><summary>Hint 3</summary><p>Without the <code>&amp;</code>, nothing in <code>main()</code> changes. Check your parameter list.</p></details>
+      <figure class="codeblock" style="margin-top:.6rem">
+        <figcaption>Expected run</figcaption>
+<pre class="console">Enter three integers: <span class="in">9 3 7</span>
+Sorted: 3 7 9</pre>
+      </figure>
+    </div>
+    <div class="card timer" data-timer data-minutes="10">
+      <h3 class="card-title">Seatwork timer</h3>
+      <p class="timer-display">10:00</p>
+      <div class="timer-presets" role="group" aria-label="Timer presets">
+        <button type="button" class="btn ghost" data-min="5">5 min</button>
+        <button type="button" class="btn ghost" data-min="10">10 min</button>
+        <button type="button" class="btn ghost" data-min="15">15 min</button>
+      </div>
+      <div class="timer-actions">
+        <button type="button" class="btn primary" data-timer-act="toggle">Start</button>
+        <button type="button" class="btn" data-timer-act="reset">Reset</button>
+      </div>
+    </div>
+  </div>
+  <details class="answer">
+    <summary><span>Reveal answer &amp; walkthrough</span></summary>
+    <div class="example-grid" style="margin-top:1rem">
+<pre class="code" id="l11-sort-code" data-cpp data-stdin="9 3 7">
+#include &lt;iostream&gt;
+using namespace std;
+
+void sortTwo(int&amp; first, int&amp; second) {
+    if (first &gt; second) {
+        int temp = first;
+        first = second;
+        second = temp;
+    }
+}
+
+int main() {
+    int a, b, c;
+    cout &lt;&lt; "Enter three integers: ";
+    cin &gt;&gt; a &gt;&gt; b &gt;&gt; c;
+    sortTwo(a, b);      // now a &lt;= b
+    sortTwo(b, c);      // now c is the largest
+    sortTwo(a, b);      // fix the first two
+    cout &lt;&lt; "Sorted: " &lt;&lt; a &lt;&lt; " " &lt;&lt; b;
+    cout &lt;&lt; " " &lt;&lt; c &lt;&lt; endl;
+    return 0;
+}
+</pre>
+      <div class="tracer" data-trace="l11-sort" data-code="#l11-sort-code" data-speed="250" data-title="Trace: sortTwo">
+        <div class="tracer-inputs">
+          <label>a <input type="number" data-var="a" value="9" step="1"></label>
+          <label>b <input type="number" data-var="b" value="3" step="1"></label>
+          <label>c <input type="number" data-var="c" value="7" step="1"></label>
+        </div>
+      </div>
+    </div>
+  </details>
+  <aside class="notes">
+    <p class="note-time">Suggested time: about 15 min (10 working, 5 review)</p>
+    <h4>Teaching tips</h4>
+    <ul>
+      <li>Start the timer and walk around. Open hints one at a time only if many students are stuck.</li>
+      <li>After revealing, run the tracer with 9 3 7, then try 1 2 3 (no swaps) and 3 2 1 (three swaps). Ask students to predict the number of swaps first.</li>
+      <li>The tracer's Memory panel shows <code>first (alias of a)</code> etc., so students see which of main's variables each call touches.</li>
+    </ul>
+    <h4>Common student pitfalls</h4>
+    <ul>
+      <li>Forgetting <code>&amp;</code>: the output is the unsorted input.</li>
+      <li>Only two calls (a, b) and (b, c): fails for 3 2 1 → prints 2 1 3.</li>
+      <li>Swapping without a temp variable (<code>first = second; second = first;</code>) duplicates one value.</li>
+    </ul>
+    <h4>Ask the class</h4>
+    <ul>
+      <li>"How would you sort in descending order with the same function?" (Call it with the arguments reversed, e.g. <code>sortTwo(b, a)</code>.)</li>
+    </ul>
+  </aside>
+</section>
+
+<!-- ========================= SLIDE 19 · LAB EXERCISE PROBLEM 1 ========================= -->
+<!-- LOCKED-ACTIVITY:START lab-11 -->
+<section class="slide locked-slide" id="l11-exercise-1" data-title="Laboratory Exercise No. 11 (locked)" data-section="Lab Exercise & Wrap-up" data-locked="lab-11">
+  <header class="slide-head">
+    <p class="kicker">Laboratory Exercise No. 11</p>
+    <h2>This lab activity is locked</h2>
+    <p class="lede">It opens when your instructor releases it. Enter the passphrase your instructor gives you.</p>
+  </header>
+  <div class="lock-card">
+    <svg class="lock-icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="10.5" width="14" height="10" rx="2"/><path d="M8 10.5V7.5a4 4 0 0 1 8 0v3M12 14.5v2.5"/></svg>
+    <h3>Laboratory Exercise No. 11</h3>
+    <form class="lock-form" autocomplete="off">
+      <label class="sr-only" for="unlock-lab-11">Passphrase</label>
+      <input id="unlock-lab-11" type="password" placeholder="Passphrase" autocomplete="off" spellcheck="false">
+      <button type="submit" class="btn primary">Unlock</button>
+    </form>
+    <p class="lock-msg" aria-live="polite"></p>
+    <p class="small muted">The activity is stored encrypted on this site and is unlocked in your browser. Once unlocked, it stays open on this device.</p>
+  </div>
+  <script type="application/json" class="locked-data">{"v":1,"iter":250000,"salt":"ht/STHgAevmmgT+uO0WWHQ==","iv":"jy/09UGzt9Pss7Qt","data":"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"}</script>
+  <aside class="notes">
+    <p class="note-time">Locked activity (2 slides)</p>
+    <h4>Instructor</h4>
+    <ul>
+      <li>Type this lab's passphrase (private instructor package → <code>passwords.json</code>) to open the activity on the classroom PC. It stays unlocked on that browser until you press "Lock again".</li>
+      <li>To release the activity to students, announce or post the passphrase (e.g. in MS Teams).</li>
+      <li>To re-lock it for everyone, change the passphrase and rerun <code>node tools/lock-activities.js</code>.</li>
+    </ul>
+  </aside>
+</section>
+<!-- LOCKED-ACTIVITY:END lab-11 -->
+
+<!-- ========================= SLIDE 21 · WRAP-UP ========================= -->
+<section class="slide" id="l11-wrap-up" data-title="Wrap-up" data-section="Lab Exercise & Wrap-up">
+  <header class="slide-head">
+    <p class="kicker">Wrap-up</p>
+    <h2>Functions in One Table</h2>
+  </header>
+  <div class="table-wrap">
+    <table class="table compact compare-table">
+      <thead><tr><th scope="col">Term</th><th scope="col">Example</th><th scope="col">Remember</th></tr></thead>
+      <tbody>
+        <tr><th scope="row">Prototype</th><td><code>double power(double v, double i);</code></td><td>above <code>main()</code>, ends with <code>;</code></td></tr>
+        <tr><th scope="row">Definition</th><td><code>double power(double v, double i) { return v * i; }</code></td><td>header must match the prototype</td></tr>
+        <tr><th scope="row">Call</th><td><code>double p = power(220, 0.5);</code></td><td>arguments copied into parameters by position</td></tr>
+        <tr><th scope="row">By value</th><td><code>void f(int x)</code></td><td>a copy; the caller is safe</td></tr>
+        <tr><th scope="row">By reference</th><td><code>void f(int&amp; x)</code></td><td>an alias; the caller can change</td></tr>
+        <tr><th scope="row">By const reference</th><td><code>void f(const string&amp; s)</code></td><td>no copy, read-only</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="grid-3">
+    <div class="card"><h3 class="card-title">Remember</h3><ul class="tight"><li>One function, one task.</li><li>Return values; don't print inside calculations.</li><li>Use <code>&amp;</code> only when the caller's variable must change.</li></ul></div>
+    <div class="card"><h3 class="card-title">Exit ticket</h3><p>Write two prototypes: one that returns the area of a circle given its radius, and one that swaps two <code>double</code>s.</p></div>
+    <div class="card"><h3 class="card-title">Next: Lab No. 12</h3><p><b>Intro to OOP: Classes and Objects</b>. A class bundles data <em>and</em> the functions that work on it.</p><p><a href="lab-12.html">Open Lab 12 →</a></p></div>
+  </div>
+  <aside class="notes">
+    <p class="note-time">Suggested time: about 3 min</p>
+    <h4>Teaching tips</h4>
+    <ul>
+      <li>Repeat the ILO check: can students (1) split a problem into functions and (2) explain value vs reference with a drawing?</li>
+      <li>Exit ticket answers: <code>double circleArea(double radius);</code> and <code>void swapDoubles(double&amp; a, double&amp; b);</code>. Check for the <code>&amp;</code> in the second.</li>
+      <li>Preview Lab 12: today's functions become <b>member functions</b> inside a class, so the data and its functions travel together.</li>
+    </ul>
+    <h4>Common student pitfalls</h4>
+    <ul>
+      <li>Leaving with "always use <code>&amp;</code>, it's faster". Pass small values by value; use references when the caller must change or the data is big.</li>
+    </ul>
+    <h4>Ask the class</h4>
+    <ul>
+      <li>"Point to one function in your Lab Exercise 11 plan. What are its inputs, and how does its result get back to main?"</li>
+    </ul>
+  </aside>
+</section>
+
+      </div>
+    </main>
+  </div>
+</body>
+</html>

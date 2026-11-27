@@ -1,0 +1,1545 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Lab 1 · Algorithm, Pseudocode &amp; Flowchart · CPE 104L</title>
+  <meta name="description" content="CPE 104L Programming Logic and Design, Lab No. 1: Algorithm, Pseudocode, and Flowchart. BS Computer Engineering, Bulacan State University.">
+  <meta name="color-scheme" content="light dark">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%232f3410'/%3E%3Cpath d='M32 11 53 32 32 53 11 32Z' fill='none' stroke='%23f5c518' stroke-width='6' stroke-linejoin='round'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="../css/styles.css">
+  <script>
+    (function () { var d = document.documentElement; d.classList.add('js');
+      try { var t = localStorage.getItem('cpe104l.theme'); if (t === 'dark' || t === 'light') d.setAttribute('data-theme', t); } catch (e) {} })();
+  </script>
+  <script src="../js/course.js" defer></script>
+  <script src="../js/search-index.js" defer></script>
+  <script src="../js/script.js" defer></script>
+  <script src="../js/labs/lab-01.js" defer></script>
+</head>
+
+<body data-page="lab-01" data-root="../">
+  <!-- Shared SVG definitions (arrowheads for every flowchart on the page) -->
+  <svg class="svg-defs" aria-hidden="true" focusable="false">
+    <defs>
+      <marker id="arrow" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="10" markerHeight="10" markerUnits="userSpaceOnUse" orient="auto">
+        <path class="arrowhead" d="M0 0 L10 5 L0 10 Z"/>
+      </marker>
+    </defs>
+  </svg>
+
+  <div class="app" id="app">
+    <!-- ============ STAGE ============ -->
+    <main class="stage" id="stage">
+      <div class="deck" id="deck" tabindex="-1">
+<noscript><p class="noscript">JavaScript is off, so every slide is shown in one long page. Turn JavaScript on for slide navigation, speaker notes, and the live tracers.</p></noscript>
+
+<!-- ========================= SLIDE 1 · TITLE & ILOs (same layout as Labs 2–15) ========================= -->
+<section class="slide" id="title" data-title="Title & ILOs" data-section="Introduction">
+  <div class="lab-title">
+    <div>
+      <div class="lab-badges"><span class="badge-lab">Lab No. 1</span><span class="badge-week">Week 2</span><span class="badge-co">CO1</span></div>
+      <p class="kicker">CPE 104L · Programming Logic and Design</p>
+      <h1>Algorithm, Pseudocode, and Flowchart <span>Plan the logic before you write any code</span></h1>
+      <p class="lede">Before typing a single line of C++, engineers plan the logic. Today you will describe solutions as algorithms, pseudocode, and flowcharts.</p>
+      <ol class="roadmap" aria-label="Lab roadmap">
+        <li><a href="#pdc">Development cycle</a></li>
+        <li><a href="#algorithm">Algorithms</a></li>
+        <li><a href="#pseudocode">Pseudocode</a></li>
+        <li><a href="#flowchart">Flowcharts</a></li>
+        <li><a href="#problem-1">Guided problems</a></li>
+        <li><a href="#seatwork">Seatwork</a></li>
+        <li><a href="#lab-activity">Lab Exercise 1</a></li>
+      </ol>
+    </div>
+    <div class="ilo-card">
+      <h2>Intended Learning Outcomes</h2>
+      <ol>
+        <li>Explain the program development cycle.</li>
+        <li>Formulate step-by-step algorithms for engineering problems.</li>
+        <li>Construct standard flowcharts and write structured pseudocode.</li>
+      </ol>
+      <div class="ilo-meta">
+        <span><b>Activities:</b> Class discussion · Demonstration · Exercises · Laboratory activities</span>
+        <span><b>Tools:</b> Digital flowcharting tools</span>
+        <span><b>Assessment:</b> Lab Exercise No. 1 · 5-Level Lab Rubric</span>
+      </div>
+    </div>
+  </div>
+  <aside class="notes">
+    <p class="note-time">Suggested time: about 4 min</p>
+    <h4>Before you project</h4>
+    <ul>
+      <li>Press <kbd>N</kbd> to hide these notes, <kbd>M</kbd> to hide the slide list, and <kbd>F</kbd> for full screen. Use <kbd>A+</kbd> if the back row can't read the text.</li>
+      <li>The site works offline. Every flowchart is drawn in code, so nothing depends on internet access in the lab.</li>
+    </ul>
+    <h4>Teaching tips</h4>
+    <ul>
+      <li>Read each ILO aloud and connect it to assessment. Lab Exercise No. 1 is graded with the 5-Level Lab Rubric, and its first criterion is <em>Problem Analysis &amp; Algorithm Formulation</em>.</li>
+      <li>Quick fist-to-five: students rate their confidence (0–5) for each ILO. Repeat it at the wrap-up slide to show progress.</li>
+      <li>The roadmap items are links. Click one to jump to that section.</li>
+    </ul>
+    <h4>Ask the class</h4>
+    <ul>
+      <li>"Who has written a program before? Who has drawn a flowchart?" Expect mixed backgrounds (SHS STEM/ICT and none at all). Pair experienced and new students for the seatwork.</li>
+    </ul>
+  </aside>
+</section>
+
+<!-- ========================= SLIDE 2 · BRIDGE: PLAN BEFORE YOU CODE ========================= -->
+<section class="slide" id="plan-first" data-title="Plan Before You Code" data-section="Introduction">
+  <header class="slide-head">
+    <p class="kicker">Lab 1 · Why this lab</p>
+    <h2>Plan Before You Code</h2>
+    <p class="lede">Most programs fail because of wrong logic, not wrong typing.</p>
+  </header>
+  <div class="grid-2 align-start">
+    <div class="stack">
+      <div class="concept big"><p class="box-label">Key concept</p><p>Today's output is a <b>plan</b>, not a program. If the logic is wrong, you go back to planning <i>before</i> writing any code. No IDE is needed today; C++ starts in Lab 2.</p></div>
+      <div class="grid-3" style="margin-top:0">
+        <div class="card"><h3 class="card-title">Algorithm</h3><p>The steps in plain, numbered words.</p></div>
+        <div class="card"><h3 class="card-title">Pseudocode</h3><p>Structured, English-like code with keywords.</p></div>
+        <div class="card"><h3 class="card-title">Flowchart</h3><p>The same steps as a diagram of standard symbols.</p></div>
+      </div>
+      <p class="callout tip">All three describe the <b>same logic</b>. By the end of this lab you will write all three for one problem.</p>
+    </div>
+    <figure class="card chart-card" style="position:static">
+      <figcaption>The planning loop</figcaption>
+      <div class="chart-body">
+        <svg class="fc" viewBox="0 0 300 444" style="max-height:56vh" role="img" aria-label="Flowchart: Start, understand the problem, plan the logic, then ask if the logic is correct. If no, go back to planning. If yes, write the code, then End.">
+        <g class="fc-node"><rect class="s-terminal" x="85" y="10" width="130" height="40" rx="20"/><text x="150" y="30">Start</text></g>
+        <path class="fc-line" d="M150 50 V76"/>
+        <g class="fc-node"><rect class="s-process" x="50" y="76" width="200" height="42"/><text x="150" y="97">Understand the problem</text></g>
+        <path class="fc-line" d="M150 118 V150"/>
+        <g class="fc-node"><rect class="s-process" x="50" y="150" width="200" height="42"/><text x="150" y="171">Plan the logic</text></g>
+        <path class="fc-line" d="M150 192 V218"/>
+        <g class="fc-node"><polygon class="s-decision" points="150,218 240,258 150,298 60,258"/><text x="150" y="258">Logic correct?</text></g>
+        <path class="fc-line" d="M240 258 H280 V134 H152"/>
+        <text class="fc-label" x="260" y="246">No</text>
+        <path class="fc-line" d="M150 298 V326"/>
+        <text class="fc-label a-start" x="160" y="312">Yes</text>
+        <g class="fc-node"><rect class="s-process" x="50" y="326" width="200" height="42"/><text x="150" y="347">Write the code</text></g>
+        <path class="fc-line" d="M150 368 V394"/>
+        <g class="fc-node"><rect class="s-terminal" x="85" y="394" width="130" height="40" rx="20"/><text x="150" y="414">End</text></g>
+      </svg>
+      </div>
+    </figure>
+  </div>
+  <aside class="notes">
+    <p class="note-time">Suggested time: about 3 min</p>
+    <h4>Teaching tips</h4>
+    <ul>
+      <li>Open with the hook: <em>"Most programs fail because of wrong logic, not wrong typing."</em> Trace the flowchart: if the logic isn't correct, you loop back to planning before writing code.</li>
+      <li>The syllabus says no prior coding experience is required. Reassure students that Lab 1 is about thinking, and C++ starts in Lab 2.</li>
+    </ul>
+    <h4>Common student pitfalls</h4>
+    <ul>
+      <li>Treating programming as typing code. Emphasize that today's deliverable is a plan (algorithm, pseudocode, flowchart).</li>
+    </ul>
+  </aside>
+</section>
+
+<!-- ========================= SLIDE 3 · PROGRAM DEVELOPMENT CYCLE ========================= -->
+<section class="slide" id="pdc" data-title="The Program Development Cycle" data-section="Introduction">
+  <header class="slide-head">
+    <p class="kicker">Lab 1 · Introduction · ILO 1</p>
+    <h2>The Program Development Cycle</h2>
+    <p class="lede">Every program, from a calculator app to an embedded controller, goes through the same cycle.</p>
+  </header>
+  <div class="cycle-wrap">
+    <ol class="cycle">
+      <li><b>1</b><span>Understand the problem</span></li>
+      <li class="is-focus"><b>2</b><span>Plan the logic</span><small>Lab 1 is here</small></li>
+      <li><b>3</b><span>Code the program</span></li>
+      <li><b>4</b><span>Translate to machine language</span><small>compiler</small></li>
+      <li><b>5</b><span>Test the program</span></li>
+      <li><b>6</b><span>Put into production</span></li>
+      <li><b>7</b><span>Maintain the program</span></li>
+    </ol>
+    <div class="cycle-return" aria-hidden="true"><span>New requirements send you back to step 1</span></div>
+  </div>
+  <div class="grid-3">
+    <div class="card">
+      <h3 class="card-title">Planning tools (step 2)</h3>
+      <ul class="tight">
+        <li><b>Algorithm</b>: the steps in plain words</li>
+        <li><b>Pseudocode</b>: structured, English-like code</li>
+        <li><b>Flowchart</b>: the steps as a diagram</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3 class="card-title">Syntax errors</h3>
+      <p>Breaking the rules of the language (e.g., a missing <code>;</code> in C++). The <b>compiler</b> catches them in step 4.</p>
+    </div>
+    <div class="card">
+      <h3 class="card-title">Logic errors</h3>
+      <p>The program runs but gives <b>wrong results</b>. They show up in testing (step 5). Good planning prevents them.</p>
+    </div>
+  </div>
+  <p class="source">Based on Farrell, <i>Programming Logic and Design</i> (10th ed.), the course's main reference.</p>
+  <aside class="notes">
+    <p class="note-time">Suggested time: about 7 min</p>
+    <h4>Teaching tips</h4>
+    <ul>
+      <li>Use a CpE example such as a digital thermometer. Understand the problem (range? °C or °F?), plan the logic, write the firmware, compile, test it in ice water and boiling water, ship it, then maintain it with firmware updates.</li>
+      <li>Stress that the cycle never really ends: maintenance brings new requirements, and you start again from understanding.</li>
+      <li>Lab 1 covers step 2. Lab 2 (Basics of C++) moves on to steps 3 and 4.</li>
+    </ul>
+    <h4>Common student pitfalls</h4>
+    <ul>
+      <li>Believing that a program which compiles is correct. No syntax errors does not mean no logic errors.</li>
+      <li>Skipping "Understand the problem". It is the most common reason lab answers are wrong.</li>
+    </ul>
+    <h4>Ask the class</h4>
+    <ul>
+      <li>"Which phase costs the most time and money in real software?" (Maintenance.)</li>
+      <li>"Why is a logic error harder to find than a syntax error?" (Nothing warns you; the output is simply wrong.)</li>
+    </ul>
+  </aside>
+</section>
+
+<!-- ========================= SLIDE 4 · WHAT IS AN ALGORITHM ========================= -->
+<section class="slide" id="algorithm" data-title="What is an Algorithm?" data-section="Algorithms">
+  <header class="slide-head">
+    <p class="kicker">Lab 1 · Algorithms · ILO 2</p>
+    <h2>What is an Algorithm?</h2>
+  </header>
+  <div class="grid-2 align-start">
+    <div class="stack">
+      <blockquote class="definition">
+        An algorithm is a <b>finite sequence of well-defined, computer-implementable instructions</b>, typically to solve a problem.
+      </blockquote>
+      <div class="def-pair">
+        <p class="card soft">An algorithm is a <b>step-by-step procedure</b> for solving a problem.</p>
+        <p class="card soft">An algorithm is <b>not the complete code</b> or program. It is just the <b>core logic</b> of a problem.</p>
+      </div>
+      <div class="traits" role="list">
+        <div role="listitem"><b>Finite</b><span>Stops after a limited number of steps.</span></div>
+        <div role="listitem"><b>Well-defined</b><span>Every step is clear and unambiguous.</span></div>
+        <div role="listitem"><b>Input</b><span>Takes zero or more values in.</span></div>
+        <div role="listitem"><b>Output</b><span>Produces at least one result.</span></div>
+        <div role="listitem"><b>Effective</b><span>Each step can actually be carried out.</span></div>
+      </div>
+    </div>
+    <div class="card example-card">
+      <p class="eyebrow">Engineering example</p>
+      <h3>Total resistance of three resistors in series</h3>
+      <p class="formula">R<sub>T</sub> = R<sub>1</sub> + R<sub>2</sub> + R<sub>3</sub></p>
+      <ol class="algo-steps">
+        <li>Start.</li>
+        <li>Read the values of R1, R2, and R3.</li>
+        <li>Compute RT = R1 + R2 + R3.</li>
+        <li>Display RT.</li>
+        <li>End.</li>
+      </ol>
+      <p class="callout tip">Plain numbered steps, with no C++ syntax. That is the <b>core logic</b>.</p>
+    </div>
+  </div>
+  <aside class="notes">
+    <p class="note-time">Suggested time: about 6 min</p>
+    <h4>Teaching tips</h4>
+    <ul>
+      <li>Play <b>"Human Robot"</b>. A volunteer dictates steps for cooking instant noodles and you follow them <em>literally</em>. Vague steps ("add water": how much, when?) show why every step must be well-defined.</li>
+      <li>The three definitions come straight from the Lab 1 deck. The five traits are the standard properties (after Knuth) and give students a checklist for their own algorithms.</li>
+    </ul>
+    <h4>Common student pitfalls</h4>
+    <ul>
+      <li>Vague steps such as "solve the problem" or "get the answer".</li>
+      <li>Steps in the wrong order, e.g., displaying RT before computing it.</li>
+      <li>Writing real C++ and calling it an algorithm.</li>
+      <li>No stopping point, so the algorithm is not finite.</li>
+    </ul>
+    <h4>Ask the class</h4>
+    <ul>
+      <li>"Is <em>Lather, rinse, repeat</em> on a shampoo bottle a valid algorithm?" No. It never ends, so it is not finite.</li>
+    </ul>
+  </aside>
+</section>
+
+<!-- ========================= SLIDE 5 · STRUCTURES ========================= -->
+<section class="slide" id="structures" data-title="Algorithm Structures" data-section="Algorithms">
+  <header class="slide-head">
+    <p class="kicker">Lab 1 · Algorithms</p>
+    <h2>Classification of Algorithms by Structure</h2>
+    <p class="lede">Every algorithm is built from three control structures, each with <b>one entry</b> and <b>one exit</b>.</p>
+  </header>
+  <div class="grid-3 structures">
+    <article class="card struct">
+      <h3><span class="num-dot">1</span> Sequence</h3>
+      <p>Steps run one after another, in order.</p>
+      <svg class="fc mini" viewBox="0 0 220 220" role="img" aria-label="Sequence flowchart: input a and b, then sum equals a plus b, then display sum.">
+        <g class="fc-node"><polygon class="s-io" points="42,10 200,10 178,54 20,54"/><text x="110" y="32">Input a, b</text></g>
+        <path class="fc-line" d="M110 54 V88"/>
+        <g class="fc-node"><rect class="s-process" x="25" y="88" width="170" height="44"/><text x="110" y="110">sum = a + b</text></g>
+        <path class="fc-line" d="M110 132 V166"/>
+        <g class="fc-node"><polygon class="s-io" points="42,166 200,166 178,210 20,210"/><text x="110" y="188">Display sum</text></g>
+      </svg>
+<pre class="code compact" data-pseudo>
+INPUT a, b
+SET sum = a + b
+DISPLAY sum
+</pre>
+    </article>
+    <article class="card struct">
+      <h3><span class="num-dot">2</span> Branching (Selection)</h3>
+      <p>Chooses one of two paths using a TRUE/FALSE condition.</p>
+      <svg class="fc mini" viewBox="0 0 300 240" role="img" aria-label="Selection flowchart: a decision asks Condition. Yes goes right to Action A, No goes down to Action B, then both paths join.">
+        <path class="fc-line" d="M110 2 V20"/>
+        <g class="fc-node"><polygon class="s-decision" points="110,20 190,58 110,96 30,58"/><text x="110" y="58">Condition?</text></g>
+        <path class="fc-line" d="M190 58 H240 V118"/>
+        <text class="fc-label" x="214" y="46">Yes</text>
+        <path class="fc-line" d="M110 96 V118"/>
+        <text class="fc-label a-start" x="118" y="108">No</text>
+        <g class="fc-node"><rect class="s-process" x="60" y="118" width="100" height="42"/><text x="110" y="139">Action B</text></g>
+        <g class="fc-node"><rect class="s-process" x="190" y="118" width="100" height="42"/><text x="240" y="139">Action A</text></g>
+        <path class="fc-line" d="M110 160 V187"/>
+        <path class="fc-line" d="M240 160 V192 H116"/>
+        <circle class="fc-dot" cx="110" cy="192" r="4.5"/>
+        <path class="fc-line" d="M110 196 V234"/>
+      </svg>
+<pre class="code compact" data-pseudo>
+IF age >= 18 THEN
+    DISPLAY "Adult"
+ELSE
+    DISPLAY "Minor"
+ENDIF
+</pre>
+    </article>
+    <article class="card struct">
+      <h3><span class="num-dot">3</span> Loop (Repetition)</h3>
+      <p>Repeats steps while a condition stays TRUE.</p>
+      <svg class="fc mini" viewBox="0 0 300 240" role="img" aria-label="Loop flowchart: a decision asks Condition. Yes goes down to Action, which loops back up to the decision. No exits to the right.">
+        <path class="fc-line" d="M130 2 V40"/>
+        <g class="fc-node"><polygon class="s-decision" points="130,40 210,78 130,116 50,78"/><text x="130" y="78">Condition?</text></g>
+        <path class="fc-line" d="M130 116 V146"/>
+        <text class="fc-label a-start" x="140" y="133">Yes</text>
+        <g class="fc-node"><rect class="s-process" x="75" y="146" width="110" height="42"/><text x="130" y="167">Action</text></g>
+        <path class="fc-line" d="M75 167 H22 V20 H126"/>
+        <path class="fc-line" d="M210 78 H270 V234"/>
+        <text class="fc-label" x="240" y="66">No</text>
+      </svg>
+<pre class="code compact" data-pseudo>
+SET count = 1
+WHILE count &lt;= 5 DO
+    DISPLAY count
+    SET count = count + 1
+ENDWHILE
+</pre>
+    </article>
+  </div>
+  <aside class="notes">
+    <p class="note-time">Suggested time: about 8 min</p>
+    <h4>Teaching tips</h4>
+    <ul>
+      <li>Everyday examples. <b>Sequence</b>: your morning routine. <b>Selection</b>: "If it's raining, bring an umbrella; otherwise wear sunglasses." <b>Loop</b>: "Keep stirring until the sauce thickens."</li>
+      <li>Böhm and Jacopini (1966) proved that any algorithm can be built from these three structures alone, so mastering them means mastering logic.</li>
+      <li>Point out that each diagram has exactly one arrow in and one arrow out. That property is what makes it <em>structured</em>.</li>
+      <li>The syllabus covers these structures in C++ in Labs 5–8.</li>
+    </ul>
+    <h4>Common student pitfalls</h4>
+    <ul>
+      <li>Confusing selection with repetition. IF runs its block at most once; WHILE may run it many times.</li>
+      <li>Forgetting to update the loop variable (<code>count = count + 1</code>), which creates an infinite loop.</li>
+      <li>Leaving out ENDIF or ENDWHILE, so the end of the block is unclear.</li>
+    </ul>
+    <h4>Ask the class</h4>
+    <ul>
+      <li>"To compute a final grade for each of 40 students, which structures do we need?" (A loop with selection inside.)</li>
+    </ul>
+  </aside>
+</section>
+
+<!-- ========================= SLIDE 6 · HOW TO WRITE AN ALGORITHM ========================= -->
+<section class="slide" id="algo-steps" data-title="How to Write an Algorithm" data-section="Algorithms">
+  <header class="slide-head">
+    <p class="kicker">Lab 1 · Algorithms · ILO 2</p>
+    <h2>How to Write an Algorithm</h2>
+  </header>
+  <ol class="step-tiles">
+    <li><b>Understand the Problem</b><span>Clarify the requirements, constraints, and expected outcome. Break the problem into smaller parts.</span></li>
+    <li><b>Determine the Input and Output</b><span>What data comes in (format, type, range)? What result goes out?</span></li>
+    <li><b>Choose an Algorithm Paradigm</b><span>Pick the general approach that suits the problem (see below).</span></li>
+    <li><b>Develop a High-Level Algorithm</b><span>Outline the main steps, e.g., in pseudocode, without syntax details.</span></li>
+    <li><b>Refine the Algorithm</b><span>Check correctness, efficiency, and readability. Handle edge cases.</span></li>
+    <li><b>Implement the Algorithm</b><span>Translate it into a programming language (C++ in this course).</span></li>
+    <li><b>Test and Debug</b><span>Try typical, boundary, and exceptional inputs. Fix any errors.</span></li>
+    <li><b>Analyze and Optimize</b><span>Consider time and space complexity. Remove bottlenecks.</span></li>
+  </ol>
+  <div class="paradigms">
+    <span class="paradigms-label">Common paradigms:</span>
+    <span class="tag">Divide &amp; Conquer</span><span class="tag">Greedy</span><span class="tag">Dynamic Programming</span><span class="tag">Backtracking</span><span class="tag">Branch &amp; Bound</span><span class="tag">Randomized</span>
+  </div>
+  <aside class="notes">
+    <p class="note-time">Suggested time: about 6 min</p>
+    <h4>Teaching tips</h4>
+    <ul>
+      <li>Steps 4 and 5 together are <em>stepwise refinement</em> (top-down design): start with big steps, then add detail.</li>
+      <li>Paradigms, briefly. <b>Divide &amp; Conquer</b> splits a problem, solves the parts, then combines them. <b>Greedy</b> takes the best local choice each step. <b>Dynamic Programming</b> solves overlapping subproblems once and stores the results. <b>Backtracking</b> tries a choice and undoes it if it fails. <b>Branch &amp; Bound</b> prunes branches that can't win. <b>Randomized</b> uses randomness for speed. Lab 1 problems only need straightforward sequence, selection, and loops.</li>
+      <li>Step 6 example from the original deck notes: factorial. <code>if n is 0 or 1 return 1, else result = 1; for i from 2 to n: result = result * i</code>.</li>
+    </ul>
+    <h4>Common student pitfalls</h4>
+    <ul>
+      <li>Jumping straight to coding (step 6) without listing inputs and outputs, which leads to missing variables.</li>
+      <li>Testing only the "happy path" (a grade of 95) and never a boundary (exactly 90 or 89).</li>
+    </ul>
+    <h4>Ask the class</h4>
+    <ul>
+      <li>"What are the inputs and outputs of an ATM withdrawal?" (Inputs: card, PIN, amount. Outputs: cash, receipt, new balance, or an error.)</li>
+    </ul>
+  </aside>
+</section>
+
+<!-- ========================= SLIDE 7 · WORKED EXAMPLE: OHM'S LAW ========================= -->
+<section class="slide" id="ohms-law" data-title="Worked Example: Ohm's Law" data-section="Algorithms">
+  <header class="slide-head">
+    <p class="kicker">Lab 1 · Algorithms · Engineering problem</p>
+    <h2>Applying the 8 Steps: Ohm's Law</h2>
+    <p class="lede">Find the current <b>I</b> through a resistor, given the voltage <b>V</b> and resistance <b>R</b>, where I = V ÷ R.</p>
+  </header>
+  <div class="grid-2 align-start">
+    <div class="table-wrap">
+      <table class="table compact">
+        <thead><tr><th scope="col">Step</th><th scope="col">Applied to Ohm's Law</th></tr></thead>
+        <tbody>
+          <tr><th scope="row">1 · Understand</th><td>Current depends on voltage and resistance: I = V / R.</td></tr>
+          <tr><th scope="row">2 · Input / Output</th><td>In: voltage (V), resistance (Ω). Out: current (A).</td></tr>
+          <tr><th scope="row">3 · Paradigm</th><td>Direct computation: a sequence with one decision.</td></tr>
+          <tr><th scope="row">4 · High-level</th><td>Get V and R, compute I, display I.</td></tr>
+          <tr><th scope="row">5 · Refine</th><td>What if R = 0? Division by zero, so add a check.</td></tr>
+          <tr><th scope="row">6 · Implement</th><td>Write the pseudocode on the right (C++ comes later).</td></tr>
+          <tr><th scope="row">7 · Test</th><td>12 V, 4 Ω gives 3 A. 9 V, 0 Ω gives an error message.</td></tr>
+          <tr><th scope="row">8 · Analyze</th><td>A fixed number of steps, clear names, and bad input handled.</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="stack">
+<pre class="code" id="ohm-code" data-pseudo>
+// This program computes the current in a circuit
+// using Ohm's Law (I = V / R).
+START
+    PROMPT "Enter voltage (V) and resistance (ohms):"
+    INPUT voltage, resistance
+    IF resistance = 0 THEN
+        DISPLAY "Error: resistance cannot be zero."
+    ELSE
+        COMPUTE current = voltage / resistance
+        DISPLAY "Current = ", current, " A"
+    ENDIF
+END
+</pre>
+      <div class="tracer" data-trace="ohm" data-code="#ohm-code" data-speed="900">
+        <div class="tracer-inputs">
+          <label>voltage <input type="number" data-var="voltage" value="12" step="any"></label>
+          <label>resistance <input type="number" data-var="resistance" value="4" step="any"></label>
+        </div>
+      </div>
+    </div>
+  </div>
+  <aside class="notes">
+    <p class="note-time">Suggested time: about 8 min</p>
+    <h4>Teaching tips</h4>
+    <ul>
+      <li>This example serves ILO 2 (<em>algorithms for engineering problems</em>). Cover the right half and ask the class to supply each step first.</li>
+      <li>Run the tracer with 12 V and 4 Ω, then 9 V and 0 Ω. The division-by-zero guard is the payoff of step 5 (Refine).</li>
+      <li>Connect it to their physics and circuits classes. Engineers write algorithms for formulas they already know.</li>
+    </ul>
+    <h4>Common student pitfalls</h4>
+    <ul>
+      <li>Dividing in the wrong order (R / V).</li>
+      <li>Forgetting units in the output.</li>
+      <li>Never handling R = 0.</li>
+      <li>Reusing one variable name for two different quantities.</li>
+    </ul>
+    <h4>Ask the class</h4>
+    <ul>
+      <li>"What other invalid input should we guard against?" (Negative resistance.)</li>
+    </ul>
+  </aside>
+</section>
+
+<!-- ========================= SLIDE 8 · WHAT IS PSEUDOCODE ========================= -->
+<section class="slide" id="pseudocode" data-title="What is Pseudocode?" data-section="Pseudocode">
+  <header class="slide-head">
+    <p class="kicker">Lab 1 · Pseudocode · ILO 3</p>
+    <h2>What is Pseudocode?</h2>
+  </header>
+  <div class="grid-2 align-start">
+    <div class="stack">
+      <blockquote class="definition">
+        An <b>outline of a program</b>, written in a form that can easily be converted into real programming statements.
+      </blockquote>
+      <p class="card soft">An <b>informal language</b> that has <b>no syntax rules</b> and is <b>not meant to be compiled or executed</b>.</p>
+      <p class="card soft">A <b>high-level, structured language</b> that describes algorithms in a human-readable, language-independent way. It is a <b>bridge</b> between natural language and programming code.</p>
+    </div>
+    <div class="stack">
+      <h3 class="sub">Why use pseudocode?</h3>
+      <div class="benefits">
+        <div class="benefit"><b>Language independence</b><span>The same plan converts to C++, Python, Java, and others.</span></div>
+        <div class="benefit"><b>Simplicity &amp; readability</b><span>Plain English plus a few keywords. Anyone can review it.</span></div>
+        <div class="benefit"><b>Flexibility</b><span>No strict syntax, so it is easy to revise while designing.</span></div>
+        <div class="benefit"><b>Accessibility</b><span>Classmates, clients, and teachers can follow the logic.</span></div>
+      </div>
+      <div class="table-wrap">
+        <table class="table compact lang-table">
+          <caption>One step, many languages</caption>
+          <tbody>
+            <tr><th scope="row">Pseudocode</th><td><code>DISPLAY "Hello, BulSU!"</code></td></tr>
+            <tr><th scope="row">C++</th><td><code>cout &lt;&lt; "Hello, BulSU!";</code></td></tr>
+            <tr><th scope="row">Python</th><td><code>print("Hello, BulSU!")</code></td></tr>
+            <tr><th scope="row">Java</th><td><code>System.out.println("Hello, BulSU!");</code></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+  <aside class="notes">
+    <p class="note-time">Suggested time: about 4 min</p>
+    <h4>Teaching tips</h4>
+    <ul>
+      <li>There is no single official pseudocode standard. What matters is consistency, and this class uses the keyword table on the next slide.</li>
+      <li>Use the "many languages" table to sell language independence. The C++ line is a preview of Lab 2.</li>
+      <li>Pseudocode is widely used in computer science education for algorithm design, analysis, and communication.</li>
+    </ul>
+    <h4>Common student pitfalls</h4>
+    <ul>
+      <li>Writing paragraphs, which is too vague.</li>
+      <li>Writing real C++ with semicolons and braces, which is too specific.</li>
+    </ul>
+    <h4>Ask the class</h4>
+    <ul>
+      <li>"Who is the audience of pseudocode?" (People: teammates, instructors, and future you. Never the compiler.)</li>
+    </ul>
+  </aside>
+</section>
+
+<!-- ========================= SLIDE 9 · KEYWORDS ========================= -->
+<section class="slide" id="keywords" data-title="Pseudocode Keywords" data-section="Pseudocode">
+  <header class="slide-head">
+    <p class="kicker">Lab 1 · Pseudocode</p>
+    <h2>Commonly Used Pseudocode Keywords</h2>
+  </header>
+  <div class="grid-2 align-start">
+    <div class="stack">
+      <div class="kw-grid">
+        <div class="kw-card kw-in"><h3>Input</h3><p class="kw-list"><code>INPUT</code><code>READ</code><code>ENTER</code><code>GET</code></p><p class="kw-eg">READ radius</p></div>
+        <div class="kw-card kw-out"><h3>Output</h3><p class="kw-list"><code>OUTPUT</code><code>DISPLAY</code><code>WRITE</code></p><p class="kw-eg">DISPLAY area</p></div>
+        <div class="kw-card kw-proc"><h3>Process</h3><p class="kw-list"><code>SET</code><code>COMPUTE</code><code>CALCULATE</code></p><p class="kw-eg">COMPUTE area = 3.1416 * radius ^ 2</p></div>
+      </div>
+      <div class="table-wrap">
+        <table class="table compact">
+          <caption>Others</caption>
+          <tbody>
+            <tr><th scope="row"><code>IF</code> · <code>ELSE</code> · <code>ENDIF</code></th><td>Selection: choose between two paths</td></tr>
+            <tr><th scope="row"><code>WHILE</code> · <code>DO</code> · <code>ENDWHILE</code></th><td>Repeat <b>while</b> a condition is TRUE (tested first)</td></tr>
+            <tr><th scope="row"><code>REPEAT</code> · <code>UNTIL</code></th><td>Repeat <b>until</b> a condition is TRUE (runs at least once)</td></tr>
+            <tr><th scope="row"><code>ADD</code></th><td>Add a value to a variable: <code>ADD 1 TO count</code></td></tr>
+            <tr><th scope="row"><code>PROMPT</code></th><td>Show a message asking for input</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <div class="stack">
+      <h3 class="sub">The keywords at work</h3>
+<pre class="code" data-pseudo>
+// This program adds numbers until 0 is entered.
+START
+    SET total = 0
+    REPEAT
+        PROMPT "Enter a number (0 to stop):"
+        GET num
+        ADD num TO total
+    UNTIL num = 0
+    DISPLAY "Total = ", total
+END
+</pre>
+      <p class="callout tip">Write <b>KEYWORDS</b> in uppercase and <b>variable_names</b> in lowercase so they stand apart.</p>
+    </div>
+  </div>
+  <aside class="notes">
+    <p class="note-time">Suggested time: about 5 min</p>
+    <h4>Teaching tips</h4>
+    <ul>
+      <li>Synonyms in a column are interchangeable (INPUT, READ, ENTER, GET), but students should stay consistent within one solution. PRINT is also widely accepted as an output keyword.</li>
+      <li>PROMPT shows a message before input. Pair it with GET or INPUT, as in the sample.</li>
+    </ul>
+    <h4>Common student pitfalls</h4>
+    <ul>
+      <li>Using a variable before it has a value, e.g., <code>ADD num TO total</code> without <code>SET total = 0</code>.</li>
+      <li><code>DISPLAY "total"</code> prints the word <em>total</em>. <code>DISPLAY total</code> prints its value.</li>
+      <li>Using DISPLAY where INPUT is meant.</li>
+    </ul>
+    <h4>Ask the class</h4>
+    <ul>
+      <li>"If the first number entered is 0, how many times does the loop body run?" (Once. REPEAT…UNTIL tests at the end.)</li>
+    </ul>
+  </aside>
+</section>
+
+<!-- ========================= SLIDE 10 · OPERATORS ========================= -->
+<section class="slide" id="operators" data-title="Operators & Precedence" data-section="Pseudocode">
+  <header class="slide-head">
+    <p class="kicker">Lab 1 · Pseudocode</p>
+    <h2>Operators &amp; Order of Precedence</h2>
+  </header>
+  <div class="grid-2 align-start">
+    <div class="stack">
+      <div class="table-wrap">
+        <table class="table compact prec-table">
+          <caption>Arithmetic, highest precedence first</caption>
+          <thead><tr><th scope="col">#</th><th scope="col">Operator</th><th scope="col">Meaning</th></tr></thead>
+          <tbody>
+            <tr><td>1</td><td><code>( )</code></td><td>Grouping: equations in parentheses first</td></tr>
+            <tr><td>2</td><td><code>**</code> or <code>^</code></td><td>Exponentiation</td></tr>
+            <tr><td>3</td><td><code>*</code> <code>/</code> <code>%</code></td><td>Multiply, divide, modulus (remainder), left to right</td></tr>
+            <tr><td>4</td><td><code>+</code> <code>-</code></td><td>Add, subtract, left to right</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="grid-2 tight-gap">
+        <div class="card">
+          <h3 class="card-title">Relational (selection)</h3>
+          <ul class="op-list">
+            <li><code>&gt;</code> greater than</li>
+            <li><code>&lt;</code> less than</li>
+            <li><code>&gt;=</code> greater than or equal to</li>
+            <li><code>&lt;=</code> less than or equal to</li>
+            <li><code>=</code> equal to</li>
+            <li><code>&lt;&gt;</code> not equal to</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h3 class="card-title">Logical</h3>
+          <ul class="op-list">
+            <li><code>AND</code>: if <b>any</b> condition is false, the whole expression is false</li>
+            <li><code>OR</code>: if <b>any</b> condition is true, the whole expression is true</li>
+            <li><code>NOT</code>: reverses the result (true ↔ false)</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <div class="card reveal" data-reveal>
+      <p class="eyebrow">Evaluate step by step</p>
+      <p class="expr"><code>10 + 6 / 2 * 3 - 4 % 3</code></p>
+      <ol class="reveal-steps">
+        <li data-step><code>6 / 2 = 3</code> <span>→ 10 + 3 * 3 - 4 % 3</span></li>
+        <li data-step><code>3 * 3 = 9</code> <span>→ 10 + 9 - 4 % 3</span></li>
+        <li data-step><code>4 % 3 = 1</code> <span>→ 10 + 9 - 1</span></li>
+        <li data-step><code>10 + 9 = 19</code> <span>→ 19 - 1</span></li>
+        <li data-step class="final"><code>19 - 1 = 18</code> <span>Answer: 18</span></li>
+      </ol>
+      <div class="reveal-actions">
+        <button type="button" class="btn primary" data-reveal-next>Show next step</button>
+        <button type="button" class="btn ghost" data-reveal-reset>Reset</button>
+      </div>
+      <p class="small muted">With grouping: <code>(10 + 6) / 2 * 3</code> = 16 / 2 * 3 = <b>24</b>.<br>
+      Logical: with <code>age = 25</code>, <code>age &gt;= 18 AND age &lt;= 60</code> → TRUE AND TRUE → <b>TRUE</b>.</p>
+    </div>
+  </div>
+  <aside class="notes">
+    <p class="note-time">Suggested time: about 8 min</p>
+    <h4>Teaching tips</h4>
+    <ul>
+      <li>Click <b>Show next step</b> one step at a time and have students predict each line before you reveal it.</li>
+      <li>* / % share one level and are evaluated left to right, so this is not a strict "PEMDAS".</li>
+      <li>Modulus gives the remainder. <code>num % 3 = 0</code> means "num is divisible by 3", which sets up the seatwork.</li>
+      <li>Inside conditions, <code>=</code> means comparison. Use <code>SET</code> for assignment to avoid confusion.</li>
+      <li>Where relational and logical operators sit relative to each other varies by language. Usual convention: arithmetic, then relational, then NOT, AND, OR. Lab 4 covers C++ precedence in depth.</li>
+    </ul>
+    <h4>Common student pitfalls</h4>
+    <ul>
+      <li>Evaluating strictly left to right (10 + 6 = 16 first).</li>
+      <li>Reading % as "percent".</li>
+      <li>Writing <code>18 &lt;= age &lt;= 60</code> instead of <code>age &gt;= 18 AND age &lt;= 60</code>.</li>
+      <li>In C++, <code>7 / 2</code> is <b>3</b> (integer division). In pseudocode, assume normal division unless told otherwise.</li>
+    </ul>
+    <h4>Ask the class</h4>
+    <ul>
+      <li><code>7 % 3</code>? (1) · <code>2 + 3 * 4</code>? (14) · <code>(2 + 3) * 4</code>? (20) · <code>NOT (5 &gt; 3)</code>? (FALSE)</li>
+    </ul>
+  </aside>
+</section>
+
+<!-- ========================= SLIDE 11 · PSEUDOCODE RULES ========================= -->
+<section class="slide" id="pseudo-rules" data-title="How to Write Pseudocode" data-section="Pseudocode">
+  <header class="slide-head">
+    <p class="kicker">Lab 1 · Pseudocode · ILO 3</p>
+    <h2>How to Write Pseudocode</h2>
+  </header>
+  <div class="grid-2 align-start">
+    <ol class="rules">
+      <li>Start with a <b>statement of the main goal</b> or aim of the pseudocode.</li>
+      <li><b>Indent</b> the statements inside if-else, for, and while blocks, just as in a program.</li>
+      <li>Use appropriate <b>naming conventions</b>.</li>
+      <li>Use the appropriate <b>keywords</b>.</li>
+      <li><b>Elaborate</b> everything that will happen in the actual code. Don't make it abstract.</li>
+      <li>Use <b>standard structures</b>: if-then, for, while, cases.</li>
+      <li>Check that every section is <b>complete, finite, and clear</b>.</li>
+      <li><b>Don't</b> write the pseudocode in a <b>complete programmatic manner</b>.</li>
+    </ol>
+    <div class="stack">
+      <div class="compare bad">
+        <p class="compare-label">Needs work</p>
+<pre class="code no-ln" data-pseudo>
+check number
+if even print even
+else { cout &lt;&lt; "odd"; }
+</pre>
+        <p class="small">No goal statement, vague steps, C++ syntax, and no END markers.</p>
+      </div>
+      <div class="compare good">
+        <p class="compare-label">Follows the rules</p>
+<pre class="code" data-pseudo>
+// This program will allow the user to check
+// whether a number is even or odd.
+START
+    PROMPT "Enter a number:"
+    GET number
+    IF number % 2 = 0 THEN
+        DISPLAY "Even"
+    ELSE
+        DISPLAY "Odd"
+    ENDIF
+END
+</pre>
+      </div>
+    </div>
+  </div>
+  <aside class="notes">
+    <p class="note-time">Suggested time: about 5 min</p>
+    <h4>Teaching tips</h4>
+    <ul>
+      <li>The good example builds on the goal statement in the original deck: <em>"This program will allow the user to check the number whether it's even or odd."</em></li>
+      <li>Ask students to find every problem in "Needs work" before you explain it: no goal, vague wording, C++ syntax, no ENDIF or END, no indentation.</li>
+    </ul>
+    <h4>Common student pitfalls</h4>
+    <ul>
+      <li>Missing ENDIF or ENDWHILE.</li>
+      <li>Inconsistent indentation.</li>
+      <li>Over-abstract steps such as "process the data".</li>
+      <li>Loops with no exit condition, so the pseudocode is not finite.</li>
+    </ul>
+    <h4>Ask the class</h4>
+    <ul>
+      <li>"Which rule does <em>if even print even</em> break?" (Rule 5, be elaborate, and rule 4, keywords.)</li>
+    </ul>
+  </aside>
+</section>
+
+<!-- ========================= SLIDE 12 · WHAT IS A FLOWCHART ========================= -->
+<section class="slide" id="flowchart" data-title="What is a Flowchart?" data-section="Flowcharts">
+  <header class="slide-head">
+    <p class="kicker">Lab 1 · Flowcharts · ILO 3</p>
+    <h2>What is a Flowchart?</h2>
+  </header>
+  <div class="grid-2 align-start">
+    <div class="stack">
+      <blockquote class="definition">
+        A <b>type of diagram</b> that represents an algorithm or process, showing the steps as <b>boxes of various kinds</b> and their order by <b>connecting them with arrows</b>.
+      </blockquote>
+      <p class="card soft">A <b>pictorial or diagrammatic representation</b> of the flow of steps to solve a given problem.</p>
+      <div class="card">
+        <h3 class="card-title">Why engineers still use them</h3>
+        <ul class="tight">
+          <li>See the logic at a glance, including branches and loops.</li>
+          <li>Communicate a design to teammates and non-programmers.</li>
+          <li>Document systems and find logic errors before coding.</li>
+        </ul>
+      </div>
+    </div>
+    <div class="card">
+      <h3 class="card-title">Origin</h3>
+      <ol class="timeline">
+        <li class="is-key"><b>1921</b><span><b>Frank Gilbreth</b> introduces flowcharts to the American Society of Mechanical Engineers. At first they were called <b>"Process Flow Charts"</b>.</span></li>
+        <li><b>1947</b><span>Goldstine and von Neumann use "flow diagrams" to plan computer programs.</span></li>
+        <li><b>1970</b><span>ANSI standardizes flowchart symbols for information processing.</span></li>
+        <li><b>1985</b><span>ISO 5807 sets the international flowchart symbols still used today.</span></li>
+      </ol>
+    </div>
+  </div>
+  <aside class="notes">
+    <p class="note-time">Suggested time: about 3 min</p>
+    <h4>Teaching tips</h4>
+    <ul>
+      <li>Real-life flowcharts students already know: the university enrollment process, appliance troubleshooting guides, an ATM transaction.</li>
+      <li>CpE connection: they will draw close cousins of flowcharts later, such as state diagrams in digital logic design and UML activity diagrams.</li>
+      <li>The syllabus lists <b>digital flowcharting tools</b> for Lab 1. A free option is draw.io (diagrams.net), which also has an offline desktop app.</li>
+    </ul>
+    <h4>Common student pitfalls</h4>
+    <ul>
+      <li>Thinking flowcharts are obsolete. Industry still uses them for documentation and process design.</li>
+    </ul>
+    <h4>Ask the class</h4>
+    <ul>
+      <li>"Where have you followed a flowchart in real life without knowing it?"</li>
+    </ul>
+  </aside>
+</section>
+
+<!-- ========================= SLIDE 13 · SYMBOLS ========================= -->
+<section class="slide" id="symbols" data-title="Flowchart Symbols" data-section="Flowcharts">
+  <header class="slide-head">
+    <p class="kicker">Lab 1 · Flowcharts · ILO 3</p>
+    <h2>Flowchart Symbols</h2>
+  </header>
+  <div class="sym-grid">
+    <article class="sym">
+      <svg class="fc sym-icon" viewBox="0 0 160 80" aria-hidden="true"><path class="fc-line" d="M18 40 H142"/></svg>
+      <h3>Flow Line</h3>
+      <p>An arrow from one symbol to another. Control passes to the symbol it points to. It can be solid or dashed.</p>
+    </article>
+    <article class="sym">
+      <svg class="fc sym-icon" viewBox="0 0 160 80" aria-hidden="true"><rect class="s-terminal" x="25" y="18" width="110" height="44" rx="22"/><text x="80" y="40">Start</text></svg>
+      <h3>Terminal</h3>
+      <p>A rounded rectangle (stadium or oval). Marks the start or end of a process: "Start", "End".</p>
+    </article>
+    <article class="sym">
+      <svg class="fc sym-icon" viewBox="0 0 160 80" aria-hidden="true"><rect class="s-process" x="25" y="16" width="110" height="48"/><text x="80" y="40">x = x + 1</text></svg>
+      <h3>Process</h3>
+      <p>A rectangle. Shows that something is performed, e.g., "Add 1 to X" or "save changes".</p>
+    </article>
+    <article class="sym">
+      <svg class="fc sym-icon" viewBox="0 0 160 80" aria-hidden="true"><polygon class="s-decision" points="80,6 142,40 80,74 18,40"/><text x="80" y="40">x &gt; 0?</text></svg>
+      <h3>Decision</h3>
+      <p>A diamond. A Yes/No or True/False question with two exits, usually at the bottom and right points. <b>Always label the exits.</b></p>
+    </article>
+    <article class="sym">
+      <svg class="fc sym-icon" viewBox="0 0 160 80" aria-hidden="true"><polygon class="s-io" points="46,16 142,16 114,64 18,64"/><text x="80" y="40">Get X</text></svg>
+      <h3>Input / Output</h3>
+      <p>A parallelogram. Receives data or displays results, e.g., "Get X from the user", "Display X".</p>
+    </article>
+    <article class="sym">
+      <svg class="fc sym-icon" viewBox="0 0 160 80" aria-hidden="true"><path class="fc-line plain dashed" d="M10 52 L54 32"/><path class="s-annot" d="M76 14 H54 V66 H76"/><path class="annot-text" d="M64 30 H140 M64 42 H130 M64 54 H112"/></svg>
+      <h3>Annotation</h3>
+      <p>A comment or remark about the flowchart. Like code comments, it does not change the logic.</p>
+    </article>
+    <article class="sym">
+      <svg class="fc sym-icon" viewBox="0 0 160 80" aria-hidden="true"><rect class="s-predef" x="25" y="16" width="110" height="48"/><path class="s-predef-line" d="M39 16 V64 M121 16 V64"/></svg>
+      <h3>Predefined Process</h3>
+      <p>A rectangle with double vertical edges. A complex step detailed in a separate flowchart, e.g., PROCESS-FILES.</p>
+    </article>
+    <article class="sym">
+      <svg class="fc sym-icon" viewBox="0 0 160 80" aria-hidden="true"><polygon class="s-prep" points="48,16 112,16 136,40 112,64 48,64 24,40"/><text x="80" y="40">i = 1</text></svg>
+      <h3>Preparation</h3>
+      <p>A hexagon (initialization). Prepares a value for a later step, and can stand in for a Decision in conditional loops.</p>
+    </article>
+    <article class="sym">
+      <svg class="fc sym-icon" viewBox="0 0 160 80" aria-hidden="true"><circle class="s-conn" cx="80" cy="40" r="24"/><text x="80" y="40">A</text></svg>
+      <h3>On-Page Connector</h3>
+      <p>A circle. Joins several flows into one exit, or links breaks and loops on the same page.</p>
+    </article>
+    <article class="sym">
+      <svg class="fc sym-icon" viewBox="0 0 160 80" aria-hidden="true"><polygon class="s-conn" points="56,8 104,8 104,50 80,72 56,50"/><text x="80" y="34">B</text></svg>
+      <h3>Off-Page Connector</h3>
+      <p>A home-plate pentagon. Like the on-page connector, but continues the flowchart on another page.</p>
+    </article>
+  </div>
+  <aside class="notes">
+    <p class="note-time">Suggested time: about 8 min</p>
+    <h4>Teaching tips</h4>
+    <ul>
+      <li>Almost every lab problem uses the "big five": Terminal, Input/Output, Process, Decision, and Flow Line.</li>
+      <li>Have students sketch each symbol on scratch paper as you name it. Then point at a random card and ask for its name and use.</li>
+      <li>A Decision with more than two arrows usually means it should be split into more decisions or replaced by a Predefined Process (from the original symbol table).</li>
+      <li>On-page connectors are also where several flows merge into one exit, such as the dot where our IF branches rejoin.</li>
+    </ul>
+    <h4>Common student pitfalls</h4>
+    <ul>
+      <li>Using a rectangle (Process) for input or output instead of the parallelogram.</li>
+      <li>Drawing Start/End as a small circle, which looks like an on-page connector. Use the stadium shape.</li>
+      <li>Leaving Decision exits unlabeled.</li>
+      <li>Writing a whole paragraph inside a symbol. Keep it to one short statement.</li>
+    </ul>
+  </aside>
+</section>
+
+<!-- ========================= SLIDE 14 · RULES ========================= -->
+<section class="slide" id="fc-rules" data-title="General Rules for Flowcharting" data-section="Flowcharts">
+  <header class="slide-head">
+    <p class="kicker">Lab 1 · Flowcharts · ILO 3</p>
+    <h2>General Rules for Flowcharting</h2>
+  </header>
+  <div class="grid-2 align-start rules-layout">
+    <ol class="rules">
+      <li>All boxes of the flowchart are connected with <b>arrows or flow lines</b>.</li>
+      <li>Symbols have an <b>entry point on the top</b> with no other entry points. The <b>exit point is on the bottom</b>, except for the Decision symbol.</li>
+      <li>The <b>Decision</b> symbol has <b>two exit points</b>: one at the bottom and one on a side.</li>
+      <li>A flowchart generally flows <b>top to bottom</b>. An upward flow is allowed as long as it <b>does not exceed 3 symbols</b>.</li>
+      <li><b>Connectors</b> are used to connect breaks in the flowchart.</li>
+      <li>All flowcharts <b>start and end with a Terminal</b> symbol.</li>
+    </ol>
+    <div class="do-dont">
+      <figure class="card dd good">
+        <svg class="fc" viewBox="0 0 220 160" role="img" aria-label="Correct: a decision x greater than 0 with a Yes exit at the bottom and a No exit on the right, both labeled.">
+          <path class="fc-line" d="M110 2 V24"/>
+          <g class="fc-node"><polygon class="s-decision" points="110,24 180,64 110,104 40,64"/><text x="110" y="64">x &gt; 0?</text></g>
+          <path class="fc-line" d="M110 104 V150"/>
+          <text class="fc-label a-start" x="120" y="128">Yes</text>
+          <path class="fc-line" d="M180 64 H206 V150"/>
+          <text class="fc-label" x="194" y="52">No</text>
+        </svg>
+        <figcaption><b class="ok">Correct</b> Decision: two labeled exits (bottom and side)</figcaption>
+      </figure>
+      <figure class="card dd bad">
+        <svg class="fc" viewBox="0 0 220 160" role="img" aria-label="Incorrect: a process box with two exits and no condition.">
+          <path class="fc-line" d="M110 2 V24"/>
+          <g class="fc-node"><rect class="s-process" x="40" y="24" width="140" height="46"/><text x="110" y="47">x = x + 1</text></g>
+          <path class="fc-line" d="M80 70 V150"/>
+          <path class="fc-line" d="M140 70 V150"/>
+          <text class="fc-label warn" x="110" y="112">?</text>
+        </svg>
+        <figcaption><b class="no">Wrong</b> A Process with two exits: which way?</figcaption>
+      </figure>
+      <figure class="card dd good">
+        <svg class="fc" viewBox="0 0 220 150" role="img" aria-label="Connectors: a flow ends at on-page connector A and continues from another connector A.">
+          <g class="fc-node"><rect class="s-process" x="10" y="10" width="90" height="40"/><text x="55" y="30">Step 7</text></g>
+          <path class="fc-line" d="M55 50 V94"/>
+          <g class="fc-node"><circle class="s-conn" cx="55" cy="114" r="18"/><text x="55" y="114">A</text></g>
+          <g class="fc-node"><circle class="s-conn" cx="165" cy="30" r="18"/><text x="165" y="30">A</text></g>
+          <path class="fc-line" d="M165 48 V96"/>
+          <g class="fc-node"><rect class="s-process" x="120" y="96" width="90" height="40"/><text x="165" y="116">Step 8</text></g>
+        </svg>
+        <figcaption><b class="ok">Correct</b> Matching connectors (A to A) join a break</figcaption>
+      </figure>
+    </div>
+  </div>
+  <aside class="notes">
+    <p class="note-time">Suggested time: about 5 min</p>
+    <h4>Teaching tips</h4>
+    <ul>
+      <li>These six rules are quoted from the Lab 1 deck. Every flowchart on this site follows them, including Decision exits at the bottom and one side.</li>
+      <li>Rule 4 in practice: in the seatwork loop, the return arrow goes up past exactly 3 symbols.</li>
+      <li>The rubric criterion <em>Structure, Readability &amp; Standards</em> (×5, 25 pts) checks proper symbols and clear labels. These rules are how students earn those points.</li>
+    </ul>
+    <h4>Common student pitfalls</h4>
+    <ul>
+      <li>Unlabeled Decision exits.</li>
+      <li>Arrows missing, or pointing both ways.</li>
+      <li>Lines crossing everywhere. Use connectors instead.</li>
+      <li>Several Start terminals, or branches that never reach End.</li>
+    </ul>
+    <h4>Ask the class</h4>
+    <ul>
+      <li>"How many exits does a Decision have? A Process?" (Two. One.)</li>
+    </ul>
+  </aside>
+</section>
+
+<!-- ========================= SLIDE 15 · QUICK CHECK ========================= -->
+<section class="slide" id="quick-check" data-title="Quick Check" data-section="Flowcharts">
+  <header class="slide-head">
+    <p class="kicker">Lab 1 · Checkpoint</p>
+    <h2>Quick Check</h2>
+    <p class="lede">Think, pair, share. Open an answer only after the class has committed to one.</p>
+  </header>
+  <div class="qa-grid">
+    <details class="qa"><summary><span class="q-num">1</span><span class="q-text">Which flowchart symbol do you use for <code>INPUT grade</code>?</span></summary><p>The <b>parallelogram</b> (Input/Output).</p></details>
+    <details class="qa"><summary><span class="q-num">2</span><span class="q-text">How many exits does a <b>Decision</b> symbol have, and what must they show?</span></summary><p><b>Two</b> exits, at the bottom and one side, each <b>labeled</b> Yes/No or True/False.</p></details>
+    <details class="qa"><summary><span class="q-num">3</span><span class="q-text">Evaluate <code>8 + 12 % 5 * 2</code>.</span></summary><p><code>12 % 5 = 2</code>, then <code>2 * 2 = 4</code>, then <code>8 + 4 =</code> <b>12</b>.</p></details>
+    <details class="qa"><summary><span class="q-num">4</span><span class="q-text">"Keep asking for the password until it is correct." Which structure is this?</span></summary><p><b>Loop (repetition)</b>, e.g., <code>REPEAT … UNTIL password = correct</code>.</p></details>
+    <details class="qa"><summary><span class="q-num">5</span><span class="q-text">Is "an algorithm is the complete program" true or false?</span></summary><p><b>False.</b> An algorithm is the <b>core logic</b> of a problem, not the complete code.</p></details>
+    <details class="qa"><summary><span class="q-num">6</span><span class="q-text">Spot the bug: <code>SET n = 1 · WHILE n &lt;= 5 DO · DISPLAY n · ENDWHILE</code></span></summary><p><code>n</code> never changes, so the loop is <b>infinite</b>. Add <code>SET n = n + 1</code> inside the loop.</p></details>
+  </div>
+  <aside class="notes">
+    <p class="note-time">Suggested time: about 5 min</p>
+    <h4>Teaching tips</h4>
+    <ul>
+      <li>Give each question 20–30 seconds, then cold-call one or two students before clicking it open.</li>
+      <li>This counts toward <em>Participation / Recitation</em> (10% of the term grade, per the syllabus).</li>
+    </ul>
+  </aside>
+</section>
+
+<!-- ========================= SLIDE 16 · PROBLEM 1 ========================= -->
+<section class="slide" id="problem-1" data-title="Problem 1: Cody's Age" data-section="Guided Problems">
+  <header class="slide-head">
+    <p class="kicker">Lab 1 · Guided Problem 1 · Sequence</p>
+    <h2>Problem 1: Cody Blends In</h2>
+  </header>
+  <div class="story">
+    <p>It's Cody's first day of school, and as a robot, he doesn't have an age to share with his new classmates. To avoid standing out, he decides to follow the age of the majority of his classmates, which is <b>5 years old</b>. If you're ready to blend in with the crowd like Cody, all you need to do is run the program and <b>print out the number 5</b>.</p>
+    <p class="task"><b>Task:</b> Print out a specific number: <code>5</code>.</p>
+  </div>
+  <div class="example-grid">
+    <div class="stack">
+      <div class="tabs" data-tabs>
+        <div class="tablist" role="tablist" aria-label="Problem 1 solution views">
+          <button type="button" role="tab" data-tab="alg" aria-selected="true">Algorithm</button>
+          <button type="button" role="tab" data-tab="pc">Pseudocode</button>
+        </div>
+        <div class="tabpanel" role="tabpanel" data-panel="alg">
+          <ol class="algo-steps">
+            <li>Start.</li>
+            <li>Display the number 5.</li>
+            <li>End.</li>
+          </ol>
+        </div>
+        <div class="tabpanel" role="tabpanel" data-panel="pc">
+<pre class="code" id="p1-code" data-pseudo>
+// This program displays the number 5 (Cody's age).
+START
+    DISPLAY 5
+END
+</pre>
+        </div>
+      </div>
+      <div class="tracer" data-trace="p1" data-code="#p1-code" data-chart="#p1-chart"></div>
+    </div>
+    <figure class="card chart-card">
+      <figcaption>Flowchart <button type="button" class="btn ghost tiny" data-cover-toggle>Hide</button></figcaption>
+      <div class="chart-body">
+        <svg class="fc" id="p1-chart" viewBox="0 0 320 244" style="max-width:360px" role="img" aria-label="Flowchart: Start, Display 5, End.">
+          <g class="fc-node" data-node="start"><rect class="s-terminal" x="90" y="16" width="140" height="44" rx="22"/><text x="160" y="38">Start</text></g>
+          <path class="fc-line" d="M160 60 V96"/>
+          <g class="fc-node" data-node="out"><polygon class="s-io" points="80,96 270,96 240,146 50,146"/><text x="160" y="121">Display 5</text></g>
+          <path class="fc-line" d="M160 146 V182"/>
+          <g class="fc-node" data-node="end"><rect class="s-terminal" x="90" y="182" width="140" height="44" rx="22"/><text x="160" y="204">End</text></g>
+        </svg>
+      </div>
+    </figure>
+  </div>
+  <aside class="notes">
+    <p class="note-time">Suggested time: about 5 min</p>
+    <h4>Teaching tips</h4>
+    <ul>
+      <li>The original deck solves each problem twice: in pseudocode, then again after the flowchart lesson. Use the tabs (Algorithm, then Pseudocode) and the <b>Hide</b> button on the flowchart to reveal each form in turn.</li>
+      <li>Your deck notes say <code>Print 5</code>. PRINT and DISPLAY are both accepted output keywords. DISPLAY is used here to match the keyword table.</li>
+      <li>Press <b>Play</b> on the tracer and narrate as each symbol and line lights up.</li>
+    </ul>
+    <h4>Common student pitfalls</h4>
+    <ul>
+      <li>Leaving out the Start and End terminals because the problem looks too simple.</li>
+      <li>Drawing the output as a rectangle (Process) instead of a parallelogram.</li>
+    </ul>
+    <h4>Ask the class</h4>
+    <ul>
+      <li>"How would you change this so the user enters the age?" (Add <code>INPUT age</code> and an I/O symbol, then <code>DISPLAY age</code>.)</li>
+    </ul>
+  </aside>
+</section>
+
+<!-- ========================= SLIDE 17 · PROBLEM 2 ========================= -->
+<section class="slide" id="problem-2" data-title="Problem 2: The Old Man's Age" data-section="Guided Problems">
+  <header class="slide-head">
+    <p class="kicker">Lab 1 · Guided Problem 2 · Sequence with computation</p>
+    <h2>Problem 2: The Old Man's Puzzle</h2>
+  </header>
+  <div class="story">
+    <p>Cody and his friends stumbled upon an old man living alone in the woods. When Cody asked the old man his age, the old man replied with a puzzle: <q>My age is the sum of The Programmer's and your teacher's ages subtracted by the age of your friend, Peter.</q> Help Cody solve the puzzle and determine the age of the old man.</p>
+    <p class="task"><b>Task:</b> Compute the age of the old man: <code>(programmer_age + teacher_age) - peter_age</code>.</p>
+  </div>
+  <div class="example-grid">
+    <div class="stack">
+      <div class="tabs" data-tabs>
+        <div class="tablist" role="tablist" aria-label="Problem 2 solution views">
+          <button type="button" role="tab" data-tab="alg" aria-selected="true">Algorithm</button>
+          <button type="button" role="tab" data-tab="pc">Pseudocode</button>
+        </div>
+        <div class="tabpanel" role="tabpanel" data-panel="alg">
+          <ol class="algo-steps">
+            <li>Start.</li>
+            <li>Input The Programmer's age, the teacher's age, and Peter's age.</li>
+            <li>Compute the sum of The Programmer's and the teacher's ages.</li>
+            <li>Compute the old man's age = sum − Peter's age.</li>
+            <li>Display the old man's age.</li>
+            <li>End.</li>
+          </ol>
+        </div>
+        <div class="tabpanel" role="tabpanel" data-panel="pc">
+<pre class="code" id="p2-code" data-pseudo>
+// This program computes the age of the old man.
+START
+    INPUT programmer_age, teacher_age, peter_age
+    COMPUTE sum = programmer_age + teacher_age
+    COMPUTE old_man_age = sum - peter_age
+    DISPLAY old_man_age
+END
+</pre>
+        </div>
+      </div>
+      <div class="tracer" data-trace="p2" data-code="#p2-code" data-chart="#p2-chart">
+        <div class="tracer-inputs">
+          <label>programmer_age <input type="number" data-var="programmer_age" value="30" step="any"></label>
+          <label>teacher_age <input type="number" data-var="teacher_age" value="50" step="any"></label>
+          <label>peter_age <input type="number" data-var="peter_age" value="10" step="any"></label>
+        </div>
+      </div>
+    </div>
+    <figure class="card chart-card">
+      <figcaption>Flowchart <button type="button" class="btn ghost tiny" data-cover-toggle>Hide</button></figcaption>
+      <div class="chart-body">
+        <svg class="fc" id="p2-chart" viewBox="0 0 400 446" style="max-width:460px" role="img" aria-label="Flowchart: Start, input programmer_age, teacher_age and peter_age, compute sum equals programmer_age plus teacher_age, compute old_man_age equals sum minus peter_age, display old_man_age, End.">
+          <g class="fc-node" data-node="start"><rect class="s-terminal" x="130" y="14" width="140" height="42" rx="21"/><text x="200" y="35">Start</text></g>
+          <path class="fc-line" d="M200 56 V84"/>
+          <g class="fc-node" data-node="in"><polygon class="s-io" points="60,84 370,84 340,140 30,140"/><text x="200" y="102">Input programmer_age,</text><text x="200" y="122">teacher_age, peter_age</text></g>
+          <path class="fc-line" d="M200 140 V168"/>
+          <g class="fc-node" data-node="sum"><rect class="s-process" x="30" y="168" width="340" height="46"/><text x="200" y="191">sum = programmer_age + teacher_age</text></g>
+          <path class="fc-line" d="M200 214 V242"/>
+          <g class="fc-node" data-node="calc"><rect class="s-process" x="55" y="242" width="290" height="46"/><text x="200" y="265">old_man_age = sum - peter_age</text></g>
+          <path class="fc-line" d="M200 288 V316"/>
+          <g class="fc-node" data-node="out"><polygon class="s-io" points="88,316 340,316 312,362 60,362"/><text x="200" y="339">Display old_man_age</text></g>
+          <path class="fc-line" d="M200 362 V390"/>
+          <g class="fc-node" data-node="end"><rect class="s-terminal" x="130" y="390" width="140" height="42" rx="21"/><text x="200" y="411">End</text></g>
+        </svg>
+      </div>
+    </figure>
+  </div>
+  <aside class="notes">
+    <p class="note-time">Suggested time: about 7 min</p>
+    <h4>Teaching tips</h4>
+    <ul>
+      <li>Translate the puzzle phrase by phrase. "The sum of The Programmer's and your teacher's ages" is the first COMPUTE. "Subtracted by the age of Peter" is the second.</li>
+      <li>Trace 30, 50, 10 → 70. Then try 10, 10, 40 → −20: a negative age shows why refinement and input validation matter.</li>
+      <li>Push for meaningful names (<code>programmer_age</code>, not <code>a</code>). They earn points under <em>Structure, Readability &amp; Standards</em>.</li>
+    </ul>
+    <h4>Common student pitfalls</h4>
+    <ul>
+      <li>Computing before the inputs are read.</li>
+      <li>Putting the formula inside the I/O symbol instead of a Process box.</li>
+      <li>Writing <code>programmer_age + (teacher_age - peter_age)</code>. It gives the same number, but it doesn't match the wording, and that habit causes real bugs later.</li>
+    </ul>
+    <h4>Ask the class</h4>
+    <ul>
+      <li>"Can this be done in one COMPUTE?" (Yes: <code>old_man_age = programmer_age + teacher_age - peter_age</code>. + and − go left to right. Two steps are just easier to read.)</li>
+    </ul>
+  </aside>
+</section>
+
+<!-- ========================= SLIDE 18 · PROBLEM 3 ========================= -->
+<section class="slide" id="problem-3" data-title="Problem 3: Adult or Minor?" data-section="Guided Problems">
+  <header class="slide-head">
+    <p class="kicker">Lab 1 · Guided Problem 3 · Selection</p>
+    <h2>Problem 3: Adult or Minor?</h2>
+  </header>
+  <div class="story">
+    <p>Cody, our favorite robot, has a simple task: determine if <b>The Programmer</b> is an adult or minor. As you know, an adult is anyone aged <b>18 and above</b>, and Cody needs your help to write a program that can do just that.</p>
+    <p class="task"><b>Task:</b> Display <code>"Adult"</code> if age ≥ 18. Otherwise display <code>"Minor"</code>.</p>
+  </div>
+  <div class="example-grid">
+    <div class="stack">
+      <div class="tabs" data-tabs>
+        <div class="tablist" role="tablist" aria-label="Problem 3 solution views">
+          <button type="button" role="tab" data-tab="alg" aria-selected="true">Algorithm</button>
+          <button type="button" role="tab" data-tab="pc">Pseudocode</button>
+        </div>
+        <div class="tabpanel" role="tabpanel" data-panel="alg">
+          <ol class="algo-steps">
+            <li>Start.</li>
+            <li>Input The Programmer's age.</li>
+            <li>If the age is 18 or above, display "Adult".</li>
+            <li>Otherwise, display "Minor".</li>
+            <li>End.</li>
+          </ol>
+        </div>
+        <div class="tabpanel" role="tabpanel" data-panel="pc">
+<pre class="code" id="p3-code" data-pseudo>
+// This program determines whether The Programmer
+// is an adult or a minor.
+START
+    INPUT programmer_age
+    IF programmer_age >= 18 THEN
+        DISPLAY "Adult"
+    ELSE
+        DISPLAY "Minor"
+    ENDIF
+END
+</pre>
+        </div>
+      </div>
+      <div class="tracer" data-trace="p3" data-code="#p3-code" data-chart="#p3-chart">
+        <div class="tracer-inputs">
+          <label>programmer_age <input type="number" data-var="programmer_age" value="17" step="any"></label>
+        </div>
+      </div>
+    </div>
+    <figure class="card chart-card">
+      <figcaption>Flowchart <button type="button" class="btn ghost tiny" data-cover-toggle>Hide</button></figcaption>
+      <div class="chart-body">
+        <svg class="fc" id="p3-chart" viewBox="0 0 520 470" style="max-width:560px" role="img" aria-label="Flowchart: Start, input programmer_age, decision programmer_age greater than or equal to 18. Yes goes right to display Adult. No goes down to display Minor. Both join, then End.">
+          <g class="fc-node" data-node="start"><rect class="s-terminal" x="130" y="16" width="140" height="44" rx="22"/><text x="200" y="38">Start</text></g>
+          <path class="fc-line" d="M200 60 V92"/>
+          <g class="fc-node" data-node="in"><polygon class="s-io" points="101,92 325,92 299,142 75,142"/><text x="200" y="117">Input programmer_age</text></g>
+          <path class="fc-line" d="M200 142 V174"/>
+          <g class="fc-node" data-node="dec"><polygon class="s-decision" points="200,174 320,222 200,270 80,222"/><text x="200" y="222">programmer_age &gt;= 18?</text></g>
+          <path class="fc-line" d="M320 222 H410 V300"/>
+          <text class="fc-label" x="352" y="210">Yes</text>
+          <path class="fc-line" d="M200 270 V300"/>
+          <text class="fc-label a-start" x="210" y="287">No</text>
+          <g class="fc-node" data-node="adult"><polygon class="s-io" points="344,300 500,300 476,348 320,348"/><text x="410" y="324">Display "Adult"</text></g>
+          <g class="fc-node" data-node="minor"><polygon class="s-io" points="134,300 290,300 266,348 110,348"/><text x="200" y="324">Display "Minor"</text></g>
+          <path class="fc-line" d="M200 348 V374"/>
+          <path class="fc-line" d="M410 348 V380 H206"/>
+          <g class="fc-node" data-node="join"><circle class="fc-dot" cx="200" cy="380" r="5"/></g>
+          <path class="fc-line" d="M200 385 V410"/>
+          <g class="fc-node" data-node="end"><rect class="s-terminal" x="130" y="410" width="140" height="44" rx="22"/><text x="200" y="432">End</text></g>
+        </svg>
+      </div>
+    </figure>
+  </div>
+  <aside class="notes">
+    <p class="note-time">Suggested time: about 7 min</p>
+    <h4>Teaching tips</h4>
+    <ul>
+      <li>Read carefully: the problem asks about <b>The Programmer's</b> age, not Cody's.</li>
+      <li>Trace with 17, 18, and 19. Testing at the boundary (exactly 18) is what the rubric's <em>normal, boundary, and edge test cases</em> means.</li>
+      <li>Show that both branches meet at one point before a single End terminal.</li>
+    </ul>
+    <h4>Common student pitfalls</h4>
+    <ul>
+      <li>Using <code>&gt;</code> instead of <code>&gt;=</code>, so 18 prints "Minor".</li>
+      <li>Leaving the Yes/No exits unlabeled.</li>
+      <li>Writing DISPLAY inside the diamond.</li>
+      <li>Using two separate IFs (<code>IF age &gt;= 18 … IF age &lt; 18 …</code>). It works, but ELSE is cleaner and guarantees exactly one output.</li>
+    </ul>
+    <h4>Ask the class</h4>
+    <ul>
+      <li>"What should happen if the age entered is negative?" (Add validation, a good refinement.)</li>
+    </ul>
+  </aside>
+</section>
+
+<!-- ========================= SLIDE 19 · PROBLEM 4 ========================= -->
+<section class="slide" id="problem-4" data-title="Problem 4: Letter Grade" data-section="Guided Problems">
+  <header class="slide-head">
+    <p class="kicker">Lab 1 · Guided Problem 4 · Multiple selection</p>
+    <h2>Problem 4: Numerical Grade to Letter Grade</h2>
+  </header>
+  <div class="story">
+    <p>Write a program that accepts a numerical grade from the user and returns the corresponding letter grade.</p>
+    <ul class="grade-scale" aria-label="Grading scale">
+      <li><b>A</b> ≥ 90</li><li><b>B</b> ≥ 80</li><li><b>C</b> ≥ 70</li><li><b>D</b> ≥ 60</li><li><b>F</b> &lt; 60</li>
+    </ul>
+  </div>
+  <div class="example-grid">
+    <div class="stack">
+      <div class="tabs" data-tabs>
+        <div class="tablist" role="tablist" aria-label="Problem 4 solution views">
+          <button type="button" role="tab" data-tab="alg" aria-selected="true">Algorithm</button>
+          <button type="button" role="tab" data-tab="pc">Pseudocode</button>
+        </div>
+        <div class="tabpanel" role="tabpanel" data-panel="alg">
+          <ol class="algo-steps">
+            <li>Start.</li>
+            <li>Input the numerical grade.</li>
+            <li>If grade ≥ 90, display "A".</li>
+            <li>Otherwise, if grade ≥ 80, display "B".</li>
+            <li>Otherwise, if grade ≥ 70, display "C".</li>
+            <li>Otherwise, if grade ≥ 60, display "D".</li>
+            <li>Otherwise, display "F".</li>
+            <li>End.</li>
+          </ol>
+        </div>
+        <div class="tabpanel" role="tabpanel" data-panel="pc">
+<pre class="code" id="p4-code" data-pseudo>
+// This program converts a numerical grade
+// into its letter grade.
+START
+    INPUT grade
+    IF grade >= 90 THEN
+        DISPLAY "A"
+    ELSE IF grade >= 80 THEN
+        DISPLAY "B"
+    ELSE IF grade >= 70 THEN
+        DISPLAY "C"
+    ELSE IF grade >= 60 THEN
+        DISPLAY "D"
+    ELSE
+        DISPLAY "F"
+    ENDIF
+END
+</pre>
+        </div>
+      </div>
+      <div class="tracer" data-trace="p4" data-code="#p4-code" data-chart="#p4-chart">
+        <div class="tracer-inputs">
+          <label>grade <input type="number" data-var="grade" value="85" step="any"></label>
+        </div>
+      </div>
+    </div>
+    <figure class="card chart-card">
+      <figcaption>Flowchart <button type="button" class="btn ghost tiny" data-cover-toggle>Hide</button></figcaption>
+      <div class="chart-body">
+        <svg class="fc" id="p4-chart" viewBox="0 0 600 720" role="img" aria-label="Flowchart: Start, input grade, then four decisions in a column: grade at least 90, 80, 70, and 60. Each Yes exits right to display A, B, C, or D. The last No goes down to display F. All outputs join, then End.">
+          <g class="fc-node" data-node="start"><rect class="s-terminal" x="140" y="14" width="140" height="42" rx="21"/><text x="210" y="35">Start</text></g>
+          <path class="fc-line" d="M210 56 V84"/>
+          <g class="fc-node" data-node="in"><polygon class="s-io" points="136,84 310,84 284,130 110,130"/><text x="210" y="107">Input grade</text></g>
+          <path class="fc-line" d="M210 130 V156"/>
+
+          <g class="fc-node" data-node="d90"><polygon class="s-decision" points="210,156 310,194 210,232 110,194"/><text x="210" y="194">grade &gt;= 90?</text></g>
+          <path class="fc-line" d="M310 194 H395"/><text class="fc-label" x="352" y="182">Yes</text>
+          <g class="fc-node" data-node="oA"><polygon class="s-io" points="409,172 555,172 531,216 385,216"/><text x="470" y="194">Display "A"</text></g>
+          <path class="fc-line" d="M210 232 V258"/><text class="fc-label a-start" x="220" y="246">No</text>
+
+          <g class="fc-node" data-node="d80"><polygon class="s-decision" points="210,258 310,296 210,334 110,296"/><text x="210" y="296">grade &gt;= 80?</text></g>
+          <path class="fc-line" d="M310 296 H395"/><text class="fc-label" x="352" y="284">Yes</text>
+          <g class="fc-node" data-node="oB"><polygon class="s-io" points="409,274 555,274 531,318 385,318"/><text x="470" y="296">Display "B"</text></g>
+          <path class="fc-line" d="M210 334 V360"/><text class="fc-label a-start" x="220" y="348">No</text>
+
+          <g class="fc-node" data-node="d70"><polygon class="s-decision" points="210,360 310,398 210,436 110,398"/><text x="210" y="398">grade &gt;= 70?</text></g>
+          <path class="fc-line" d="M310 398 H395"/><text class="fc-label" x="352" y="386">Yes</text>
+          <g class="fc-node" data-node="oC"><polygon class="s-io" points="409,376 555,376 531,420 385,420"/><text x="470" y="398">Display "C"</text></g>
+          <path class="fc-line" d="M210 436 V462"/><text class="fc-label a-start" x="220" y="450">No</text>
+
+          <g class="fc-node" data-node="d60"><polygon class="s-decision" points="210,462 310,500 210,538 110,500"/><text x="210" y="500">grade &gt;= 60?</text></g>
+          <path class="fc-line" d="M310 500 H395"/><text class="fc-label" x="352" y="488">Yes</text>
+          <g class="fc-node" data-node="oD"><polygon class="s-io" points="409,478 555,478 531,522 385,522"/><text x="470" y="500">Display "D"</text></g>
+          <path class="fc-line" d="M210 538 V566"/><text class="fc-label a-start" x="220" y="552">No</text>
+
+          <g class="fc-node" data-node="oF"><polygon class="s-io" points="144,566 300,566 276,610 120,610"/><text x="210" y="588">Display "F"</text></g>
+
+          <path class="fc-line plain" d="M543 194 H578 M543 296 H578 M543 398 H578 M543 500 H578"/>
+          <path class="fc-line" d="M578 194 V636 H216"/>
+          <path class="fc-line" d="M210 610 V630"/>
+          <g class="fc-node" data-node="join"><circle class="fc-dot" cx="210" cy="636" r="5"/></g>
+          <path class="fc-line" d="M210 641 V664"/>
+          <g class="fc-node" data-node="end"><rect class="s-terminal" x="140" y="664" width="140" height="42" rx="21"/><text x="210" y="685">End</text></g>
+        </svg>
+      </div>
+    </figure>
+  </div>
+  <aside class="notes">
+    <p class="note-time">Suggested time: about 10 min</p>
+    <h4>Teaching tips</h4>
+    <ul>
+      <li>Key insight: why can the second test be just <code>grade &gt;= 80</code> and not <code>grade &gt;= 80 AND grade &lt; 90</code>? Because we only reach it when <code>grade &gt;= 90</code> was FALSE.</li>
+      <li>Trace 95, 85, 75, 65, 59, then the boundaries 90 and 89.</li>
+      <li>Selection in C++ (if, if-else, nested if, switch) is Lab 6.</li>
+    </ul>
+    <h4>Common student pitfalls</h4>
+    <ul>
+      <li>Separate IFs with no ELSE, so 95 prints A, B, C, and D.</li>
+      <li>Checking in the wrong order (<code>grade &gt;= 60</code> first), so every passing grade becomes D.</li>
+      <li>Forgetting the final ELSE for F.</li>
+      <li>Drawing a Decision with five exits. Each diamond has exactly two.</li>
+    </ul>
+    <h4>Ask the class</h4>
+    <ul>
+      <li>"How many decisions run for a grade of 45?" (All four.)</li>
+      <li>Extension: "Validate that the grade is 0–100 first, otherwise display <em>Invalid grade</em>."</li>
+    </ul>
+  </aside>
+</section>
+
+<!-- ========================= SLIDE 20 · SEATWORK (PROBLEM 5) ========================= -->
+<section class="slide" id="seatwork" data-title="Problem 5: Seatwork" data-section="Guided Problems">
+  <header class="slide-head">
+    <p class="kicker">Lab 1 · Problem 5 · Seatwork · Loop</p>
+    <h2>Seatwork: Divisible by 3</h2>
+  </header>
+  <div class="story">
+    <p><q>I'm bored with just basic counting. How about we do some complex things this time? But I don't want to be associated with any number that's not divisible by 3. Think you can handle this?</q></p>
+    <p class="task"><b>Instruction:</b> Print out all numbers from <b>1 to 100</b> that are <b>divisible by 3</b>, each on a separate line. Write the <b>algorithm</b>, <b>pseudocode</b>, and <b>flowchart</b>.</p>
+  </div>
+  <div class="grid-2 align-start">
+    <div class="card">
+      <h3 class="card-title">Need a hint?</h3>
+      <details class="hint"><summary>Hint 1</summary><p>Which structure lets you look at every number from 1 to 100? You need a <b>loop</b> with a counter.</p></details>
+      <details class="hint"><summary>Hint 2</summary><p>How do you test "divisible by 3"? Use the modulus operator: <code>num % 3 = 0</code>.</p></details>
+      <details class="hint"><summary>Hint 3</summary><p>Don't forget to <b>update the counter</b> inside the loop, or it will never end.</p></details>
+      <p class="small muted">Expected output: 3, 6, 9, … 99, one per line (33 numbers).</p>
+    </div>
+    <div class="card timer" data-timer data-minutes="10">
+      <h3 class="card-title">Seatwork timer</h3>
+      <p class="timer-display" aria-live="off">10:00</p>
+      <div class="timer-presets" role="group" aria-label="Timer presets">
+        <button type="button" class="btn ghost" data-min="5">5 min</button>
+        <button type="button" class="btn ghost" data-min="10">10 min</button>
+        <button type="button" class="btn ghost" data-min="15">15 min</button>
+      </div>
+      <div class="timer-actions">
+        <button type="button" class="btn primary" data-timer-act="toggle">Start</button>
+        <button type="button" class="btn" data-timer-act="reset">Reset</button>
+      </div>
+    </div>
+  </div>
+
+  <details class="answer" id="seatwork-answer">
+    <summary><span>Reveal answer &amp; walkthrough</span></summary>
+    <div class="example-grid">
+      <div class="stack">
+        <div class="tabs" data-tabs>
+          <div class="tablist" role="tablist" aria-label="Problem 5 solution views">
+            <button type="button" role="tab" data-tab="alg">Algorithm</button>
+            <button type="button" role="tab" data-tab="pc" aria-selected="true">Pseudocode</button>
+          </div>
+          <div class="tabpanel" role="tabpanel" data-panel="alg">
+            <ol class="algo-steps">
+              <li>Start.</li>
+              <li>Set num to 1.</li>
+              <li>While num is less than or equal to 100, repeat steps 4–5.</li>
+              <li>If num ÷ 3 has a remainder of 0, display num.</li>
+              <li>Increase num by 1.</li>
+              <li>End.</li>
+            </ol>
+          </div>
+          <div class="tabpanel" role="tabpanel" data-panel="pc">
+<pre class="code" id="p5-code" data-pseudo>
+// This program prints the numbers from 1 to 100
+// that are divisible by 3, one per line.
+START
+    SET num = 1
+    WHILE num &lt;= 100 DO
+        IF num % 3 = 0 THEN
+            DISPLAY num
+        ENDIF
+        SET num = num + 1
+    ENDWHILE
+END
+</pre>
+          </div>
+        </div>
+        <div class="tracer" data-trace="p5" data-code="#p5-code" data-chart="#p5-chart" data-speed="60"></div>
+      </div>
+      <figure class="card chart-card">
+        <figcaption>Flowchart</figcaption>
+        <div class="chart-body">
+          <svg class="fc" id="p5-chart" viewBox="0 0 560 516" role="img" aria-label="Flowchart: Start, num equals 1, decision num at most 100. Yes goes down to decision num mod 3 equals 0. Yes displays num. Both paths reach num equals num plus 1, which loops back to the first decision. When num exceeds 100, No exits right to End.">
+            <g class="fc-node" data-node="start"><rect class="s-terminal" x="140" y="14" width="140" height="42" rx="21"/><text x="210" y="35">Start</text></g>
+            <path class="fc-line" d="M210 56 V84"/>
+            <g class="fc-node" data-node="init"><rect class="s-process" x="120" y="84" width="180" height="44"/><text x="210" y="106">num = 1</text></g>
+            <path class="fc-line" d="M210 128 V164"/>
+            <g class="fc-node" data-node="loop"><polygon class="s-decision" points="210,164 310,204 210,244 110,204"/><text x="210" y="204">num &lt;= 100?</text></g>
+            <path class="fc-line" d="M210 244 V274"/><text class="fc-label a-start" x="220" y="261">Yes</text>
+            <g class="fc-node" data-node="mod"><polygon class="s-decision" points="210,274 310,314 210,354 110,314"/><text x="210" y="314">num % 3 = 0?</text></g>
+            <path class="fc-line" d="M210 354 V384"/><text class="fc-label a-start" x="220" y="371">Yes</text>
+            <g class="fc-node" data-node="out"><polygon class="s-io" points="144,384 300,384 276,428 120,428"/><text x="210" y="406">Display num</text></g>
+            <path class="fc-line" d="M210 428 V456"/>
+            <g class="fc-node" data-node="inc"><rect class="s-process" x="110" y="456" width="200" height="44"/><text x="210" y="478">num = num + 1</text></g>
+            <path class="fc-line" d="M110 478 H50 V146 H208"/>
+            <path class="fc-line" d="M310 314 H360 V478 H312"/><text class="fc-label" x="334" y="302">No</text>
+            <path class="fc-line" d="M310 204 H480 V440"/><text class="fc-label" x="395" y="192">No</text>
+            <g class="fc-node" data-node="end"><rect class="s-terminal" x="420" y="440" width="120" height="42" rx="21"/><text x="480" y="461">End</text></g>
+          </svg>
+        </div>
+      </figure>
+    </div>
+    <div class="grid-2 align-start alt-solutions">
+      <div class="card">
+        <h3 class="card-title">Optimized: count by 3s</h3>
+<pre class="code" data-pseudo>
+// Same output, fewer steps.
+START
+    SET num = 3
+    WHILE num &lt;= 100 DO
+        DISPLAY num
+        SET num = num + 3
+    ENDWHILE
+END
+</pre>
+        <p class="small">34 loop tests instead of 101, and no modulus needed. This is step 8, <i>Analyze &amp; Optimize</i>.</p>
+      </div>
+      <div class="card">
+        <h3 class="card-title">Alternative: REPEAT … UNTIL</h3>
+<pre class="code" data-pseudo>
+// Same output using a post-test loop.
+START
+    SET num = 1
+    REPEAT
+        IF num % 3 = 0 THEN
+            DISPLAY num
+        ENDIF
+        ADD 1 TO num
+    UNTIL num > 100
+END
+</pre>
+      </div>
+    </div>
+  </details>
+  <aside class="notes">
+    <p class="note-time">Suggested time: about 15 min (10 working, 5 review)</p>
+    <h4>Running the seatwork</h4>
+    <ul>
+      <li>Start the 10-minute timer and walk around the room. Open the hints one at a time only if many students are stuck.</li>
+      <li>Before revealing, show one or two student solutions (photos posted in the MS Teams class chat work well).</li>
+      <li>Reveal the answer, set the tracer speed to <b>Turbo</b>, and press Play. The output fills with 33 numbers while the loop arrow lights up again and again.</li>
+      <li>Show the optimized version: the same output in about a third of the work. That is the "Analyze &amp; Optimize" step.</li>
+      <li>Initialization could also use the Preparation (hexagon) symbol. A rectangle is used here because students know it best.</li>
+    </ul>
+    <h4>Common student pitfalls</h4>
+    <ul>
+      <li>Forgetting <code>num = num + 1</code>, which creates an infinite loop.</li>
+      <li>Putting the increment <b>inside</b> the IF. num stays at 1 forever because 1 is not divisible by 3.</li>
+      <li>Writing <code>num / 3 = 0</code> instead of <code>num % 3 = 0</code>.</li>
+      <li>Starting at 0, which prints 0 even though it is outside the range 1–100.</li>
+      <li>Drawing the loop arrow back to <em>Start</em> instead of the condition.</li>
+    </ul>
+    <h4>Ask the class</h4>
+    <ul>
+      <li>"How many numbers are printed?" (33.) "What changes to print multiples of 5 from 1 to 50?"</li>
+    </ul>
+  </aside>
+</section>
+
+<!-- ========================= SLIDE 21 · LAB ACTIVITY ========================= -->
+<!-- LOCKED-ACTIVITY:START lab-01 -->
+<section class="slide locked-slide" id="lab-activity" data-title="Laboratory Exercise No. 1 (locked)" data-section="Lab No. 1" data-locked="lab-01">
+  <header class="slide-head">
+    <p class="kicker">Laboratory Exercise No. 1</p>
+    <h2>This lab activity is locked</h2>
+    <p class="lede">It opens when your instructor releases it. Enter the passphrase your instructor gives you.</p>
+  </header>
+  <div class="lock-card">
+    <svg class="lock-icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="10.5" width="14" height="10" rx="2"/><path d="M8 10.5V7.5a4 4 0 0 1 8 0v3M12 14.5v2.5"/></svg>
+    <h3>Laboratory Exercise No. 1</h3>
+    <form class="lock-form" autocomplete="off">
+      <label class="sr-only" for="unlock-lab-01">Passphrase</label>
+      <input id="unlock-lab-01" type="password" placeholder="Passphrase" autocomplete="off" spellcheck="false">
+      <button type="submit" class="btn primary">Unlock</button>
+    </form>
+    <p class="lock-msg" aria-live="polite"></p>
+    <p class="small muted">The activity is stored encrypted on this site and is unlocked in your browser. Once unlocked, it stays open on this device.</p>
+  </div>
+  <script type="application/json" class="locked-data">{"v":1,"iter":250000,"salt":"dCaBb/v+Q/wjpeKzd6B7dg==","iv":"MTu+kCPtDb3YFw/c","data":"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"}</script>
+  <aside class="notes">
+    <p class="note-time">Locked activity (2 slides)</p>
+    <h4>Instructor</h4>
+    <ul>
+      <li>Type this lab's passphrase (private instructor package → <code>passwords.json</code>) to open the activity on the classroom PC. It stays unlocked on that browser until you press "Lock again".</li>
+      <li>To release the activity to students, announce or post the passphrase (e.g. in MS Teams).</li>
+      <li>To re-lock it for everyone, change the passphrase and rerun <code>node tools/lock-activities.js</code>.</li>
+    </ul>
+  </aside>
+</section>
+<!-- LOCKED-ACTIVITY:END lab-01 -->
+
+<!-- ========================= SLIDE 23 · WRAP-UP ========================= -->
+<section class="slide" id="wrap-up" data-title="Wrap-up" data-section="Wrap-up">
+  <header class="slide-head">
+    <p class="kicker">Lab 1 · Wrap-up</p>
+    <h2>Three Ways to Express the Same Logic</h2>
+  </header>
+  <div class="table-wrap">
+    <table class="table compare-table">
+      <thead><tr><th scope="col"></th><th scope="col">Algorithm</th><th scope="col">Pseudocode</th><th scope="col">Flowchart</th></tr></thead>
+      <tbody>
+        <tr><th scope="row">Form</th><td>Numbered steps in plain words</td><td>Structured, English-like statements with keywords</td><td>Standard symbols joined by flow lines</td></tr>
+        <tr><th scope="row">Best for</th><td>Thinking through the solution</td><td>Getting close to real code</td><td>Seeing branches and loops at a glance</td></tr>
+        <tr><th scope="row">Example</th><td>"If the age is 18 or above, display Adult."</td><td><code>IF programmer_age &gt;= 18 THEN</code></td><td>Diamond with labeled Yes / No exits</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="grid-3">
+    <div class="card"><h3 class="card-title">Remember</h3><ul class="tight"><li>Algorithm = <b>core logic</b>, not complete code.</li><li>Three structures: sequence, selection, loop.</li><li>Decision: <b>two labeled exits</b>.</li></ul></div>
+    <div class="card"><h3 class="card-title">Exit ticket</h3><p>On a ¼ sheet: draw the <b>Decision</b> symbol with labeled exits, and write one pseudocode line that uses <code>%</code>.</p></div>
+    <div class="card"><h3 class="card-title">Next: Lab No. 2</h3><p><b>Basics of C++</b>: structure of a C++ program, the IDE, and simple input/output.</p><p><a href="lab-02.html">Open Lab 2 →</a></p></div>
+  </div>
+  <aside class="notes">
+    <p class="note-time">Suggested time: about 3 min</p>
+    <h4>Teaching tips</h4>
+    <ul>
+      <li>Repeat the fist-to-five from the ILO slide and compare it with the start of class.</li>
+      <li>Collect exit tickets to spot who needs help before the lab exercise is due.</li>
+      <li>Preview Lab 2: tonight's pseudocode turns into C++ next week, and Codechum is the online compiler listed in the syllabus.</li>
+    </ul>
+  </aside>
+</section>
+
+      </div><!-- /.deck -->
+
+
+    </main>
+
+
+  </div>
+
+</body>
+</html>

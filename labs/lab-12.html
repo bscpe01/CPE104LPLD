@@ -1,0 +1,1348 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Lab 12 · Intro to OOP: Classes and Objects · CPE 104L</title>
+  <meta name="description" content="CPE 104L Programming Logic and Design, Lab No. 12: Intro to OOP: Classes and Objects. Procedural vs object-oriented thinking, UML class diagrams, classes, objects, access specifiers, constructors, and destructors in C++.">
+  <meta name="color-scheme" content="light dark">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%232f3410'/%3E%3Cpath d='M32 11 53 32 32 53 11 32Z' fill='none' stroke='%23f5c518' stroke-width='6' stroke-linejoin='round'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="../css/styles.css">
+  <script>
+    (function () { var d = document.documentElement; d.classList.add('js');
+      try { var t = localStorage.getItem('cpe104l.theme'); if (t === 'dark' || t === 'light') d.setAttribute('data-theme', t); } catch (e) {} })();
+  </script>
+  <script src="../js/course.js" defer></script>
+  <script src="../js/search-index.js" defer></script>
+  <script src="../js/script.js" defer></script>
+  <script src="../js/labs/lab-12.js" defer></script>
+</head>
+<body data-page="lab-12" data-root="../">
+  <svg class="svg-defs" aria-hidden="true" focusable="false"><defs><marker id="arrow" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="10" markerHeight="10" markerUnits="userSpaceOnUse" orient="auto"><path class="arrowhead" d="M0 0 L10 5 L0 10 Z"/></marker></defs></svg>
+  <div class="app" id="app">
+    <main class="stage" id="stage">
+      <div class="deck" id="deck" tabindex="-1">
+<noscript><p class="noscript">JavaScript is off, so every slide is shown in one long page. Turn JavaScript on for slide navigation, speaker notes, and the live tracers.</p></noscript>
+
+<!-- ========================= TITLE ========================= -->
+<section class="slide" id="l12-title" data-title="Title & ILOs" data-section="Introduction">
+  <div class="lab-title">
+    <div>
+      <div class="lab-badges"><span class="badge-lab">Lab No. 12</span><span class="badge-week">Week 13</span><span class="badge-co">CO1 · CO2</span></div>
+      <p class="kicker">CPE 104L · Programming Logic and Design</p>
+      <h1>Intro to OOP <span>Classes and Objects</span></h1>
+      <p class="lede">Put data and the functions that work on it into one unit, a <b>class</b>, then create as many <b>objects</b> from it as you need.</p>
+      <ol class="roadmap" aria-label="Lab roadmap">
+        <li><a href="#l12-proc-vs-oop">Thinking in objects</a></li>
+        <li><a href="#l12-uml">UML class diagrams</a></li>
+        <li><a href="#l12-define">Classes in C++</a></li>
+        <li><a href="#l12-ctor">Constructors</a></li>
+        <li><a href="#l12-seatwork">Seatwork</a></li>
+        <li><a href="#l12-lab-a">Lab exercise</a></li>
+      </ol>
+    </div>
+    <div class="ilo-card">
+      <h2>Intended Learning Outcomes</h2>
+      <ol>
+        <li>Explain foundational Object-Oriented Programming (OOP) principles.</li>
+        <li>Define classes and instantiate objects in C++.</li>
+      </ol>
+      <div class="ilo-meta">
+        <span><b>Activities:</b> Live coding demonstrations · Guided OOP design exercises · Laboratory activities</span>
+        <span><b>Assessment:</b> Lab Exercise No. 12 · 5-Level Lab Rubric</span>
+      </div>
+    </div>
+  </div>
+  <aside class="notes">
+    <p class="note-time">Suggested time: about 3 min</p>
+    <h4>Teaching tips</h4>
+    <ul>
+      <li>Hook: <em>"Labs 2–11 were about steps. Today we start thinking about things."</em> Every program so far was a list of steps acting on loose variables.</li>
+      <li>Students have already used objects without knowing it: <code>cin</code> and <code>cout</code> are objects, and <code>name.length()</code> on a <code>string</code> is a member-function call. If anyone has used Arduino, <code>Serial.begin(9600)</code> is the same idea.</li>
+      <li>This lab starts Part 4 (OOP, Weeks 13–15). Labs 13 and 14 build directly on today's classes.</li>
+    </ul>
+    <h4>Common student pitfalls</h4>
+    <ul>
+      <li>Thinking OOP replaces everything from Labs 2–11. It doesn't: member functions are still made of sequence, selection, loops, and arrays.</li>
+    </ul>
+  </aside>
+</section>
+
+<!-- ========================= BRIDGE ========================= -->
+<section class="slide" id="l12-bridge" data-title="From Functions to Objects" data-section="Introduction">
+  <header class="slide-head">
+    <p class="kicker">Lab 12 · Bridge from Lab 11</p>
+    <h2>From Functions to Objects</h2>
+    <p class="lede">Functions organized our <b>steps</b>. Now we also need to organize our <b>data</b>.</p>
+  </header>
+  <div class="grid-2 align-start" style="grid-template-columns:minmax(0,1fr) minmax(0,1.25fr)">
+    <div class="stack">
+      <div class="card">
+        <h3 class="card-title">Your toolbox so far</h3>
+        <ul class="tight">
+          <li>Variables, data types, operators (Labs 2–3)</li>
+          <li>Selection and loops (Labs 4–8)</li>
+          <li>Arrays, references, and pointers (Labs 9–10)</li>
+          <li>Functions: parameters, return values, pass-by-reference, overloading (Lab 11)</li>
+        </ul>
+      </div>
+      <div class="card soft">
+        <h3 class="card-title">You've already used objects</h3>
+<pre class="code no-ln" data-cpp>
+string name = "Ana";
+cout &lt;&lt; name.length();   // member function
+cin &gt;&gt; name;             // cin is an object
+</pre>
+        <p class="small muted" style="margin-top:.5rem">Today you learn to build your own types like <code>string</code>.</p>
+      </div>
+      <div class="pitfall"><p class="box-label">Spot the bug</p><p>Line 14 passes <code>width1</code> instead of <code>width2</code>. It compiles and runs, but R2's area is wrong. Nothing in the code says that <code>length2</code> and <code>width2</code> belong together.</p></div>
+    </div>
+    <div class="stack">
+      <figure class="codeblock">
+        <figcaption><code>two_rectangles.cpp</code> (procedural style)</figcaption>
+<pre class="code" data-cpp>
+#include &lt;iostream&gt;
+using namespace std;
+
+double area(double length, double width) {
+    return length * width;
+}
+
+int main() {
+    double length1 = 4, width1 = 2.5;
+    double length2 = 3, width2 = 3;
+    cout &lt;&lt; "R1: " &lt;&lt; length1 &lt;&lt; " x " &lt;&lt; width1
+         &lt;&lt; ", area = " &lt;&lt; area(length1, width1) &lt;&lt; endl;
+    cout &lt;&lt; "R2: " &lt;&lt; length2 &lt;&lt; " x " &lt;&lt; width2
+         &lt;&lt; ", area = " &lt;&lt; area(length2, width1) &lt;&lt; endl;
+    return 0;
+}
+</pre>
+      </figure>
+      <figure class="codeblock">
+        <figcaption>Output</figcaption>
+<pre class="console">R1: 4 x 2.5, area = 10
+R2: 3 x 3, area = 7.5</pre>
+      </figure>
+    </div>
+  </div>
+  <aside class="notes">
+    <p class="note-time">Suggested time: about 5 min</p>
+    <h4>Teaching tips</h4>
+    <ul>
+      <li>Run the program first and ask if the output is right. Most students won't notice that R2 (3 × 3) should be 9, not 7.5.</li>
+      <li>Then ask: "With 30 rectangles, how many separate variables do we need? How easy is it to mix them up?" (60 variables, very easy.)</li>
+      <li>Arrays help a little (parallel arrays <code>length[30]</code>, <code>width[30]</code>) but still keep related data in separate places. A class keeps each rectangle's data together with the functions that use it.</li>
+    </ul>
+    <h4>Common student pitfalls</h4>
+    <ul>
+      <li>Assuming that if it compiles, it's correct. Bugs like this one are <em>logic</em> errors, so the compiler can't catch them.</li>
+    </ul>
+    <h4>Ask the class</h4>
+    <ul>
+      <li>"Where else have you called a function with a dot in front of it?" (<code>name.length()</code>, <code>getline</code> with <code>cin</code>, <code>name.substr(…)</code> if covered.)</li>
+    </ul>
+  </aside>
+</section>
+
+<!-- ========================= PROCEDURAL VS OOP ========================= -->
+<section class="slide" id="l12-proc-vs-oop" data-title="Procedural vs Object-Oriented" data-section="Thinking in Objects">
+  <header class="slide-head">
+    <p class="kicker">Lab 12 · Thinking in objects</p>
+    <h2>Procedural vs Object-Oriented Thinking</h2>
+    <p class="lede">Procedural code is organized around <b>steps</b> (functions). Object-oriented code is organized around <b>things</b> (objects) that keep their own data and functions together.</p>
+  </header>
+  <div class="stack">
+    <figure class="card" style="margin:0;padding:.6rem">
+      <svg class="fc" viewBox="0 0 760 330" style="max-width:660px" role="img" aria-label="Left panel, procedural: four separate variables length1, width1, length2, width2, with lines from every variable to the separate functions area and perimeter, so any variable can be paired with any other. Right panel, object-oriented: two objects r1 and r2, each holding its own length and width plus its own area and perimeter functions.">
+        <rect x="6" y="6" width="368" height="318" rx="14" style="fill:var(--surface-2);stroke:var(--border);stroke-width:1.5"/>
+        <text x="190" y="32" style="font-size:18px;font-weight:800;fill:var(--accent)">Procedural</text>
+        <text x="190" y="56" style="font-size:13px;font-weight:600;fill:var(--muted)">separate variables + separate functions</text>
+        <path d="M59 132 L80 212 M145 132 L96 212 M231 132 L116 212 M317 132 L132 212 M59 132 L245 212 M145 132 L265 212 M231 132 L285 212 M317 132 L305 212" style="stroke:var(--muted);stroke-width:1.5;fill:none;opacity:.8"/>
+        <g><rect x="20" y="80" width="78" height="52" rx="6" style="fill:var(--surface);stroke:var(--fc-proc);stroke-width:2"/><text x="59" y="97" style="font-size:13px">length1</text><text x="59" y="117" style="font-family:var(--font-mono);font-size:15px;font-weight:800">4</text></g>
+        <g><rect x="106" y="80" width="78" height="52" rx="6" style="fill:var(--surface);stroke:var(--fc-proc);stroke-width:2"/><text x="145" y="97" style="font-size:13px">width1</text><text x="145" y="117" style="font-family:var(--font-mono);font-size:15px;font-weight:800">2.5</text></g>
+        <g><rect x="192" y="80" width="78" height="52" rx="6" style="fill:var(--surface);stroke:var(--fc-proc);stroke-width:2"/><text x="231" y="97" style="font-size:13px">length2</text><text x="231" y="117" style="font-family:var(--font-mono);font-size:15px;font-weight:800">3</text></g>
+        <g><rect x="278" y="80" width="78" height="52" rx="6" style="fill:var(--surface);stroke:var(--fc-proc);stroke-width:2"/><text x="317" y="97" style="font-size:13px">width2</text><text x="317" y="117" style="font-family:var(--font-mono);font-size:15px;font-weight:800">3</text></g>
+        <g><rect class="s-predef" x="36" y="212" width="140" height="46"/><path class="s-predef-line" d="M48 212 V258 M164 212 V258"/><text x="106" y="235">area(l, w)</text></g>
+        <g><rect class="s-predef" x="196" y="212" width="160" height="46"/><path class="s-predef-line" d="M208 212 V258 M344 212 V258"/><text x="276" y="235">perimeter(l, w)</text></g>
+        <text x="190" y="290" style="font-size:14px;font-weight:700;fill:var(--bad)">Which width goes with length2?</text>
+        <text x="190" y="310" style="font-size:13px;font-weight:600;fill:var(--muted)">Only the programmer remembers.</text>
+
+        <rect x="386" y="6" width="368" height="318" rx="14" style="fill:var(--surface-2);stroke:var(--border);stroke-width:1.5"/>
+        <text x="570" y="32" style="font-size:18px;font-weight:800;fill:var(--accent)">Object-oriented</text>
+        <text x="570" y="56" style="font-size:13px;font-weight:600;fill:var(--muted)">each object bundles its data + functions</text>
+        <g>
+          <rect x="402" y="74" width="160" height="196" rx="12" style="fill:var(--fc-proc-fill);stroke:var(--fc-proc);stroke-width:2.2"/>
+          <text x="482" y="98" style="font-size:17px;font-weight:800">r1</text>
+          <path d="M402 114 H562 M402 182 H562" style="stroke:var(--fc-proc);stroke-width:1.5"/>
+          <text x="482" y="138" style="font-family:var(--font-mono);font-size:14px">length = 4</text>
+          <text x="482" y="162" style="font-family:var(--font-mono);font-size:14px">width = 2.5</text>
+          <text x="482" y="206" style="font-family:var(--font-mono);font-size:14px">area()</text>
+          <text x="482" y="232" style="font-family:var(--font-mono);font-size:14px">perimeter()</text>
+        </g>
+        <g>
+          <rect x="578" y="74" width="160" height="196" rx="12" style="fill:var(--fc-proc-fill);stroke:var(--fc-proc);stroke-width:2.2"/>
+          <text x="658" y="98" style="font-size:17px;font-weight:800">r2</text>
+          <path d="M578 114 H738 M578 182 H738" style="stroke:var(--fc-proc);stroke-width:1.5"/>
+          <text x="658" y="138" style="font-family:var(--font-mono);font-size:14px">length = 3</text>
+          <text x="658" y="162" style="font-family:var(--font-mono);font-size:14px">width = 3</text>
+          <text x="658" y="206" style="font-family:var(--font-mono);font-size:14px">area()</text>
+          <text x="658" y="232" style="font-family:var(--font-mono);font-size:14px">perimeter()</text>
+        </g>
+        <text x="570" y="296" style="font-size:14px;font-weight:700;fill:var(--ok)">r2.area() always uses r2's own data</text>
+      </svg>
+    </figure>
+    <div class="table-wrap">
+      <table class="table compact compare-table">
+        <thead><tr><th scope="col"></th><th scope="col">Procedural (Labs 2–11)</th><th scope="col">Object-oriented (Labs 12–14)</th></tr></thead>
+        <tbody>
+          <tr><th scope="row">Building block</th><td>Functions</td><td>Classes and objects</td></tr>
+          <tr><th scope="row">Where data lives</th><td>Separate variables, passed around as arguments</td><td>Inside each object, next to its functions</td></tr>
+          <tr><th scope="row">A call looks like</th><td><code>area(length2, width2)</code></td><td><code>r2.area()</code></td></tr>
+          <tr><th scope="row">Works well for</th><td>Short, step-by-step tasks</td><td>Bigger programs with many "things"</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <aside class="notes">
+    <p class="note-time">Suggested time: about 5 min</p>
+    <h4>Teaching tips</h4>
+    <ul>
+      <li>Point at the tangle of lines on the left: any variable can be fed to any function. On the right, <code>r2.area()</code> can only use r2's length and width, so the Lab 11-style mix-up can't happen.</li>
+      <li>OOP is a <em>way of organizing</em> code, not a different kind of logic. Inside <code>area()</code> it's still one line of arithmetic.</li>
+      <li>C++ supports both styles. Many real programs mix them: classes for the "things", plain functions for small utilities.</li>
+    </ul>
+    <h4>Common student pitfalls</h4>
+    <ul>
+      <li>Believing OOP code is automatically shorter. For a 10-line program it is often longer. The payoff comes as programs grow.</li>
+    </ul>
+    <h4>Ask the class</h4>
+    <ul>
+      <li>"In a game, which would you rather manage: 50 loose variables per enemy, or 50 Enemy objects?"</li>
+    </ul>
+  </aside>
+</section>
+
+<!-- ========================= REAL-WORLD OBJECTS ========================= -->
+<section class="slide" id="l12-real-objects" data-title="Objects: State + Behavior" data-section="Thinking in Objects">
+  <header class="slide-head">
+    <p class="kicker">Lab 12 · Thinking in objects</p>
+    <h2>Objects Have State and Behavior</h2>
+    <p class="lede">Look around the lab: every "thing" has data that describes it and actions it can perform.</p>
+  </header>
+  <div class="table-wrap">
+    <table class="table">
+      <thead><tr><th scope="col">Object</th><th scope="col">State (attributes): what it <i>knows</i></th><th scope="col">Behavior (methods): what it <i>does</i></th></tr></thead>
+      <tbody>
+        <tr><th scope="row">Smartphone</th><td><code>brand</code>, <code>batteryLevel</code>, <code>isOn</code></td><td><code>call()</code>, <code>charge()</code>, <code>turnOn()</code></td></tr>
+        <tr><th scope="row">Student</th><td><code>name</code>, <code>studentNo</code>, <code>quizScores</code></td><td><code>enroll()</code>, <code>computeAverage()</code></td></tr>
+        <tr><th scope="row">Window-type aircon</th><td><code>setTemp</code>, <code>mode</code>, <code>isOn</code></td><td><code>turnOn()</code>, <code>setTemperature()</code>, <code>changeMode()</code></td></tr>
+        <tr><th scope="row">Rectangle (a math "thing")</th><td><code>length</code>, <code>width</code></td><td><code>area()</code>, <code>perimeter()</code></td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="grid-2 align-start" style="margin-top:1.2rem">
+    <div class="concept big"><p class="box-label">Key concept</p><p>An <b>object</b> = <b>state</b> + <b>behavior</b>. In C++, state is stored in <b>data members</b> (variables inside a class) and behavior is written as <b>member functions</b> (functions inside a class).</p></div>
+    <div class="practice"><p class="box-label">Try it (1 minute)</p><ol><li>Pick one object in the room: projector, electric fan, ID card, or the instructor's laptop.</li><li>List 3 attributes and 2 behaviors.</li><li>Which attributes change over time? Which never change?</li></ol></div>
+  </div>
+  <aside class="notes">
+    <p class="note-time">Suggested time: about 5 min</p>
+    <h4>Teaching tips</h4>
+    <ul>
+      <li>Do the "Try it" box out loud with two or three students. Write their answers on the board as a two-column list (State | Behavior). This is the first step of designing a class.</li>
+      <li>Attributes are usually <b>nouns or adjectives</b> (batteryLevel, isOn); behaviors are usually <b>verbs</b> (charge, turnOn). That rule of thumb helps students sort them.</li>
+      <li>Note that behaviors usually read or change the state: <code>charge()</code> raises <code>batteryLevel</code>, <code>turnOn()</code> sets <code>isOn</code>.</li>
+    </ul>
+    <h4>Common student pitfalls</h4>
+    <ul>
+      <li>Listing behaviors as attributes ("charging" as data instead of <code>charge()</code> as an action).</li>
+      <li>Including details the program doesn't need. A grading program needs a student's scores, not their shoe size. Choosing only what matters is <b>abstraction</b>.</li>
+    </ul>
+    <h4>Ask the class</h4>
+    <ul>
+      <li>"Is the number of students in a section an attribute of a Student or of a Section?" (A Section: good design question.)</li>
+    </ul>
+  </aside>
+</section>
+
+<!-- ========================= BLUEPRINT ========================= -->
+<section class="slide" id="l12-blueprint" data-title="Class = Blueprint, Object = Instance" data-section="Thinking in Objects">
+  <header class="slide-head">
+    <p class="kicker">Lab 12 · Thinking in objects</p>
+    <h2>Class = Blueprint, Object = Instance</h2>
+    <p class="lede">A <b>class</b> describes what every object of its kind has and can do. An <b>object</b> is one real thing built from it, with its own values.</p>
+  </header>
+  <div class="grid-2 align-start" style="grid-template-columns:minmax(0,1.25fr) minmax(0,1fr)">
+    <figure class="card chart-card">
+      <figcaption>One class, three objects</figcaption>
+      <svg class="fc" viewBox="0 0 560 330" style="max-width:600px" role="img" aria-label="A dashed blueprint labeled class Rectangle lists length and width with unknown values, and area and perimeter. Three arrows lead from it to three objects: r1 with length 4 and width 2.5, r2 with length 3 and width 3, and r3 with length 10 and width 0.5.">
+        <rect x="8" y="62" width="206" height="206" rx="10" style="fill:var(--fc-proc-fill);stroke:var(--fc-proc);stroke-width:2.2;stroke-dasharray:8 5"/>
+        <text x="111" y="88" style="font-size:17px;font-weight:800">class Rectangle</text>
+        <text x="111" y="110" style="font-size:13px;fill:var(--muted)">(the blueprint)</text>
+        <path d="M8 126 H214 M8 198 H214" style="stroke:var(--fc-proc);stroke-width:1.5;stroke-dasharray:5 4"/>
+        <text x="111" y="150" style="font-family:var(--font-mono);font-size:14px">length : ?</text>
+        <text x="111" y="174" style="font-family:var(--font-mono);font-size:14px">width : ?</text>
+        <text x="111" y="222" style="font-family:var(--font-mono);font-size:14px">area()</text>
+        <text x="111" y="246" style="font-family:var(--font-mono);font-size:14px">perimeter()</text>
+        <path class="fc-line" d="M216 150 L326 56"/>
+        <path class="fc-line" d="M216 165 H326"/>
+        <path class="fc-line" d="M216 180 L326 274"/>
+        <g><rect class="s-process" x="328" y="20" width="224" height="72" rx="8"/><text x="440" y="43" style="font-size:16px;font-weight:800">r1 : Rectangle</text><text x="440" y="69" style="font-family:var(--font-mono);font-size:14px">length 4, width 2.5</text></g>
+        <g><rect class="s-process" x="328" y="129" width="224" height="72" rx="8"/><text x="440" y="152" style="font-size:16px;font-weight:800">r2 : Rectangle</text><text x="440" y="178" style="font-family:var(--font-mono);font-size:14px">length 3, width 3</text></g>
+        <g><rect class="s-process" x="328" y="238" width="224" height="72" rx="8"/><text x="440" y="261" style="font-size:16px;font-weight:800">r3 : Rectangle</text><text x="440" y="287" style="font-family:var(--font-mono);font-size:14px">length 10, width 0.5</text></g>
+      </svg>
+    </figure>
+    <div class="stack">
+      <div class="table-wrap">
+        <table class="table compact">
+          <thead><tr><th scope="col">Class (blueprint)</th><th scope="col">Objects (instances)</th></tr></thead>
+          <tbody>
+            <tr><td>House floor plan</td><td>The houses built from it</td></tr>
+            <tr><td>Cookie cutter</td><td>The cookies</td></tr>
+            <tr><td>Blank enrollment form</td><td>Each student's filled-in form</td></tr>
+            <tr><td>The type <code>int</code></td><td><code>int age = 18;</code> (a variable)</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="concept"><p class="box-label">Vocabulary</p>
+        <ul>
+          <li><b>Class</b>: a programmer-defined type (data + functions).</li>
+          <li><b>Object</b> or <b>instance</b>: a variable of that type.</li>
+          <li><b>Instantiate</b>: create an object from a class.</li>
+        </ul>
+      </div>
+      <p class="callout tip">One class, many objects. Each object has its <b>own</b> copy of the data, but they all share the same member-function code.</p>
+    </div>
+  </div>
+  <aside class="notes">
+    <p class="note-time">Suggested time: about 4 min</p>
+    <h4>Teaching tips</h4>
+    <ul>
+      <li>The last row of the table is the most useful: a class is to an object what <code>int</code> is to a variable. Students already know how to declare variables, and objects are declared the same way.</li>
+      <li>The blueprint has question marks because a class doesn't store values; only objects do.</li>
+      <li>"Instance" and "object" mean the same thing. Textbooks (Gaddis, Malik) use both.</li>
+    </ul>
+    <h4>Common student pitfalls</h4>
+    <ul>
+      <li>Saying "the class has length 4". Classes don't hold values; objects do.</li>
+      <li>Thinking that changing r1 changes r2. Each object is independent.</li>
+    </ul>
+    <h4>Ask the class</h4>
+    <ul>
+      <li>"If I make 1,000 Rectangle objects, how many copies of <code>length</code> exist? How many copies of the <code>area()</code> code?" (1,000; one.)</li>
+    </ul>
+  </aside>
+</section>
+
+<!-- ========================= UML ========================= -->
+<section class="slide" id="l12-uml" data-title="UML Class Diagrams" data-section="Thinking in Objects">
+  <header class="slide-head">
+    <p class="kicker">Lab 12 · Design before you code</p>
+    <h2>UML Class Diagrams</h2>
+    <p class="lede">The <b>Unified Modeling Language (UML)</b> is the standard way to sketch a class before coding it: three compartments stacked in one box.</p>
+  </header>
+  <figure class="card" style="margin:0">
+    <svg class="fc uml" viewBox="0 0 802 228" style="max-width:1042px" role="img" aria-label="UML class diagrams. Rectangle: public attributes length and width of type double; public operations area and perimeter returning double. Student: private attributes name (string) and quizzes (array of 3 doubles); public operations Student constructor, setQuiz, average, display.">
+<g class="uml-box">
+<rect x="150" y="10" width="250" height="160" rx="4" style="fill:var(--surface);stroke:var(--fc-proc);stroke-width:2"/>
+<rect x="150" y="10" width="250" height="40" rx="4" style="fill:var(--fc-proc-fill);stroke:var(--fc-proc);stroke-width:2"/>
+<text x="275" y="30" style="font-size:16px;font-weight:800">Rectangle</text>
+<path d="M150 110 H400" style="stroke:var(--fc-proc);stroke-width:2"/>
+<text class="a-start" x="162" y="68" style="font-family:var(--font-mono);font-size:14px;font-weight:500"><tspan style="fill:var(--ok);font-weight:800">+</tspan> length : double</text>
+<text class="a-start" x="162" y="92" style="font-family:var(--font-mono);font-size:14px;font-weight:500"><tspan style="fill:var(--ok);font-weight:800">+</tspan> width : double</text>
+<text class="a-start" x="162" y="128" style="font-family:var(--font-mono);font-size:14px;font-weight:500"><tspan style="fill:var(--ok);font-weight:800">+</tspan> area() : double</text>
+<text class="a-start" x="162" y="152" style="font-family:var(--font-mono);font-size:14px;font-weight:500"><tspan style="fill:var(--ok);font-weight:800">+</tspan> perimeter() : double</text>
+</g>
+<g class="uml-box">
+<rect x="450" y="10" width="346" height="208" rx="4" style="fill:var(--surface);stroke:var(--fc-proc);stroke-width:2"/>
+<rect x="450" y="10" width="346" height="40" rx="4" style="fill:var(--fc-proc-fill);stroke:var(--fc-proc);stroke-width:2"/>
+<text x="623" y="30" style="font-size:16px;font-weight:800">Student</text>
+<path d="M450 110 H796" style="stroke:var(--fc-proc);stroke-width:2"/>
+<text class="a-start" x="462" y="68" style="font-family:var(--font-mono);font-size:14px;font-weight:500"><tspan style="fill:var(--bad);font-weight:800">-</tspan> name : string</text>
+<text class="a-start" x="462" y="92" style="font-family:var(--font-mono);font-size:14px;font-weight:500"><tspan style="fill:var(--bad);font-weight:800">-</tspan> quizzes : double[3]</text>
+<text class="a-start" x="462" y="128" style="font-family:var(--font-mono);font-size:14px;font-weight:500"><tspan style="fill:var(--ok);font-weight:800">+</tspan> Student(n : string)</text>
+<text class="a-start" x="462" y="152" style="font-family:var(--font-mono);font-size:14px;font-weight:500"><tspan style="fill:var(--ok);font-weight:800">+</tspan> setQuiz(i : int, q : double) : void</text>
+<text class="a-start" x="462" y="176" style="font-family:var(--font-mono);font-size:14px;font-weight:500"><tspan style="fill:var(--ok);font-weight:800">+</tspan> average() : double</text>
+<text class="a-start" x="462" y="200" style="font-family:var(--font-mono);font-size:14px;font-weight:500"><tspan style="fill:var(--ok);font-weight:800">+</tspan> display() : void</text>
+</g>
+<text class="fc-label" x="132" y="30" style="text-anchor:end;font-size:14px">class name</text>
+<path class="fc-line" d="M136 30 H148"/>
+<text class="fc-label" x="132" y="76" style="text-anchor:end;font-size:14px">attributes</text>
+<path class="fc-line" d="M136 76 H148"/>
+<text class="fc-label" x="132" y="136" style="text-anchor:end;font-size:14px">operations</text>
+<path class="fc-line" d="M136 136 H148"/>
+</svg>
+  </figure>
+  <div class="grid-3">
+    <div class="card"><h3 class="card-title">Reading a member</h3><ul class="tight"><li>Attribute: <code>name : type</code></li><li>Operation: <code>name(params) : returnType</code></li><li>A constructor has no return type.</li></ul></div>
+    <div class="card"><h3 class="card-title">Visibility symbols</h3><ul class="tight"><li><code style="color:var(--ok);font-weight:800">+</code> public: usable from anywhere</li><li><code style="color:var(--bad);font-weight:800">-</code> private: only inside the class</li><li><code style="color:var(--warn);font-weight:800">#</code> protected: Lab 13</li></ul></div>
+    <div class="card"><h3 class="card-title">Why bother?</h3><ul class="tight"><li>It's the flowchart of a class: plan first.</li><li>Teammates agree on names and types.</li><li>Lab exercise specs are given in UML.</li></ul></div>
+  </div>
+  <aside class="notes">
+    <p class="note-time">Suggested time: about 5 min</p>
+    <h4>Teaching tips</h4>
+    <ul>
+      <li>Read the Rectangle box top to bottom: name, then attributes (data), then operations (functions). Then read Student and ask students to translate one line, e.g. <code>- name : string</code> becomes <code>string name;</code> under <code>private:</code>.</li>
+      <li>UML writes the type <b>after</b> the name (<code>length : double</code>); C++ writes it <b>before</b> (<code>double length;</code>). Expect this to trip people up once.</li>
+      <li>Rectangle uses <code>+</code> (public) data on purpose, since our first C++ version will be all public. Student shows the more common design: private data, public operations. Lab 13 explains why.</li>
+      <li>Free tools: draw.io (diagrams.net) has a UML shape library, but paper works fine.</li>
+    </ul>
+    <h4>Common student pitfalls</h4>
+    <ul>
+      <li>Swapping the meaning of <code>+</code> and <code>-</code>.</li>
+      <li>Putting operations in the middle compartment or forgetting the parentheses on operations.</li>
+    </ul>
+    <h4>Ask the class</h4>
+    <ul>
+      <li>"From the Student box: what does <code>average()</code> return, and does it take any parameters?" (A double; no parameters.)</li>
+    </ul>
+  </aside>
+</section>
+
+<!-- ========================= DEFINE A CLASS ========================= -->
+<section class="slide" id="l12-define" data-title="Defining a Class in C++" data-section="Classes in C++">
+  <header class="slide-head">
+    <p class="kicker">Lab 12 · Classes in C++</p>
+    <h2>Defining a Class in C++</h2>
+    <p class="lede">A class definition turns the UML box into code. It creates a <b>new type</b> named <code>Rectangle</code>.</p>
+  </header>
+  <div class="grid-2 align-start">
+    <div class="stack">
+      <figure class="codeblock">
+        <figcaption>Class definition (goes above <code>main()</code>)</figcaption>
+<pre class="code" data-cpp>
+class Rectangle {       // class name
+public:                 // access specifier
+    double length;      // data members
+    double width;
+
+    double area() {     // member function
+        return length * width;
+    }
+};                      // ; is required!
+</pre>
+      </figure>
+      <div class="note-box"><p class="box-label">Note</p><p>Defining a class uses no memory for <code>length</code> or <code>width</code>. Memory is set aside when you <b>create an object</b> (next slide).</p></div>
+    </div>
+    <div class="stack">
+      <div class="concept"><p class="box-label">Anatomy of a class</p>
+        <ol>
+          <li><code>class</code> + a name. By convention class names start with a capital letter: <code>Rectangle</code>, <code>BankAccount</code>.</li>
+          <li><code>public:</code> lets code outside the class (like <code>main</code>) use the members below it.</li>
+          <li><b>Data members</b> are variables declared inside the class.</li>
+          <li><b>Member functions</b> use the data members directly, so <code>area()</code> needs no parameters.</li>
+          <li>The definition ends with <code>};</code>, a brace and a semicolon.</li>
+        </ol>
+      </div>
+      <div class="table-wrap">
+        <table class="table compact">
+          <thead><tr><th scope="col">UML</th><th scope="col">C++ (under <code>public:</code>)</th></tr></thead>
+          <tbody>
+            <tr><td><code>+ length : double</code></td><td><code>double length;</code></td></tr>
+            <tr><td><code>+ area() : double</code></td><td><code>double area() { … }</code></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+  <aside class="notes">
+    <p class="note-time">Suggested time: about 5 min</p>
+    <h4>Teaching tips</h4>
+    <ul>
+      <li>Live-code it in Codechum or Code::Blocks: type the class first, compile (nothing happens, which is expected), then add a <code>main()</code> on the next slide.</li>
+      <li>Stress that <code>area()</code> has <b>no parameters</b>, unlike Lab 11's <code>area(length, width)</code>. The function already "sees" the data of the object it is called on.</li>
+      <li>Members can be declared in any order, but the usual style is data first, then functions.</li>
+    </ul>
+    <h4>Common student pitfalls</h4>
+    <ul>
+      <li>Forgetting the <code>;</code> after the closing brace. The g++ message is <code>expected ';' after class definition</code>, but some compilers report the error on the line <em>after</em> the class, which is confusing.</li>
+      <li>Writing the class inside <code>main()</code>. Put it above <code>main()</code>, just like function definitions in Lab 11.</li>
+      <li>Trying to give data members values from input inside the class, e.g. <code>cin &gt;&gt; length;</code> at class level. Statements belong inside functions.</li>
+    </ul>
+    <h4>Ask the class</h4>
+    <ul>
+      <li>"Write the line for <code>+ perimeter() : double</code>." (<code>double perimeter() { return 2 * (length + width); }</code>)</li>
+    </ul>
+  </aside>
+</section>
+
+<!-- ========================= OBJECTS + DOT (TRACER 1) ========================= -->
+<section class="slide" id="l12-objects" data-title="Creating Objects & the Dot Operator" data-section="Classes in C++">
+  <header class="slide-head">
+    <p class="kicker">Lab 12 · Classes in C++ · Trace</p>
+    <h2>Creating Objects &amp; the Dot Operator</h2>
+    <p class="lede">Declare an object like any variable. Use the <b>dot operator</b> (<code>.</code>) to reach a member of that particular object.</p>
+  </header>
+  <div class="example-grid">
+    <figure class="codeblock">
+      <figcaption><code>rectangle.cpp</code></figcaption>
+<pre class="code scroll" id="l12-objects-code" data-cpp>
+#include &lt;iostream&gt;
+using namespace std;
+
+class Rectangle {
+public:
+    double length;
+    double width;
+
+    double area() {
+        return length * width;
+    }
+};
+
+int main() {
+    Rectangle r1;
+    Rectangle r2;
+    r1.length = 4;
+    r1.width = 2.5;
+    r2.length = 3;
+    r2.width = 3;
+    cout &lt;&lt; "r1 area = " &lt;&lt; r1.area() &lt;&lt; endl;
+    cout &lt;&lt; "r2 area = " &lt;&lt; r2.area() &lt;&lt; endl;
+    return 0;
+}
+</pre>
+    </figure>
+    <div class="stack">
+      <p class="syntax" style="margin:0"><i>ClassName</i> <i>objectName</i>;&nbsp;&nbsp;&nbsp;&nbsp;<i>objectName</i>.<i>member</i></p>
+      <div class="tracer" data-trace="l12-objects" data-code="#l12-objects-code" data-title="Trace it: two objects, one class"></div>
+      <div class="card soft" style="padding:.7rem .9rem">
+        <p class="eyebrow">Memory after line 20: two objects, separate data</p>
+        <div class="grid-2 tight-gap">
+          <div><p class="small" style="font-weight:800;margin-bottom:.3rem">r1</p><div class="mem" aria-label="Object r1 memory"><div class="mem-cell"><span class="mem-name">length</span><span class="mem-val">4</span></div><div class="mem-cell"><span class="mem-name">width</span><span class="mem-val">2.5</span></div></div></div>
+          <div><p class="small" style="font-weight:800;margin-bottom:.3rem">r2</p><div class="mem" aria-label="Object r2 memory"><div class="mem-cell"><span class="mem-name">length</span><span class="mem-val">3</span></div><div class="mem-cell"><span class="mem-name">width</span><span class="mem-val">3</span></div></div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <aside class="notes">
+    <p class="note-time">Suggested time: about 8 min</p>
+    <h4>Teaching tips</h4>
+    <ul>
+      <li>Step through the tracer. At lines 15–16 the members show <i>(garbage)</i>: the objects exist, but nothing has set their values yet (same as an uninitialized <code>int</code>).</li>
+      <li>At line 21, the tracer jumps into <code>area()</code> on line 10. Inside it, <code>length</code> means <b>r1's</b> length because the call was <code>r1.area()</code>. On line 22 the same code uses r2's data.</li>
+      <li>Read <code>r1.length</code> aloud as "r1's length". The dot works like the possessive <em>'s</em>.</li>
+      <li>Expected output: <code>r1 area = 10</code> and <code>r2 area = 9</code> (cout drops the <code>.0</code>).</li>
+    </ul>
+    <h4>Common student pitfalls</h4>
+    <ul>
+      <li>Writing <code>Rectangle.length = 4;</code> (the class name instead of an object name).</li>
+      <li>Writing <code>length = 4;</code> in <code>main</code> without an object. <code>main</code> has no variable called <code>length</code>.</li>
+      <li>Forgetting the parentheses: <code>r1.area</code> instead of <code>r1.area()</code>.</li>
+    </ul>
+    <h4>Ask the class</h4>
+    <ul>
+      <li>"Add <code>Rectangle r3;</code> with length 10 and width 0.5. What does <code>r3.area()</code> print?" (5)</li>
+    </ul>
+  </aside>
+</section>
+
+<!-- ========================= SCOPE RESOLUTION ========================= -->
+<section class="slide" id="l12-scope-res" data-title="Member Functions Outside the Class (::)" data-section="Classes in C++">
+  <header class="slide-head">
+    <p class="kicker">Lab 12 · Classes in C++</p>
+    <h2>Member Functions Outside the Class: <code>::</code></h2>
+    <p class="lede">For longer functions, keep only the <b>prototype</b> inside the class and write the body outside, prefixed with <code>ClassName::</code>.</p>
+  </header>
+  <div class="grid-2 align-start" style="grid-template-columns:minmax(0,1.25fr) minmax(0,1fr)">
+    <figure class="codeblock">
+      <figcaption><code>room.cpp</code></figcaption>
+<pre class="code scroll compact" data-cpp>
+#include &lt;iostream&gt;
+using namespace std;
+
+class Rectangle {
+public:
+    double length;
+    double width;
+    double area();          // prototypes only
+    double perimeter();
+};
+
+double Rectangle::area() {
+    return length * width;
+}
+
+double Rectangle::perimeter() {
+    return 2 * (length + width);
+}
+
+int main() {
+    Rectangle room;
+    room.length = 5.5;
+    room.width = 4;
+    cout &lt;&lt; "Area: " &lt;&lt; room.area() &lt;&lt; " sq. m" &lt;&lt; endl;
+    cout &lt;&lt; "Perimeter: " &lt;&lt; room.perimeter() &lt;&lt; " m" &lt;&lt; endl;
+    return 0;
+}
+</pre>
+    </figure>
+    <div class="stack">
+      <p class="syntax" style="margin:0"><i>returnType</i> <i>ClassName</i>::<i>functionName</i>(<i>parameters</i>) { … }</p>
+      <figure class="codeblock"><figcaption>Output</figcaption><pre class="console">Area: 22 sq. m
+Perimeter: 19 m</pre></figure>
+      <div class="concept"><p class="box-label">Key concept</p><p><code>::</code> is the <b>scope resolution operator</b>. <code>Rectangle::area</code> means "the <code>area</code> function that belongs to <code>Rectangle</code>". The class definition then reads like a table of contents.</p></div>
+      <div class="pitfall"><p class="box-label">Common pitfall</p><p>Leave out <code>Rectangle::</code> and you've written an ordinary function that knows nothing about the class. g++ says:</p><pre class="console" style="margin-top:.4rem">error: 'length' was not declared in this scope</pre></div>
+    </div>
+  </div>
+  <aside class="notes">
+    <p class="note-time">Suggested time: about 5 min</p>
+    <h4>Teaching tips</h4>
+    <ul>
+      <li>Connect to Lab 11: prototypes above <code>main</code>, definitions below. This is the same idea, but the prototypes live inside the class.</li>
+      <li>Both styles (inside or outside) produce the same program. Use inside for one-liners, outside for anything longer. Gaddis and Malik mostly define functions outside.</li>
+      <li>Optional preview: in multi-file projects the class goes in <code>Rectangle.h</code> and the <code>Rectangle::</code> bodies in <code>Rectangle.cpp</code>. Not needed for Codechum.</li>
+    </ul>
+    <h4>Common student pitfalls</h4>
+    <ul>
+      <li>Putting <code>Rectangle::</code> in the wrong place: <code>Rectangle::double area()</code>. The return type comes first.</li>
+      <li>Prototype and definition that don't match (different parameter types or return type).</li>
+      <li>Forgetting the <code>;</code> after a prototype inside the class.</li>
+    </ul>
+    <h4>Ask the class</h4>
+    <ul>
+      <li>"Where else have you seen <code>::</code>?" (<code>std::cout</code>: <code>cout</code> belongs to namespace <code>std</code>, the same operator.)</li>
+    </ul>
+  </aside>
+</section>
+
+<!-- ========================= ACCESS SPECIFIERS ========================= -->
+<section class="slide" id="l12-access" data-title="public vs private" data-section="Classes in C++">
+  <header class="slide-head">
+    <p class="kicker">Lab 12 · Classes in C++</p>
+    <h2>Access Specifiers: <code>public</code> vs <code>private</code></h2>
+    <p class="lede"><code>public</code> members can be used anywhere; <code>private</code> members can be used only inside the class's own member functions.</p>
+  </header>
+  <div class="grid-2 align-start">
+    <div class="stack">
+      <figure class="codeblock">
+        <figcaption><code>private_data.cpp</code></figcaption>
+<pre class="code" data-cpp>
+#include &lt;iostream&gt;
+using namespace std;
+
+class Rectangle {
+private:
+    double length;
+    double width;
+
+public:
+    void setSize(double l, double w) {
+        length = l;
+        width = w;
+    }
+    double area() {
+        return length * width;
+    }
+};
+
+int main() {
+    Rectangle r;
+    r.setSize(4, 2.5);      // OK: setSize is public
+    cout &lt;&lt; "Area = " &lt;&lt; r.area() &lt;&lt; endl;
+    return 0;
+}
+</pre>
+      </figure>
+      <figure class="codeblock"><figcaption>Output</figcaption><pre class="console">Area = 10</pre></figure>
+    </div>
+    <div class="stack">
+      <div class="table-wrap">
+        <table class="table compact">
+          <thead><tr><th scope="col">Specifier</th><th scope="col">Who can use the member?</th><th scope="col">Typically used for</th></tr></thead>
+          <tbody>
+            <tr><td><code>public</code></td><td>Any code that has the object (<code>main</code>, other functions)</td><td>Member functions: the object's "buttons"</td></tr>
+            <tr><td><code>private</code></td><td>Only member functions of the same class</td><td>Data members</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="pitfall"><p class="box-label">What if main touches private data?</p>
+<pre class="code bad-code no-ln" data-cpp data-nocheck>
+Rectangle r;
+r.length = 4;      // length is private!
+</pre>
+<pre class="console" style="margin-top:.5rem">error: 'double Rectangle::length' is private within this context</pre>
+      </div>
+      <div class="note-box"><p class="box-label">Note</p><ul><li>In a <code>class</code>, members are <b>private by default</b> until you write <code>public:</code>.</li><li>Why hide data at all? That's <b>encapsulation</b>, the main topic of Lab 13.</li></ul></div>
+    </div>
+  </div>
+  <aside class="notes">
+    <p class="note-time">Suggested time: about 6 min</p>
+    <h4>Teaching tips</h4>
+    <ul>
+      <li>Live demo: change <code>r.setSize(4, 2.5);</code> to <code>r.length = 4;</code> and compile. Read the error together and point out that it names the member (<code>Rectangle::length</code>) and says <em>private</em>.</li>
+      <li>Private does <b>not</b> mean secret or encrypted. It's a compile-time rule that stops other code from touching the data directly.</li>
+      <li>Analogy: an ATM. You press public buttons (withdraw, check balance) but you can't reach into the cash box. Lab 13's BankAccount builds exactly this.</li>
+    </ul>
+    <h4>Common student pitfalls</h4>
+    <ul>
+      <li>Making everything public "so it compiles". It works today but defeats the point of a class (Lab 13).</li>
+      <li>Forgetting the colon: <code>public</code> instead of <code>public:</code>.</li>
+      <li>Thinking a member function needs the object's name to use private data. Inside <code>setSize</code>, <code>length</code> is enough.</li>
+    </ul>
+    <h4>Ask the class</h4>
+    <ul>
+      <li>"If <code>length</code> is private, how does <code>main</code> give it a value?" (Through a public member function such as <code>setSize</code>, or a constructor, next slide.)</li>
+    </ul>
+  </aside>
+</section>
+
+<!-- ========================= CONSTRUCTORS ========================= -->
+<section class="slide" id="l12-ctor" data-title="Constructors" data-section="Constructors & More">
+  <header class="slide-head">
+    <p class="kicker">Lab 12 · Constructors</p>
+    <h2>Constructors: Initialize Objects Automatically</h2>
+    <p class="lede">A <b>constructor</b> is a special member function that runs by itself the moment an object is created, so the object never starts with garbage.</p>
+  </header>
+  <div class="grid-2 align-start" style="grid-template-columns:minmax(0,1.25fr) minmax(0,1fr)">
+    <figure class="codeblock">
+      <figcaption><code>constructors.cpp</code>: three overloaded constructors</figcaption>
+<pre class="code" data-cpp>
+#include &lt;iostream&gt;
+using namespace std;
+
+class Rectangle {
+public:
+    double length;
+    double width;
+
+    // three overloaded constructors
+    Rectangle() : length(1), width(1) {}
+    Rectangle(double side) : length(side), width(side) {}
+    Rectangle(double l, double w) : length(l), width(w) {}
+
+    double area() {
+        return length * width;
+    }
+};
+
+int main() {
+    Rectangle a;            // no arguments
+    Rectangle b(3);         // 1 argument
+    Rectangle c(4, 2.5);    // 2 arguments
+    cout &lt;&lt; "a: " &lt;&lt; a.area() &lt;&lt; endl;
+    cout &lt;&lt; "b: " &lt;&lt; b.area() &lt;&lt; endl;
+    cout &lt;&lt; "c: " &lt;&lt; c.area() &lt;&lt; endl;
+    return 0;
+}
+</pre>
+    </figure>
+    <div class="stack">
+      <figure class="codeblock"><figcaption>Output</figcaption><pre class="console">a: 1
+b: 9
+c: 10</pre></figure>
+      <div class="concept"><p class="box-label">Constructor rules</p>
+        <ul>
+          <li>Same name as the class.</li>
+          <li><b>No return type</b>, not even <code>void</code>.</li>
+          <li>Runs automatically, once per object.</li>
+          <li>Can be <b>overloaded</b>: C++ picks the one whose parameters match the arguments (Lab 11).</li>
+          <li>A constructor with no parameters is the <b>default constructor</b>.</li>
+        </ul>
+      </div>
+      <div class="card soft">
+        <h3 class="card-title">Member initializer list</h3>
+<pre class="code no-ln" data-cpp>
+// assign inside the body
+Rectangle(double l, double w) {
+    length = l;
+    width = w;
+}
+// member initializer list (preferred)
+Rectangle(double l, double w)
+    : length(l), width(w) {}
+</pre>
+      </div>
+    </div>
+  </div>
+  <div class="note-box" style="margin-top:1rem"><p class="box-label">Note</p><p>If you write <b>any</b> constructor, C++ stops giving you a free default one. With only <code>Rectangle(double l, double w)</code>, the line <code>Rectangle r;</code> fails: <code>no matching function for call to 'Rectangle::Rectangle()'</code>.</p></div>
+  <aside class="notes">
+    <p class="note-time">Suggested time: about 8 min</p>
+    <h4>Teaching tips</h4>
+    <ul>
+      <li>Ask the class to predict each line of output before showing it: <code>a</code> uses the default constructor (1 × 1), <code>b</code> the "square" constructor (3 × 3 = 9), <code>c</code> the two-argument one (4 × 2.5 = 10).</li>
+      <li>The initializer list after the colon is the preferred style (Gaddis, Deitel). Both versions give the same result for <code>double</code> members. Later, const members and base classes (Lab 13) <em>require</em> the list.</li>
+      <li>Members are initialized in the order they are <b>declared</b> in the class, not the order written in the list. g++ warns (<code>-Wreorder</code>) if the two orders differ.</li>
+    </ul>
+    <h4>Common student pitfalls</h4>
+    <ul>
+      <li>Adding <code>void</code>: <code>void Rectangle() { … }</code> gives <code>return type specification for constructor invalid</code>.</li>
+      <li>Writing <code>Rectangle a();</code> to call the default constructor. Empty parentheses declare a <em>function</em>. Use <code>Rectangle a;</code>.</li>
+      <li>Calling the constructor like a normal function after the object exists (<code>a.Rectangle(2, 3);</code>). Constructors run only at creation.</li>
+    </ul>
+    <h4>Ask the class</h4>
+    <ul>
+      <li>"Which constructor runs for <code>Rectangle d(2);</code>, and what is its area?" (The square one; 4.)</li>
+    </ul>
+  </aside>
+</section>
+
+<!-- ========================= CONSTRUCTOR TRACE (TRACER 2) ========================= -->
+<section class="slide" id="l12-ctor-trace" data-title="Trace: Which Constructor Runs?" data-section="Constructors & More">
+  <header class="slide-head">
+    <p class="kicker">Lab 12 · Constructors · Trace</p>
+    <h2>Trace: Which Constructor Runs?</h2>
+    <p class="lede">Objects are built in the order they are declared, and the <b>arguments</b> decide which constructor runs.</p>
+  </header>
+  <div class="example-grid" style="grid-template-columns:minmax(0,1.2fr) minmax(0,1fr)">
+    <figure class="codeblock">
+      <figcaption><code>student_ctor.cpp</code></figcaption>
+<pre class="code scroll" id="l12-ctor-code" data-cpp>
+#include &lt;iostream&gt;
+#include &lt;string&gt;
+using namespace std;
+
+class Student {
+public:
+    string name;
+    double grade;
+
+    Student() : name("TBA"), grade(0) {
+        cout &lt;&lt; "Default constructor: " &lt;&lt; name &lt;&lt; endl;
+    }
+    Student(string n, double g) : name(n), grade(g) {
+        cout &lt;&lt; "Constructor: " &lt;&lt; name &lt;&lt; endl;
+    }
+    void show() {
+        cout &lt;&lt; name &lt;&lt; " has " &lt;&lt; grade &lt;&lt; endl;
+    }
+};
+
+int main() {
+    Student s1("Ana", 91.5);
+    Student s2;
+    Student s3("Ben", 87);
+    s1.show();
+    s2.show();
+    return 0;
+}
+</pre>
+    </figure>
+    <div class="stack">
+      <div class="tracer" data-trace="l12-ctor" data-code="#l12-ctor-code" data-title="Trace it: construction order"></div>
+      <figure class="codeblock"><figcaption>Real output</figcaption><pre class="console">Constructor: Ana
+Default constructor: TBA
+Constructor: Ben
+Ana has 91.5
+TBA has 0</pre></figure>
+    </div>
+  </div>
+  <aside class="notes">
+    <p class="note-time">Suggested time: about 6 min</p>
+    <h4>Teaching tips</h4>
+    <ul>
+      <li>Watch the Memory panel: each object's members are filled by the initializer list <b>before</b> the constructor body prints anything. That's why the body can already print <code>name</code>.</li>
+      <li>Point out that nobody "calls" the constructor. Line 22 just declares <code>s1</code>, and C++ runs the matching constructor.</li>
+      <li><code>s3</code> is created but never shown. It still exists and its constructor still ran, which is why "Constructor: Ben" appears.</li>
+      <li>Printing from constructors is only for learning. Real constructors usually just initialize members.</li>
+    </ul>
+    <h4>Common student pitfalls</h4>
+    <ul>
+      <li>Expecting the output order to follow the <code>show()</code> calls. Constructor messages appear when objects are <em>created</em>.</li>
+      <li>Passing arguments in the wrong order: <code>Student s("91.5", Ana)</code>. Types must match the parameter list.</li>
+    </ul>
+    <h4>Ask the class</h4>
+    <ul>
+      <li>"What would <code>Student s4("Cy");</code> do?" (Compile error: no constructor takes just one string.)</li>
+    </ul>
+  </aside>
+</section>
+
+<!-- ========================= DESTRUCTOR + THIS ========================= -->
+<section class="slide" id="l12-dtor-this" data-title="Destructor & the this Pointer" data-section="Constructors & More">
+  <header class="slide-head">
+    <p class="kicker">Lab 12 · Constructors &amp; more</p>
+    <h2>The Destructor and the <code>this</code> Pointer</h2>
+    <p class="lede">A destructor runs automatically when an object's life ends. <code>this</code> points to the object a member function is working on.</p>
+  </header>
+  <div class="grid-2 align-start" style="grid-template-columns:minmax(0,1.25fr) minmax(0,1fr)">
+    <div class="stack">
+      <figure class="codeblock">
+        <figcaption><code>lamps.cpp</code></figcaption>
+<pre class="code scroll" data-cpp>
+#include &lt;iostream&gt;
+#include &lt;string&gt;
+using namespace std;
+
+class Lamp {
+public:
+    string name;
+
+    Lamp(string name) {
+        this-&gt;name = name;  // member = parameter
+        cout &lt;&lt; name &lt;&lt; " lamp ON" &lt;&lt; endl;
+    }
+    ~Lamp() {
+        cout &lt;&lt; name &lt;&lt; " lamp OFF" &lt;&lt; endl;
+    }
+};
+
+int main() {
+    Lamp a("Desk");
+    {
+        Lamp b("Ceiling");
+        cout &lt;&lt; "Inside the block" &lt;&lt; endl;
+    }                   // b is destroyed here
+    cout &lt;&lt; "After the block" &lt;&lt; endl;
+    return 0;
+}                       // a is destroyed here
+</pre>
+      </figure>
+    </div>
+    <div class="stack">
+      <figure class="codeblock"><figcaption>Output</figcaption><pre class="console">Desk lamp ON
+Ceiling lamp ON
+Inside the block
+Ceiling lamp OFF
+After the block
+Desk lamp OFF</pre></figure>
+      <div class="concept"><p class="box-label">Destructor</p>
+        <ul>
+          <li>Name: <code>~</code> + class name, e.g. <code>~Lamp()</code>.</li>
+          <li>No parameters, no return type, only one per class.</li>
+          <li>Runs when the object goes <b>out of scope</b> (its closing <code>}</code>), in <b>reverse</b> order of creation.</li>
+        </ul>
+      </div>
+      <div class="concept"><p class="box-label"><code>this</code> pointer</p>
+        <ul>
+          <li><code>this</code> holds the <b>address</b> of the current object (Lab 10 pointers).</li>
+          <li><code>this-&gt;name</code> is the member; plain <code>name</code> is the parameter.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+  <aside class="notes">
+    <p class="note-time">Suggested time: about 5 min</p>
+    <h4>Teaching tips</h4>
+    <ul>
+      <li>Have students predict the output first. Most will guess "Desk OFF" before "Ceiling OFF". The inner block makes the end of scope visible: <code>b</code> dies at line 23, <code>a</code> at the end of <code>main</code>.</li>
+      <li>Destructors matter most when a class grabs a resource (dynamic memory with <code>new</code>, a file, a network connection) and must release it. For today, just know when it runs.</li>
+      <li><code>this-&gt;name</code> is shorthand for <code>(*this).name</code>, the arrow operator from Lab 10. Many programmers avoid the need by naming parameters differently (<code>n</code> instead of <code>name</code>).</li>
+    </ul>
+    <h4>Common student pitfalls</h4>
+    <ul>
+      <li>Writing <code>name = name;</code> in the constructor. That assigns the parameter to itself and leaves the member empty, and g++ gives no warning even with <code>-Wall -Wextra</code>.</li>
+      <li>Giving a destructor parameters or trying to overload it.</li>
+      <li>Calling the destructor yourself (<code>a.~Lamp();</code>). Don't: it will run again at the end of scope.</li>
+    </ul>
+    <h4>Ask the class</h4>
+    <ul>
+      <li>"If <code>main</code> created lamps A, B, C in that order, in what order do they turn OFF?" (C, B, A.)</li>
+    </ul>
+  </aside>
+</section>
+
+<!-- ========================= ARRAYS OF OBJECTS ========================= -->
+<section class="slide" id="l12-arrays" data-title="Arrays of Objects" data-section="Constructors & More">
+  <header class="slide-head">
+    <p class="kicker">Lab 12 · Constructors &amp; more</p>
+    <h2>Arrays of Objects</h2>
+    <p class="lede">An array can hold objects too. <code>s[i]</code> is one <code>Student</code>, so <code>s[i].name</code> is that student's name.</p>
+  </header>
+  <div class="grid-2 align-start" style="grid-template-columns:minmax(0,1.25fr) minmax(0,1fr)">
+    <figure class="codeblock">
+      <figcaption><code>class_averages.cpp</code></figcaption>
+<pre class="code compact" data-cpp data-stdin="Ana 85 90 78 Jun 92 88 95 Liza 70 75 80">
+#include &lt;iostream&gt;
+#include &lt;string&gt;
+using namespace std;
+
+class Student {
+public:
+    string name;
+    double q1, q2, q3;
+
+    double average() {
+        return (q1 + q2 + q3) / 3;
+    }
+};
+
+int main() {
+    Student s[3];
+    for (int i = 0; i &lt; 3; i++) {
+        cout &lt;&lt; "Name and 3 quiz scores: ";
+        cin &gt;&gt; s[i].name &gt;&gt; s[i].q1 &gt;&gt; s[i].q2 &gt;&gt; s[i].q3;
+    }
+    for (int i = 0; i &lt; 3; i++) {
+        cout &lt;&lt; s[i].name &lt;&lt; ": " &lt;&lt; s[i].average() &lt;&lt; endl;
+    }
+    return 0;
+}
+</pre>
+    </figure>
+    <div class="stack">
+      <figure class="codeblock"><figcaption>Sample run</figcaption><pre class="console">Name and 3 quiz scores: <span class="in">Ana 85 90 78</span>
+Name and 3 quiz scores: <span class="in">Jun 92 88 95</span>
+Name and 3 quiz scores: <span class="in">Liza 70 75 80</span>
+Ana: 84.3333
+Jun: 91.6667
+Liza: 75</pre></figure>
+      <div class="mem array" aria-label="Array s of three Student objects">
+        <div class="mem-cell"><span class="mem-name">s[0]</span><span class="mem-val" style="font-size:.9rem">Ana · 85 90 78</span></div>
+        <div class="mem-cell"><span class="mem-name">s[1]</span><span class="mem-val" style="font-size:.9rem">Jun · 92 88 95</span></div>
+        <div class="mem-cell"><span class="mem-name">s[2]</span><span class="mem-val" style="font-size:.9rem">Liza · 70 75 80</span></div>
+      </div>
+      <div class="concept"><p class="box-label">Read it left to right</p><p><code>s[i].average()</code>: take array <code>s</code> → element <code>i</code> (a Student) → call <b>its</b> <code>average()</code>.</p></div>
+      <div class="note-box"><p class="box-label">Note</p><p><code>Student s[3];</code> builds every element with the <b>default constructor</b>. If a class has only a parameterized constructor, that line won't compile.</p></div>
+    </div>
+  </div>
+  <aside class="notes">
+    <p class="note-time">Suggested time: about 5 min</p>
+    <h4>Teaching tips</h4>
+    <ul>
+      <li>Compare with Lab 9: without classes this needs four parallel arrays (<code>name[3]</code>, <code>q1[3]</code>, <code>q2[3]</code>, <code>q3[3]</code>). Here one array holds whole students.</li>
+      <li>Averages print with 6 significant digits by default (<code>84.3333</code>). Add <code>fixed &lt;&lt; setprecision(2)</code> for two decimals, as in earlier labs.</li>
+      <li><code>Student</code> has no constructors, so the compiler supplies a default one and the array works. The members hold garbage until <code>cin</code> fills them.</li>
+    </ul>
+    <h4>Common student pitfalls</h4>
+    <ul>
+      <li>Writing <code>s.name[i]</code> instead of <code>s[i].name</code>. Index the array first, then pick the member.</li>
+      <li>Looping to <code>i &lt;= 3</code>, which is out of bounds (undefined behavior, Lab 9).</li>
+      <li>Names with spaces: <code>cin &gt;&gt;</code> stops at a space, so "Ana Cruz" breaks the input. Use <code>getline</code> or single-word names.</li>
+    </ul>
+    <h4>Ask the class</h4>
+    <ul>
+      <li>"How would you print only the students with an average of at least 85?" (An <code>if</code> inside the second loop.)</li>
+    </ul>
+  </aside>
+</section>
+
+<!-- ========================= STRUCT VS CLASS + PILLARS ========================= -->
+<section class="slide" id="l12-struct-pillars" data-title="struct vs class · Four Pillars" data-section="Constructors & More">
+  <header class="slide-head">
+    <p class="kicker">Lab 12 · The bigger picture</p>
+    <h2><code>struct</code> vs <code>class</code>, and the Four Pillars of OOP</h2>
+  </header>
+  <div class="grid-2 align-start">
+    <div class="stack">
+      <div class="table-wrap">
+        <table class="table compact">
+          <thead><tr><th scope="col"></th><th scope="col"><code>struct</code></th><th scope="col"><code>class</code></th></tr></thead>
+          <tbody>
+            <tr><th scope="row">Default member access</th><td><b>public</b></td><td><b>private</b></td></tr>
+            <tr><th scope="row">Member functions, constructors…</th><td>Allowed</td><td>Allowed</td></tr>
+            <tr><th scope="row">Usual style</th><td>A plain group of data</td><td>An object with behavior and hidden data</td></tr>
+          </tbody>
+        </table>
+      </div>
+<pre class="code" data-cpp>
+struct Point {       // public by default
+    double x;
+    double y;
+};
+
+Point p = {3, 4};    // OK: x, y are public
+cout &lt;&lt; p.x &lt;&lt; ", " &lt;&lt; p.y &lt;&lt; endl;
+</pre>
+      <p class="small muted">In C++, the default access is the <b>only</b> difference (and the default inheritance mode, Lab 13).</p>
+    </div>
+    <div class="stack">
+      <h3 class="card-title" style="margin:0">The four pillars of OOP</h3>
+      <div class="benefits">
+        <div class="benefit"><b>Encapsulation</b><span>Bundle data with its functions and hide the data behind a public interface. <i>Lab 13</i></span></div>
+        <div class="benefit"><b>Abstraction</b><span>Show <i>what</i> an object does, hide <i>how</i>. You call <code>r.area()</code> without caring about the formula. <i>Today</i></span></div>
+        <div class="benefit"><b>Inheritance</b><span>Build a new class from an existing one: a <code>Laptop</code> <i>is a</i> <code>Device</code>. <i>Lab 13</i></span></div>
+        <div class="benefit"><b>Polymorphism</b><span>One call, many forms: the right <code>describe()</code> runs for each kind of device. <i>Lab 14</i></span></div>
+      </div>
+    </div>
+  </div>
+  <aside class="notes">
+    <p class="note-time">Suggested time: about 5 min</p>
+    <h4>Teaching tips</h4>
+    <ul>
+      <li>Students may meet <code>struct</code> in other courses or in C code. In C++ it is a class whose members are public by default. Use <code>struct</code> for simple records (a point, a date) and <code>class</code> for real objects.</li>
+      <li>The pillars are a roadmap for the rest of Part 4. Don't define them deeply today; just name them and say where each one appears.</li>
+      <li>We already practiced abstraction today: the <b>Try it</b> activity chose only the attributes that matter, and <code>main</code> uses <code>area()</code> without knowing its formula.</li>
+    </ul>
+    <h4>Common student pitfalls</h4>
+    <ul>
+      <li>Believing a <code>struct</code> can't have functions. In C++ it can (in C it can't).</li>
+      <li>Mixing up encapsulation (bundling + hiding data) and abstraction (hiding complexity). They are closely related; the example in each card helps.</li>
+    </ul>
+    <h4>Ask the class</h4>
+    <ul>
+      <li>"Change <code>struct Point</code> to <code>class Point</code>. What happens to <code>p.x</code>?" (Compile error: <code>x</code> becomes private.)</li>
+    </ul>
+  </aside>
+</section>
+
+<!-- ========================= PITFALLS ========================= -->
+<section class="slide" id="l12-pitfalls" data-title="Common Pitfalls" data-section="Practice">
+  <header class="slide-head">
+    <p class="kicker">Lab 12 · Debugging classes</p>
+    <h2>Common Pitfalls with Classes</h2>
+    <p class="lede">Each of these appears in almost every first OOP lab. Learn to recognize the compiler message.</p>
+  </header>
+  <div class="grid-3" style="margin-top:0">
+    <div class="pitfall"><p class="box-label">1 · No <code>;</code> after the class</p>
+      <p><code>class Rectangle { … }</code></p>
+      <p class="small">g++: <code style="white-space:normal">expected ';' after class definition</code></p>
+      <p class="small"><b>Fix:</b> end with <code>};</code></p>
+    </div>
+    <div class="pitfall"><p class="box-label">2 · Private member in <code>main</code></p>
+      <p><code>r.length = 4;</code></p>
+      <p class="small">g++: <code style="white-space:normal">'double Rectangle::length' is private within this context</code></p>
+      <p class="small"><b>Fix:</b> use a public member function or a constructor.</p>
+    </div>
+    <div class="pitfall"><p class="box-label">3 · Method without <code>()</code></p>
+      <p><code>cout &lt;&lt; r.area;</code></p>
+      <p class="small">g++: <code style="white-space:normal">invalid use of non-static member function 'double Rectangle::area()'</code></p>
+      <p class="small"><b>Fix:</b> <code>r.area()</code></p>
+    </div>
+    <div class="pitfall"><p class="box-label">4 · Constructor with a return type</p>
+      <p><code>void Rectangle() { … }</code></p>
+      <p class="small">g++: <code style="white-space:normal">return type specification for constructor invalid</code></p>
+      <p class="small"><b>Fix:</b> no return type at all.</p>
+    </div>
+    <div class="pitfall"><p class="box-label">5 · Uninitialized members</p>
+      <p><code>Rectangle r; cout &lt;&lt; r.area();</code></p>
+      <p class="small">Compiles with <b>no error</b>, but <code>length</code> and <code>width</code> hold garbage (undefined behavior). It may even print 0 by luck.</p>
+      <p class="small"><b>Fix:</b> a constructor, or <code>double length = 0;</code></p>
+    </div>
+    <div class="pitfall"><p class="box-label">6 · Empty parentheses</p>
+      <p><code>Rectangle r();</code></p>
+      <p class="small">Declares a <b>function</b> named <code>r</code>! Then <code>r.area()</code> gives <code style="white-space:normal">request for member 'area' in 'r', which is of non-class type 'Rectangle()'</code></p>
+      <p class="small"><b>Fix:</b> <code>Rectangle r;</code></p>
+    </div>
+  </div>
+  <aside class="notes">
+    <p class="note-time">Suggested time: about 5 min</p>
+    <h4>Teaching tips</h4>
+    <ul>
+      <li>All messages are from g++ 13 with <code>-Wall -Wextra</code>. Codechum and Dev-C++ also use g++, so students will see similar text. Visual Studio wording differs.</li>
+      <li>Quick game: show one broken line, students hold up 1–6 for which pitfall it is.</li>
+      <li>Pitfall 5 is the dangerous one: no error, sometimes the "right" answer by luck. On some runs or compilers it prints nonsense. Always initialize members (a constructor, or default values in the class like <code>double length = 0;</code>, allowed since C++11).</li>
+      <li>Pitfall 6 is called the "most vexing parse". g++ 13 also warns <code>empty parentheses were disambiguated as a function declaration</code>.</li>
+    </ul>
+    <h4>Common student pitfalls</h4>
+    <ul>
+      <li>Fixing only the first error and panicking at the rest. One missing <code>;</code> can cause a cascade, so fix the first message and recompile.</li>
+    </ul>
+    <h4>Ask the class</h4>
+    <ul>
+      <li>"Which of these six will the compiler <em>not</em> catch?" (Number 5.)</li>
+    </ul>
+  </aside>
+</section>
+
+<!-- ========================= QUICK CHECK ========================= -->
+<section class="slide" id="l12-quick-check" data-title="Quick Check" data-section="Practice">
+  <header class="slide-head">
+    <p class="kicker">Lab 12 · Check your understanding</p>
+    <h2>Quick Check</h2>
+    <p class="lede">Answer on your own first, then click to reveal.</p>
+  </header>
+  <div class="qa-grid">
+    <details class="qa"><summary><span class="q-num">1</span><span class="q-text">In one sentence: what is the difference between a class and an object?</span></summary><p>A class is the blueprint (a programmer-defined type). An object is one instance of it in memory, with its own values.</p></details>
+    <details class="qa"><summary><span class="q-num">2</span><span class="q-text">After <code>Rectangle r1, r2, r3;</code> how many <code>width</code> variables exist?</span></summary><p>Three: <code>r1.width</code>, <code>r2.width</code>, and <code>r3.width</code>. Each object has its own copy of every data member.</p></details>
+    <details class="qa"><summary><span class="q-num">3</span><span class="q-text">Translate this UML line to C++: <code>- price : double</code></span></summary><p><code>double price;</code> placed under <code>private:</code> (or before any <code>public:</code> in a class, since class members are private by default).</p></details>
+    <details class="qa"><summary><span class="q-num">4</span><span class="q-text">Using the three-constructor <code>Rectangle</code>, what does <code>Rectangle d(5); cout &lt;&lt; d.area();</code> print?</span></summary><p><code>25</code>. One argument matches <code>Rectangle(double side)</code>, which makes a 5 × 5 square.</p></details>
+    <details class="qa"><summary><span class="q-num">5</span><span class="q-text">Why doesn't this compile? <code>class Point { int x; }; … Point p; p.x = 5;</code></span></summary><p>Members of a <code>class</code> are private by default, so <code>main</code> can't use <code>x</code>. Add <code>public:</code> or use <code>struct</code>, or better, a constructor.</p></details>
+    <details class="qa"><summary><span class="q-num">6</span><span class="q-text"><code>Lamp a("A"); Lamp b("B");</code> in <code>main</code>. Which destructor runs first?</span></summary><p><code>b</code>'s, then <code>a</code>'s. Objects are destroyed in reverse order of creation.</p></details>
+  </div>
+  <aside class="notes">
+    <p class="note-time">Suggested time: about 6 min</p>
+    <h4>Teaching tips</h4>
+    <ul>
+      <li>Think-pair-share: 1 minute alone, 1 minute with a seatmate, then reveal. Call on pairs instead of volunteers.</li>
+      <li>Q4 and Q6 are good to test in the compiler if there's disagreement.</li>
+    </ul>
+    <h4>Common student pitfalls</h4>
+    <ul>
+      <li>Q2: answering "one" because there is one class. Push the blueprint/instance idea again.</li>
+      <li>Q3: writing <code>price double;</code> (UML order) instead of <code>double price;</code>.</li>
+    </ul>
+  </aside>
+</section>
+
+<!-- ========================= SEATWORK ========================= -->
+<section class="slide" id="l12-seatwork" data-title="Seatwork: Circle Class" data-section="Practice">
+  <header class="slide-head">
+    <p class="kicker">Lab 12 · Seatwork</p>
+    <h2>Seatwork: A <code>Circle</code> Class</h2>
+  </header>
+  <div class="story"><p class="task"><b>Instruction:</b> Write a <code>Circle</code> class from the UML below (use <code>PI = 3.14159265358979</code>). In <code>main()</code>, ask for the radius, create a <code>Circle</code> with it, and print its area and circumference.</p></div>
+  <div class="grid-2 align-start">
+    <div class="stack">
+      <div class="card">
+        <div class="grid-2 tight-gap">
+          <div><svg class="fc uml" viewBox="0 0 259 168" style="max-width:259px" role="img" aria-label="UML class diagram: Circle with private radius of type double; public Circle constructor taking r, area and circumference returning double.">
+<g class="uml-box">
+<rect x="4" y="4" width="251" height="160" rx="4" style="fill:var(--surface);stroke:var(--fc-proc);stroke-width:2"/>
+<rect x="4" y="4" width="251" height="40" rx="4" style="fill:var(--fc-proc-fill);stroke:var(--fc-proc);stroke-width:2"/>
+<text x="129" y="24" style="font-size:16px;font-weight:800">Circle</text>
+<path d="M4 80 H255" style="stroke:var(--fc-proc);stroke-width:2"/>
+<text class="a-start" x="16" y="62" style="font-family:var(--font-mono);font-size:14px;font-weight:500"><tspan style="fill:var(--bad);font-weight:800">-</tspan> radius : double</text>
+<text class="a-start" x="16" y="98" style="font-family:var(--font-mono);font-size:14px;font-weight:500"><tspan style="fill:var(--ok);font-weight:800">+</tspan> Circle(r : double)</text>
+<text class="a-start" x="16" y="122" style="font-family:var(--font-mono);font-size:14px;font-weight:500"><tspan style="fill:var(--ok);font-weight:800">+</tspan> area() : double</text>
+<text class="a-start" x="16" y="146" style="font-family:var(--font-mono);font-size:14px;font-weight:500"><tspan style="fill:var(--ok);font-weight:800">+</tspan> circumference() : double</text>
+</g>
+</svg></div>
+          <figure class="codeblock"><figcaption>Expected output</figcaption><pre class="console">Enter radius: <span class="in">5</span>
+Area = 78.5398
+Circumference = 31.4159</pre></figure>
+        </div>
+      </div>
+      <div class="card">
+        <h3 class="card-title">Need a hint?</h3>
+        <details class="hint"><summary>Hint 1</summary><p>Area = π r² and circumference = 2 π r. Inside the class, use <code>radius</code>; the functions need no parameters.</p></details>
+        <details class="hint"><summary>Hint 2</summary><p><code>radius</code> is private, so it must be set by the constructor: <code>Circle(double r) : radius(r) {}</code></p></details>
+        <details class="hint"><summary>Hint 3</summary><p>Read <code>r</code> first, <b>then</b> declare the object: <code>Circle c(r);</code></p></details>
+      </div>
+    </div>
+    <div class="card timer" data-timer data-minutes="10">
+      <h3 class="card-title">Seatwork timer</h3>
+      <p class="timer-display" aria-live="off">10:00</p>
+      <div class="timer-presets" role="group" aria-label="Timer presets">
+        <button type="button" class="btn ghost" data-min="5">5 min</button>
+        <button type="button" class="btn ghost" data-min="10">10 min</button>
+        <button type="button" class="btn ghost" data-min="15">15 min</button>
+      </div>
+      <div class="timer-actions">
+        <button type="button" class="btn primary" data-timer-act="toggle">Start</button>
+        <button type="button" class="btn" data-timer-act="reset">Reset</button>
+      </div>
+    </div>
+  </div>
+  <details class="answer">
+    <summary><span>Reveal answer &amp; trace</span></summary>
+    <div class="example-grid" style="margin-top:1rem;grid-template-columns:minmax(0,1.25fr) minmax(0,1fr)">
+      <figure class="codeblock">
+        <figcaption><code>circle.cpp</code></figcaption>
+<pre class="code scroll compact" id="l12-circle-code" data-cpp data-stdin="5">
+#include &lt;iostream&gt;
+using namespace std;
+
+const double PI = 3.14159265358979;
+
+class Circle {
+private:
+    double radius;
+
+public:
+    Circle(double r) : radius(r) {}
+
+    double area() {
+        return PI * radius * radius;
+    }
+    double circumference() {
+        return 2 * PI * radius;
+    }
+};
+
+int main() {
+    double r;
+    cout &lt;&lt; "Enter radius: ";
+    cin &gt;&gt; r;
+    Circle c(r);
+    cout &lt;&lt; "Area = " &lt;&lt; c.area() &lt;&lt; endl;
+    cout &lt;&lt; "Circumference = " &lt;&lt; c.circumference() &lt;&lt; endl;
+    return 0;
+}
+</pre>
+      </figure>
+      <div class="tracer" data-trace="l12-circle" data-code="#l12-circle-code" data-title="Trace the answer">
+        <div class="tracer-inputs">
+          <label>radius <input type="number" data-var="r" value="5" step="any"></label>
+        </div>
+      </div>
+    </div>
+  </details>
+  <aside class="notes">
+    <p class="note-time">Suggested time: about 15 min (10 working, 5 review)</p>
+    <h4>Running the seatwork</h4>
+    <ul>
+      <li>Start the timer. Students type and run their code (Codechum or IDE). Open hints one at a time only if many are stuck.</li>
+      <li>Before revealing, show one student's working version and one with a compiler error, and debug the error together.</li>
+      <li>Reveal and trace with radius 5, then try 2.5 (area 19.635, circumference 15.708): cout drops trailing zeros.</li>
+      <li>Extension for fast finishers: add <code>diameter()</code>, or a <code>setRadius(double)</code> that ignores negative values (a preview of Lab 13).</li>
+    </ul>
+    <h4>Common student pitfalls</h4>
+    <ul>
+      <li>Declaring <code>Circle c;</code> before reading the radius. There is no default constructor, so it won't compile.</li>
+      <li>Writing <code>area(radius)</code> with a parameter, Lab 11 style. Member functions already see <code>radius</code>.</li>
+      <li>Using <code>^</code> for squaring (<code>radius ^ 2</code>): <code>^</code> is XOR in C++ and doesn't even compile with a <code>double</code>.</li>
+      <li>Using <code>PI = 3.14</code>, which gives 78.5 instead of 78.5398.</li>
+    </ul>
+    <h4>Ask the class</h4>
+    <ul>
+      <li>"Why is <code>radius</code> private but <code>area()</code> public?"</li>
+    </ul>
+  </aside>
+</section>
+
+<!-- ========================= LAB EXERCISE 12 · PROBLEM 1 ========================= -->
+<!-- LOCKED-ACTIVITY:START lab-12 -->
+<section class="slide locked-slide" id="l12-lab-a" data-title="Laboratory Exercise No. 12 (locked)" data-section="Lab Exercise & Wrap-up" data-locked="lab-12">
+  <header class="slide-head">
+    <p class="kicker">Laboratory Exercise No. 12</p>
+    <h2>This lab activity is locked</h2>
+    <p class="lede">It opens when your instructor releases it. Enter the passphrase your instructor gives you.</p>
+  </header>
+  <div class="lock-card">
+    <svg class="lock-icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="10.5" width="14" height="10" rx="2"/><path d="M8 10.5V7.5a4 4 0 0 1 8 0v3M12 14.5v2.5"/></svg>
+    <h3>Laboratory Exercise No. 12</h3>
+    <form class="lock-form" autocomplete="off">
+      <label class="sr-only" for="unlock-lab-12">Passphrase</label>
+      <input id="unlock-lab-12" type="password" placeholder="Passphrase" autocomplete="off" spellcheck="false">
+      <button type="submit" class="btn primary">Unlock</button>
+    </form>
+    <p class="lock-msg" aria-live="polite"></p>
+    <p class="small muted">The activity is stored encrypted on this site and is unlocked in your browser. Once unlocked, it stays open on this device.</p>
+  </div>
+  <script type="application/json" class="locked-data">{"v":1,"iter":250000,"salt":"54PSn9zBWIGbLb0rTp8yEQ==","iv":"xJBMNZ2IsYCLT0PG","data":"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"}</script>
+  <aside class="notes">
+    <p class="note-time">Locked activity (2 slides)</p>
+    <h4>Instructor</h4>
+    <ul>
+      <li>Type this lab's passphrase (private instructor package → <code>passwords.json</code>) to open the activity on the classroom PC. It stays unlocked on that browser until you press "Lock again".</li>
+      <li>To release the activity to students, announce or post the passphrase (e.g. in MS Teams).</li>
+      <li>To re-lock it for everyone, change the passphrase and rerun <code>node tools/lock-activities.js</code>.</li>
+    </ul>
+  </aside>
+</section>
+<!-- LOCKED-ACTIVITY:END lab-12 -->
+
+<!-- ========================= WRAP-UP ========================= -->
+<section class="slide" id="l12-wrap" data-title="Wrap-up" data-section="Lab Exercise & Wrap-up">
+  <header class="slide-head">
+    <p class="kicker">Wrap-up</p>
+    <h2>Thinking in Objects</h2>
+  </header>
+  <div class="table-wrap">
+    <table class="table compact">
+      <thead><tr><th scope="col">Term</th><th scope="col">Meaning</th><th scope="col">C++ example</th></tr></thead>
+      <tbody>
+        <tr><th scope="row">Class</th><td>Blueprint / programmer-defined type</td><td><code>class Rectangle { … };</code></td></tr>
+        <tr><th scope="row">Object</th><td>An instance with its own data</td><td><code>Rectangle r1;</code></td></tr>
+        <tr><th scope="row">Member access</th><td>Use a member of one object</td><td><code>r1.length</code>, <code>r1.area()</code></td></tr>
+        <tr><th scope="row">Access specifier</th><td>Who may use a member</td><td><code>public:</code> / <code>private:</code></td></tr>
+        <tr><th scope="row">Constructor / destructor</th><td>Runs at creation / at end of scope</td><td><code>Rectangle(double l, double w)</code> / <code>~Rectangle()</code></td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="grid-3">
+    <div class="card"><h3 class="card-title">Remember</h3><ul class="tight"><li>Plan with a <b>UML</b> box first.</li><li>End every class with <code>};</code></li><li>Initialize members in a <b>constructor</b>.</li></ul></div>
+    <div class="card"><h3 class="card-title">Exit ticket</h3><p>Draw the UML for a <code>Smartphone</code> class with 2 private attributes and 3 public operations (one is a constructor), then write its C++ class definition (bodies can be empty).</p></div>
+    <div class="card"><h3 class="card-title">Next: Lab No. 13</h3><p><b>Encapsulation and Inheritance</b>: why data should be private, getters and setters with validation, and how a <code>Laptop</code> class can inherit from a <code>Device</code> class.</p><p><a href="lab-13.html">Open Lab 13 →</a></p></div>
+  </div>
+  <aside class="notes">
+    <p class="note-time">Suggested time: about 3 min</p>
+    <h4>Teaching tips</h4>
+    <ul>
+      <li>Read the table aloud as a recap. Each row maps to one or two slides if someone asks to go back.</li>
+      <li>Collect exit tickets. Students who mix up UML order (<code>name : type</code>) and C++ order (<code>type name</code>) need a quick review before Lab 13.</li>
+      <li>Preview Lab 13: next week we fix the "anyone can set <code>length = -4</code>" problem with private data and validating setters, then reuse code with inheritance.</li>
+    </ul>
+    <h4>Common student pitfalls</h4>
+    <ul>
+      <li>Leaving with the idea that classes are only for "big" programs. Even the Resistor exercise reads more clearly with an object.</li>
+    </ul>
+  </aside>
+</section>
+
+      </div>
+    </main>
+  </div>
+</body>
+</html>

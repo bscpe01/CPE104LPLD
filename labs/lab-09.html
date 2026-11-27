@@ -1,0 +1,1532 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Lab 9 · Arrays · CPE 104L</title>
+  <meta name="description" content="CPE 104L Programming Logic and Design, Lab No. 9: Arrays. One- and two-dimensional arrays in C++, traversal, linear search, bubble sort, and common pitfalls such as out-of-bounds access.">
+  <meta name="color-scheme" content="light dark">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%232f3410'/%3E%3Cpath d='M32 11 53 32 32 53 11 32Z' fill='none' stroke='%23f5c518' stroke-width='6' stroke-linejoin='round'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="../css/styles.css">
+  <script>
+    (function () { var d = document.documentElement; d.classList.add('js');
+      try { var t = localStorage.getItem('cpe104l.theme'); if (t === 'dark' || t === 'light') d.setAttribute('data-theme', t); } catch (e) {} })();
+  </script>
+  <script src="../js/course.js" defer></script>
+  <script src="../js/search-index.js" defer></script>
+  <script src="../js/script.js" defer></script>
+  <script src="../js/labs/lab-09.js" defer></script>
+</head>
+<body data-page="lab-09" data-root="../">
+  <svg class="svg-defs" aria-hidden="true" focusable="false"><defs><marker id="arrow" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="10" markerHeight="10" markerUnits="userSpaceOnUse" orient="auto"><path class="arrowhead" d="M0 0 L10 5 L0 10 Z"/></marker></defs></svg>
+  <div class="app" id="app">
+    <main class="stage" id="stage">
+      <div class="deck" id="deck" tabindex="-1">
+
+<!-- ========================= SLIDE 1 · TITLE ========================= -->
+<section class="slide" id="l9-title" data-title="Title & ILOs" data-section="Introduction">
+  <div class="lab-title">
+    <div>
+      <div class="lab-badges"><span class="badge-lab">Lab No. 9</span><span class="badge-week">Week 10</span><span class="badge-co">CO1 · CO2</span></div>
+      <p class="kicker">CPE 104L · Programming Logic and Design</p>
+      <h1>Array <span>Many Values, One Name</span></h1>
+      <p class="lede">Store a whole list (40 grades, a week of sensor readings, a seat plan) under one name, then process it with the loops you already know.</p>
+      <ol class="roadmap" aria-label="Lab roadmap">
+        <li><a href="#l9-declare">Declare &amp; index</a></li>
+        <li><a href="#l9-traverse">Traversal</a></li>
+        <li><a href="#l9-search">Linear search</a></li>
+        <li><a href="#l9-bubble">Bubble sort</a></li>
+        <li><a href="#l9-2d">2D arrays</a></li>
+        <li><a href="#l9-exercise">Lab Exercise No. 9</a></li>
+      </ol>
+    </div>
+    <div class="ilo-card">
+      <h2>Intended Learning Outcomes</h2>
+      <ol>
+        <li>Declare, initialize, and manipulate 1D and multi-dimensional arrays in C++.</li>
+        <li>Implement basic array traversal, searching, and sorting algorithms.</li>
+      </ol>
+      <div class="ilo-meta">
+        <span><b>Activities:</b> Live coding demonstrations · Laboratory activities</span>
+        <span><b>Assessment:</b> Lab Exercise No. 9 · 5-Level Lab Rubric</span>
+      </div>
+    </div>
+  </div>
+  <aside class="notes">
+    <p class="note-time">Suggested time: about 3 min</p>
+    <h4>Teaching tips</h4>
+    <ul>
+      <li>First lab after the Midterm Practical Exam. Spend a minute on common midterm mistakes (usually loop bounds and missing braces); they matter even more with arrays.</li>
+      <li>This lab is <em>live coding</em>: type the examples with the class instead of only showing them. Arrays are learned by indexing, printing, and breaking things.</li>
+      <li>Everything today reuses Lab 7–8 loops. The new idea is only "one name, many numbered boxes".</li>
+    </ul>
+    <h4>Common student pitfalls</h4>
+    <ul>
+      <li>Students who still confuse loop bounds will now also get out-of-bounds bugs. Watch for <code>&lt;=</code> in loop conditions all session.</li>
+    </ul>
+    <h4>Ask the class</h4>
+    <ul>
+      <li>"How would you store the grades of all 40 students in this room with what you know so far?" (40 variables… which is the next slide.)</li>
+    </ul>
+  </aside>
+</section>
+
+<!-- ========================= SLIDE 2 · WHY ARRAYS ========================= -->
+<section class="slide" id="l9-why" data-title="Why Arrays?" data-section="Introduction">
+  <header class="slide-head">
+    <p class="kicker">Lab 9 · Motivation</p>
+    <h2>Why Arrays? 40 Grades, 40 Variables?</h2>
+    <p class="lede">In Labs 7–8 each <code>cin</code> overwrote the previous value. To use the values again (sort them, list the ones above the average) you must <b>keep</b> them all.</p>
+  </header>
+  <div class="grid-2 align-start">
+    <div class="compare bad">
+      <p class="compare-label">Without an array</p>
+<pre class="code compact no-ln" data-cpp data-nocheck>
+int g1, g2, g3, g4, g5, g6, g7, g8,
+    g9, g10, /* ... */ g40;
+cin &gt;&gt; g1 &gt;&gt; g2 &gt;&gt; g3 /* ... */ &gt;&gt; g40;
+int sum = g1 + g2 + g3 /* ... */ + g40;
+// list the grades above average?
+// 40 more if statements...
+</pre>
+      <p class="small">Does not scale: 80 names to type, and changing 40 to 45 means editing every line.</p>
+    </div>
+    <div class="compare good">
+      <p class="compare-label">With an array</p>
+<pre class="code compact no-ln" data-cpp>
+const int SIZE = 40;
+int grades[SIZE];
+int sum = 0;
+for (int i = 0; i &lt; SIZE; i++) {
+    cin &gt;&gt; grades[i];
+    sum += grades[i];
+}
+</pre>
+      <p class="small">One name, one loop. Change <code>SIZE</code> and the whole program follows.</p>
+    </div>
+  </div>
+  <div class="concept big" style="margin-top:1.2rem"><p class="box-label">Key concept</p><p>An <b>array</b> is a fixed-size group of elements of the <b>same type</b>, stored <b>next to each other</b> in memory, and reached through one name plus an <b>index</b>: <code>grades[0]</code>, <code>grades[1]</code>, …</p></div>
+  <aside class="notes">
+    <p class="note-time">Suggested time: about 5 min</p>
+    <h4>Teaching tips</h4>
+    <ul>
+      <li>Bridge from Lab 7: the sentinel average program could compute the average, but it could not then print "which grades were above the average", because every grade was gone. That exact problem is today's seatwork.</li>
+      <li>Analogy: a row of numbered lockers, or a jeepney's seat numbers. One name (the row), and a number to pick one box.</li>
+      <li>"Same type" matters: an <code>int</code> array holds only ints. Mixed data (name + grade) needs a struct or class, later in the course.</li>
+    </ul>
+    <h4>Common student pitfalls</h4>
+    <ul>
+      <li>Thinking an array can grow by itself. A C++ array has a fixed size decided when it is declared.</li>
+    </ul>
+    <h4>Ask the class</h4>
+    <ul>
+      <li>"What else in engineering is naturally a list?" (sensor samples, resistor values in a circuit, daily power readings, pixel rows.)</li>
+    </ul>
+  </aside>
+</section>
+
+<!-- ========================= SLIDE 3 · DECLARE ========================= -->
+<section class="slide" id="l9-declare" data-title="Declaring an Array" data-section="1D Arrays">
+  <header class="slide-head">
+    <p class="kicker">Lab 9 · 1D arrays</p>
+    <h2>Declaring an Array</h2>
+    <p class="lede">Give the element type, a name, and the number of elements in square brackets. The size must be a <b>constant</b>.</p>
+  </header>
+  <p class="syntax"><i>type</i> <i>name</i>[<i>SIZE</i>];  ·  e.g. <code>const int SIZE = 5;  int grades[SIZE];</code></p>
+  <div class="grid-2 align-start" style="margin-top:1rem">
+    <div class="stack">
+<pre class="code compact" data-cpp>
+#include &lt;iostream&gt;
+using namespace std;
+
+int main() {
+    const int SIZE = 5;     // size: a constant
+    int grades[SIZE];       // grades[0] .. grades[4]
+    grades[0] = 88;                 // first element
+    grades[SIZE - 1] = 95;          // last element
+    cout &lt;&lt; "First: " &lt;&lt; grades[0] &lt;&lt; endl;
+    cout &lt;&lt; "Last: " &lt;&lt; grades[SIZE - 1] &lt;&lt; endl;
+    cout &lt;&lt; "Bytes: " &lt;&lt; sizeof(grades) &lt;&lt; endl;
+    return 0;
+}
+</pre>
+<pre class="console">First: 88
+Last: 95
+Bytes: 20</pre>
+    </div>
+    <div class="stack">
+      <div class="table-wrap">
+        <table class="table compact">
+          <caption>Vocabulary</caption>
+          <tbody>
+            <tr><th scope="row">Element</th><td>One box in the array, like <code>grades[2]</code></td></tr>
+            <tr><th scope="row">Index (subscript)</th><td>The box number, from <b>0</b> to <b>SIZE − 1</b></td></tr>
+            <tr><th scope="row">Size</th><td>How many elements: fixed when declared</td></tr>
+            <tr><th scope="row"><code>sizeof</code></th><td>Bytes used: 5 ints × 4 bytes = 20</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="note-box"><p class="box-label">Why <code>const int SIZE</code>?</p><p>Standard C++ needs the size at compile time. A named constant also means you change one line, and every loop that uses <code>SIZE</code> follows.</p></div>
+    </div>
+  </div>
+  <aside class="notes">
+    <p class="note-time">Suggested time: about 6 min</p>
+    <h4>Teaching tips</h4>
+    <ul>
+      <li>Read the declaration aloud: "grades is an array of 5 ints".</li>
+      <li>Stress that the last element is <code>grades[SIZE - 1]</code>, i.e. <code>grades[4]</code>, not <code>grades[5]</code>. Write 0 1 2 3 4 on the board under five boxes.</li>
+      <li><code>sizeof(grades)</code> gives the bytes of the whole array (20), not the count of elements. The next slides show how to get the count.</li>
+      <li>Only elements 0 and 4 got values here. Elements 1 to 3 hold garbage, which is fine as long as we never read them.</li>
+    </ul>
+    <h4>Common student pitfalls</h4>
+    <ul>
+      <li>Declaring <code>int grades[5];</code> and then using <code>grades[5]</code> as the "fifth" element.</li>
+      <li>Using a plain variable as the size: <code>int n; cin &gt;&gt; n; int a[n];</code>. g++ accepts it as an extension, but it is not standard C++ (see pitfalls).</li>
+    </ul>
+    <h4>Ask the class</h4>
+    <ul>
+      <li>"How many bytes does <code>double volts[10];</code> use?" (10 × 8 = 80.)</li>
+    </ul>
+  </aside>
+</section>
+
+<!-- ========================= SLIDE 4 · MEMORY ========================= -->
+<section class="slide" id="l9-memory" data-title="Indexing and Memory" data-section="1D Arrays">
+  <header class="slide-head">
+    <p class="kicker">Lab 9 · 1D arrays</p>
+    <h2>Indexes Start at 0: How an Array Sits in Memory</h2>
+    <p class="lede">The elements are stored <b>back to back</b>. For an <code>int</code> array each element is 4 bytes, so the addresses go up by 4.</p>
+  </header>
+  <p class="syntax">int grades[5] = {88, 92, 75, 64, 95};</p>
+  <div class="mem array" aria-label="Array grades in memory: grades[0] = 88 at 0x7ffc10, grades[1] = 92 at 0x7ffc14, grades[2] = 75 at 0x7ffc18, grades[3] = 64 at 0x7ffc1c, grades[4] = 95 at 0x7ffc20." style="margin-top:1rem">
+    <div class="mem-cell"><span class="mem-name">[0]</span><span class="mem-val">88</span><span class="mem-addr">0x7ffc10</span></div>
+    <div class="mem-cell"><span class="mem-name">[1]</span><span class="mem-val">92</span><span class="mem-addr">0x7ffc14</span></div>
+    <div class="mem-cell is-hl"><span class="mem-name">[2]</span><span class="mem-val">75</span><span class="mem-addr">0x7ffc18</span></div>
+    <div class="mem-cell"><span class="mem-name">[3]</span><span class="mem-val">64</span><span class="mem-addr">0x7ffc1c</span></div>
+    <div class="mem-cell"><span class="mem-name">[4]</span><span class="mem-val">95</span><span class="mem-addr">0x7ffc20</span></div>
+  </div>
+  <p class="small muted">Addresses are illustrative; real ones change every run. The 4-byte steps are real for <code>int</code>.</p>
+  <div class="grid-3">
+    <div class="concept"><p class="box-label">Index = offset</p><p>The index counts <b>steps from the start</b>. <code>grades[2]</code> is 2 steps past the first element: address = start + 2 × 4 bytes.</p></div>
+    <div class="card"><h3 class="card-title">Reading and writing</h3><p><code>cout &lt;&lt; grades[2];</code> prints 75.<br><code>grades[2] = 80;</code> replaces it.<br><code>grades[i + 1]</code>: any int expression works as an index.</p></div>
+    <div class="pitfall"><p class="box-label">Valid indexes</p><p>Only <b>0 to 4</b>. <code>grades[5]</code> and <code>grades[-1]</code> are outside the array, and C++ does <b>not</b> stop you (more on this later).</p></div>
+  </div>
+  <aside class="notes">
+    <p class="note-time">Suggested time: about 6 min</p>
+    <h4>Teaching tips</h4>
+    <ul>
+      <li>Why start at 0? Because the index is the <em>offset</em> from the start of the array: the first element is 0 steps away. This is also why arrays and pointers (Lab 10) fit together so well.</li>
+      <li>Compare with <code>double volts[3]</code>: its addresses go up by 8, because a <code>double</code> is 8 bytes.</li>
+      <li>Optional demo: <code>cout &lt;&lt; &amp;grades[0] &lt;&lt; " " &lt;&lt; &amp;grades[1];</code> prints two real hex addresses 4 apart. They change every run, which is why the slide's addresses are only examples.</li>
+    </ul>
+    <h4>Common student pitfalls</h4>
+    <ul>
+      <li>Mixing up the index and the value: in <code>grades[2] = 75</code>, 2 is the position and 75 is the data.</li>
+      <li>Saying "the 2nd element" for <code>grades[2]</code>. It is the 3rd element. Use "element at index 2" to stay precise.</li>
+    </ul>
+    <h4>Ask the class</h4>
+    <ul>
+      <li>"If <code>grades[0]</code> is at 0x7ffc10, where is <code>grades[4]</code>?" (0x7ffc10 + 16 = 0x7ffc20.)</li>
+    </ul>
+  </aside>
+</section>
+
+<!-- ========================= SLIDE 5 · INIT ========================= -->
+<section class="slide" id="l9-init" data-title="Initializing Arrays" data-section="1D Arrays">
+  <header class="slide-head">
+    <p class="kicker">Lab 9 · 1D arrays</p>
+    <h2>Initializing Arrays</h2>
+    <p class="lede">Give starting values in braces. Missing values become 0, and C++ can count the list for you.</p>
+  </header>
+  <div class="grid-2 align-start">
+    <div class="stack">
+<pre class="code compact" data-cpp>
+#include &lt;iostream&gt;
+using namespace std;
+
+int main() {
+    int full[5] = {90, 85, 77, 92, 68};
+    int partial[5] = {90, 85};      // rest are 0
+    int inferred[] = {3, 1, 4, 1, 5, 9};  // size 6
+    int zeros[5] = {};              // all 0
+    cout &lt;&lt; "partial:";
+    for (int i = 0; i &lt; 5; i++) {
+        cout &lt;&lt; " " &lt;&lt; partial[i];
+    }
+    cout &lt;&lt; endl;
+    int count = sizeof(inferred) / sizeof(inferred[0]);
+    cout &lt;&lt; "inferred size: " &lt;&lt; count &lt;&lt; endl;
+    cout &lt;&lt; "full[4] = " &lt;&lt; full[4] &lt;&lt; endl;
+    cout &lt;&lt; "zeros[2] = " &lt;&lt; zeros[2] &lt;&lt; endl;
+    return 0;
+}
+</pre>
+    </div>
+    <div class="stack">
+<pre class="console">partial: 90 85 0 0 0
+inferred size: 6
+full[4] = 68
+zeros[2] = 0</pre>
+      <div class="table-wrap">
+        <table class="table compact">
+          <thead><tr><th scope="col">Form</th><th scope="col">Result</th></tr></thead>
+          <tbody>
+            <tr><td><code>int a[5] = {90, 85, 77, 92, 68};</code></td><td>Every element given</td></tr>
+            <tr><td><code>int a[5] = {90, 85};</code></td><td>90 85 <b>0 0 0</b></td></tr>
+            <tr><td><code>int a[] = {3, 1, 4};</code></td><td>Size 3, counted from the list</td></tr>
+            <tr><td><code>int a[5] = {};</code></td><td>All 0 (so does <code>{0}</code>)</td></tr>
+            <tr><td><code>int a[5];</code> (inside a function)</td><td><b>Garbage</b> values</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="note-box"><p class="box-label">Counting elements</p><p><code>sizeof(a) / sizeof(a[0])</code> = total bytes ÷ bytes per element. 24 ÷ 4 = 6 for <code>inferred</code>.</p></div>
+    </div>
+  </div>
+  <aside class="notes">
+    <p class="note-time">Suggested time: about 6 min</p>
+    <h4>Teaching tips</h4>
+    <ul>
+      <li>Live: print an uninitialized local array (<code>int g[5]; cout &lt;&lt; g[0];</code>). The value is garbage and may differ between runs and machines. Then add <code>= {}</code> and run again.</li>
+      <li>"Partial list → the rest are zero" is the easiest way to start counters and accumulators at 0.</li>
+      <li>The <code>sizeof</code> trick only works where the array was declared. Once arrays are passed to functions (Lab 11) it no longer works, which is one reason to keep a <code>SIZE</code> constant.</li>
+    </ul>
+    <h4>Common student pitfalls</h4>
+    <ul>
+      <li>Giving more values than the size: <code>int a[3] = {1, 2, 3, 4};</code> is a compile error ("too many initializers").</li>
+      <li>Believing <code>int a[5] = {7};</code> makes all five elements 7. Only <code>a[0]</code> is 7; the rest are 0.</li>
+    </ul>
+    <h4>Ask the class</h4>
+    <ul>
+      <li>"What does <code>int a[4] = {1};</code> contain?" (1 0 0 0.)</li>
+    </ul>
+  </aside>
+</section>
+
+<!-- ========================= SLIDE 6 · TRAVERSAL ========================= -->
+<section class="slide" id="l9-traverse" data-title="Traversal with Loops" data-section="1D Arrays">
+  <header class="slide-head">
+    <p class="kicker">Lab 9 · Traversal</p>
+    <h2>Traversal: Visit Every Element with a Loop</h2>
+    <p class="lede">The loop counter becomes the index: <code>for (int i = 0; i &lt; SIZE; i++)</code> visits 0 to SIZE − 1, once each.</p>
+  </header>
+  <div class="tabs" data-tabs>
+    <div class="tablist" role="tablist" aria-label="Traversal examples">
+      <button type="button" role="tab" data-tab="index" aria-selected="true">Input, print, reverse</button>
+      <button type="button" role="tab" data-tab="range">Range-based for (C++11)</button>
+    </div>
+    <div class="tabpanel" role="tabpanel" data-panel="index">
+      <div class="code-pair">
+<pre class="code compact" data-cpp data-stdin="12.5 11.8 12.1 12.6 11.9">
+#include &lt;iostream&gt;
+using namespace std;
+
+int main() {
+    const int SIZE = 5;
+    double volts[SIZE];
+    cout &lt;&lt; "Enter " &lt;&lt; SIZE &lt;&lt; " readings: ";
+    for (int i = 0; i &lt; SIZE; i++) {
+        cin &gt;&gt; volts[i];        // fill each element
+    }
+    cout &lt;&lt; "Last to first:" &lt;&lt; endl;
+    for (int i = SIZE - 1; i &gt;= 0; i--) {
+        cout &lt;&lt; "volts[" &lt;&lt; i &lt;&lt; "] = " &lt;&lt; volts[i];
+        cout &lt;&lt; endl;
+    }
+    return 0;
+}
+</pre>
+        <div class="stack">
+<pre class="console">Enter 5 readings: <span class="in">12.5 11.8 12.1 12.6 11.9</span>
+Last to first:
+volts[4] = 11.9
+volts[3] = 12.6
+volts[2] = 12.1
+volts[1] = 11.8
+volts[0] = 12.5</pre>
+          <p class="small">Printing in reverse is impossible without storing the values, since the last one typed comes out first.</p>
+        </div>
+      </div>
+    </div>
+    <div class="tabpanel" role="tabpanel" data-panel="range">
+      <div class="code-pair">
+<pre class="code compact" data-cpp>
+#include &lt;iostream&gt;
+using namespace std;
+
+int main() {
+    const int SIZE = 5;
+    double volts[SIZE] = {12.5, 11.8, 12.1, 12.6, 11.9};
+    double total = 0;
+    for (double v : volts) {    // each value in turn
+        total += v;
+    }
+    cout &lt;&lt; "Total: " &lt;&lt; total &lt;&lt; endl;
+    cout &lt;&lt; "Average: " &lt;&lt; total / SIZE &lt;&lt; endl;
+    return 0;
+}
+</pre>
+        <div class="stack">
+<pre class="console">Total: 60.9
+Average: 12.18</pre>
+          <div class="note-box"><p class="box-label">When to use it</p>
+            <ul>
+              <li>Reads every value, start to end. No index to get wrong.</li>
+              <li>Use the normal <code>for</code> when you need the index (printing <code>[i]</code>, going backward, comparing neighbors).</li>
+              <li><code>v</code> is a <b>copy</b>: changing <code>v</code> does not change the array.</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <aside class="notes">
+    <p class="note-time">Suggested time: about 8 min</p>
+    <h4>Teaching tips</h4>
+    <ul>
+      <li>Live-code the first program. Type all 5 values on one line, then try typing them one per line: <code>cin</code> accepts both.</li>
+      <li>The reverse loop starts at <code>SIZE - 1</code> and stops after 0 (<code>i &gt;= 0</code>). Ask why it doesn't start at <code>SIZE</code>.</li>
+      <li>Range-based for needs C++11 or newer. Codechum and current g++ are fine; very old Dev-C++ setups may need <code>-std=c++11</code> in the compiler options.</li>
+      <li>To change elements inside a range-based for you write <code>for (double&amp; v : volts)</code>. That <code>&amp;</code> is a reference, which is next lab's topic.</li>
+    </ul>
+    <h4>Common student pitfalls</h4>
+    <ul>
+      <li><code>for (int i = 1; i &lt;= SIZE; i++)</code>: skips element 0 and touches element SIZE, which does not exist.</li>
+      <li>Trying <code>cin &gt;&gt; volts;</code> or <code>cout &lt;&lt; volts;</code> to read or print the whole array. You must loop over the elements (printing <code>volts</code> shows an address).</li>
+    </ul>
+    <h4>Ask the class</h4>
+    <ul>
+      <li>"How would you print only the elements at even indexes?" (<code>i += 2</code>, or <code>if (i % 2 == 0)</code>.)</li>
+    </ul>
+  </aside>
+</section>
+
+<!-- ========================= SLIDE 7 · SUM / AVG / COUNT ========================= -->
+<section class="slide" id="l9-sum-avg" data-title="Sum, Average, Count" data-section="Array Algorithms">
+  <header class="slide-head">
+    <p class="kicker">Lab 9 · Array algorithms</p>
+    <h2>Sum, Average, and Counting</h2>
+    <p class="lede">The Lab 7 accumulator and counter patterns, applied to an array: one pass through the elements does both.</p>
+  </header>
+  <div class="grid-2 align-start">
+<pre class="code compact" data-cpp>
+#include &lt;iostream&gt;
+#include &lt;iomanip&gt;
+using namespace std;
+
+int main() {
+    const int SIZE = 8;
+    int grades[SIZE] = {88, 72, 95, 64, 79, 91, 70, 85};
+    int sum = 0, passed = 0;
+    for (int i = 0; i &lt; SIZE; i++) {
+        sum += grades[i];           // accumulator
+        if (grades[i] &gt;= 75) {
+            passed++;               // counter
+        }
+    }
+    // cast first, to avoid integer division
+    double average = static_cast&lt;double&gt;(sum) / SIZE;
+    cout &lt;&lt; "Sum: " &lt;&lt; sum &lt;&lt; endl;
+    cout &lt;&lt; fixed &lt;&lt; setprecision(2);
+    cout &lt;&lt; "Average: " &lt;&lt; average &lt;&lt; endl;
+    cout &lt;&lt; "Passed: " &lt;&lt; passed &lt;&lt; " of " &lt;&lt; SIZE;
+    cout &lt;&lt; endl;
+    return 0;
+}
+</pre>
+    <div class="stack">
+<pre class="console">Sum: 644
+Average: 80.50
+Passed: 5 of 8</pre>
+      <div class="concept"><p class="box-label">Pattern</p>
+        <ul>
+          <li><b>Accumulator</b>: <code>sum += grades[i];</code></li>
+          <li><b>Counter with a condition</b>: <code>if (grades[i] &gt;= 75) passed++;</code></li>
+          <li>Average = sum ÷ SIZE, computed <b>after</b> the loop.</li>
+        </ul>
+      </div>
+      <div class="pitfall"><p class="box-label">Integer division</p><p><code>sum / SIZE</code> with two <code>int</code>s gives 80, not 80.5. Cast one side to <code>double</code> first.</p></div>
+    </div>
+  </div>
+  <aside class="notes">
+    <p class="note-time">Suggested time: about 6 min</p>
+    <h4>Teaching tips</h4>
+    <ul>
+      <li>Ask the class to compute the sum by hand first: 88 + 72 + 95 + 64 + 79 + 91 + 70 + 85 = 644. Then 644 / 8 = 80.5.</li>
+      <li><code>static_cast&lt;double&gt;(sum)</code> is the modern C++ cast; <code>(double) sum</code> also works and may be what students saw in Lab 3–4.</li>
+      <li>75 is the passing grade used here; adjust to your institution's grading scale if you prefer.</li>
+    </ul>
+    <h4>Common student pitfalls</h4>
+    <ul>
+      <li><code>static_cast&lt;double&gt;(sum / SIZE)</code>: the division already happened in integer math, so the cast comes too late (80.00).</li>
+      <li>Computing the average inside the loop on every pass. It works, but it is wasted work and confusing to read.</li>
+    </ul>
+    <h4>Ask the class</h4>
+    <ul>
+      <li>"How would you also count the failing grades?" (<code>SIZE - passed</code>, no second loop needed.)</li>
+    </ul>
+  </aside>
+</section>
+
+<!-- ========================= SLIDE 8 · MAX / MIN ========================= -->
+<section class="slide" id="l9-maxmin" data-title="Maximum and Minimum" data-section="Array Algorithms">
+  <header class="slide-head">
+    <p class="kicker">Lab 9 · Array algorithms</p>
+    <h2>Highest and Lowest, and <em>Where</em></h2>
+    <p class="lede">Start with element 0 as the "best so far" and compare it with the rest. Keep the index too, to say <em>which day</em>.</p>
+  </header>
+  <div class="grid-2 align-start">
+<pre class="code compact scroll" data-cpp>
+#include &lt;iostream&gt;
+using namespace std;
+
+int main() {
+    const int DAYS = 7;
+    double temp[DAYS] = {31.5, 33.2, 30.8, 34.1,
+                         32.7, 29.9, 33.0};
+    double highest = temp[0], lowest = temp[0];
+    int highDay = 0, lowDay = 0;
+    for (int i = 1; i &lt; DAYS; i++) {
+        if (temp[i] &gt; highest) {
+            highest = temp[i];
+            highDay = i;        // remember WHERE
+        }
+        if (temp[i] &lt; lowest) {
+            lowest = temp[i];
+            lowDay = i;
+        }
+    }
+    cout &lt;&lt; "Highest: " &lt;&lt; highest &lt;&lt; " C on day ";
+    cout &lt;&lt; highDay + 1 &lt;&lt; endl;
+    cout &lt;&lt; "Lowest: " &lt;&lt; lowest &lt;&lt; " C on day ";
+    cout &lt;&lt; lowDay + 1 &lt;&lt; endl;
+    return 0;
+}
+</pre>
+    <div class="stack">
+<pre class="console">Highest: 34.1 C on day 4
+Lowest: 29.9 C on day 6</pre>
+      <div class="table-wrap">
+        <table class="table compact trace-table">
+          <caption>Tracking <code>highest</code></caption>
+          <thead><tr><th scope="col">i</th><th scope="col">temp[i]</th><th scope="col">&gt; highest?</th><th scope="col">highest</th><th scope="col">highDay</th></tr></thead>
+          <tbody>
+            <tr><td>start</td><td>31.5</td><td></td><td>31.5</td><td>0</td></tr>
+            <tr><td>1</td><td>33.2</td><td>yes</td><td>33.2</td><td>1</td></tr>
+            <tr><td>2</td><td>30.8</td><td>no</td><td>33.2</td><td>1</td></tr>
+            <tr class="is-hl"><td>3</td><td>34.1</td><td>yes</td><td>34.1</td><td>3</td></tr>
+            <tr><td>4–6</td><td>32.7, 29.9, 33.0</td><td>no</td><td>34.1</td><td>3</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="small">Index 3 is printed as "day 4" because people count days from 1.</p>
+    </div>
+  </div>
+  <aside class="notes">
+    <p class="note-time">Suggested time: about 7 min</p>
+    <h4>Teaching tips</h4>
+    <ul>
+      <li>Analogy: a "king of the hill" game. The first reading starts on top; each new reading challenges it and takes over only if it is bigger.</li>
+      <li>Starting from <code>temp[0]</code> (not 0 or 100) works for any data, including negative temperatures. The loop can then start at <code>i = 1</code>.</li>
+      <li>Ask: "What if two days tie for the highest?" With <code>&gt;</code> the first one is kept; with <code>&gt;=</code> the last one wins.</li>
+    </ul>
+    <h4>Common student pitfalls</h4>
+    <ul>
+      <li>Starting <code>highest = 0</code>: fails for all-negative data (see the pitfalls slide).</li>
+      <li>Using <code>else if</code> between the max and min tests. It works here because the first element is already both, but it hides the idea that the two checks are independent.</li>
+      <li>Forgetting to store the index, then searching the array again to find where the maximum was.</li>
+    </ul>
+    <h4>Ask the class</h4>
+    <ul>
+      <li>"How would you print the range (highest − lowest)?" (34.1 − 29.9 = 4.2.)</li>
+    </ul>
+  </aside>
+</section>
+
+<!-- ========================= SLIDE 9 · LINEAR SEARCH ========================= -->
+<section class="slide" id="l9-search" data-title="Linear Search (trace)" data-section="Array Algorithms">
+  <header class="slide-head">
+    <p class="kicker">Lab 9 · Searching</p>
+    <h2>Linear Search: Check Each Element in Turn</h2>
+    <p class="lede">Compare the target with element 0, 1, 2, … and stop at the first match. If the loop ends, it is not there.</p>
+  </header>
+  <div class="example-grid">
+<pre class="code compact scroll" id="l9-search-code" data-cpp data-stdin="5">
+#include &lt;iostream&gt;
+using namespace std;
+
+int main() {
+    const int SIZE = 6;
+    int partNo[SIZE] = {42, 17, 89, 5, 63, 28};
+    int target;
+    cout &lt;&lt; "Part number to find: ";
+    cin &gt;&gt; target;
+    bool found = false;
+    int position = -1;
+    for (int i = 0; i &lt; SIZE; i++) {
+        if (partNo[i] == target) {
+            found = true;
+            position = i;
+            break;          // stop at the first match
+        }
+    }
+    if (found) {
+        cout &lt;&lt; "Found at index " &lt;&lt; position &lt;&lt; endl;
+    } else {
+        cout &lt;&lt; target &lt;&lt; " is not in the list.";
+        cout &lt;&lt; endl;
+    }
+    return 0;
+}
+</pre>
+    <div class="stack">
+      <div class="tracer" data-trace="l9-search" data-code="#l9-search-code" data-speed="800">
+        <div class="tracer-inputs">
+          <label>target <input type="number" data-var="target" value="5" step="1"></label>
+        </div>
+      </div>
+      <div class="samples">
+        <figure class="sample"><figcaption>Found</figcaption><pre class="console">Part number to find: <span class="in">5</span>
+Found at index 3</pre></figure>
+        <figure class="sample"><figcaption>Not found</figcaption><pre class="console">Part number to find: <span class="in">50</span>
+50 is not in the list.</pre></figure>
+      </div>
+      <p class="small"><b>Work:</b> up to SIZE comparisons (the worst case is a target at the end or not present at all).</p>
+    </div>
+  </div>
+  <aside class="notes">
+    <p class="note-time">Suggested time: about 8 min</p>
+    <h4>Teaching tips</h4>
+    <ul>
+      <li>Trace with 5 (found at index 3, 4 comparisons), 42 (found at once, 1 comparison), and 50 (not found, 6 comparisons).</li>
+      <li>The flag <code>found</code> plus <code>position</code> is the Lab 8 "decide after the loop" pattern. <code>position = -1</code> is a common "nothing yet" value, because -1 can never be a real index.</li>
+      <li>Linear search works on <em>unsorted</em> data. Faster searches (binary search) need sorted data, which is one reason we sort next.</li>
+    </ul>
+    <h4>Common student pitfalls</h4>
+    <ul>
+      <li>Printing "not found" inside the loop in an <code>else</code>: it prints once for every non-matching element.</li>
+      <li>Returning or printing the index as a "position" without adding 1 when the problem counts from 1 (Lab Exercise Problem 2 does).</li>
+    </ul>
+    <h4>Ask the class</h4>
+    <ul>
+      <li>"How would you count <em>all</em> matches instead of stopping at the first?" (remove the <code>break</code>, add a counter.)</li>
+    </ul>
+  </aside>
+</section>
+
+<!-- ========================= SLIDE 10 · BUBBLE SORT ========================= -->
+<section class="slide" id="l9-bubble" data-title="Bubble Sort (trace)" data-section="Array Algorithms">
+  <header class="slide-head">
+    <p class="kicker">Lab 9 · Sorting</p>
+    <h2>Bubble Sort: Swap Neighbors Until Sorted</h2>
+    <p class="lede">Swap neighbors that are out of order. Each pass "bubbles" the largest remaining value to the end; a pass with no swaps means done.</p>
+  </header>
+  <div class="example-grid">
+<pre class="code compact scroll" id="l9-bubble-code" data-cpp data-stdin="5 1 4 2 8">
+#include &lt;iostream&gt;
+using namespace std;
+
+int main() {
+    const int SIZE = 5;
+    int arr[SIZE];
+    cout &lt;&lt; "Enter " &lt;&lt; SIZE &lt;&lt; " numbers: ";
+    for (int i = 0; i &lt; SIZE; i++) {
+        cin &gt;&gt; arr[i];
+    }
+    for (int pass = 1; pass &lt; SIZE; pass++) {
+        bool swapped = false;
+        for (int i = 0; i &lt; SIZE - pass; i++) {
+            if (arr[i] &gt; arr[i + 1]) {
+                int temp = arr[i];      // swap the
+                arr[i] = arr[i + 1];    // neighbors
+                arr[i + 1] = temp;
+                swapped = true;
+            }
+        }
+        cout &lt;&lt; "After pass " &lt;&lt; pass &lt;&lt; ":";
+        for (int i = 0; i &lt; SIZE; i++) {
+            cout &lt;&lt; " " &lt;&lt; arr[i];
+        }
+        cout &lt;&lt; endl;
+        if (!swapped) {
+            break;      // no swaps: already sorted
+        }
+    }
+    return 0;
+}
+</pre>
+    <div class="stack">
+      <div class="tracer" data-trace="l9-bubble" data-code="#l9-bubble-code" data-speed="800">
+        <div class="tracer-inputs">
+          <label>numbers <input type="text" data-type="text" data-var="numbers" value="5 1 4 2 8" style="width:9rem"></label>
+        </div>
+      </div>
+      <figure class="codeblock">
+        <figcaption>Sample run (compiled program)</figcaption>
+<pre class="console">Enter 5 numbers: <span class="in">5 1 4 2 8</span>
+After pass 1: 1 4 2 5 8
+After pass 2: 1 2 4 5 8
+After pass 3: 1 2 4 5 8</pre>
+      </figure>
+    </div>
+  </div>
+  <aside class="notes">
+    <p class="note-time">Suggested time: about 12 min</p>
+    <h4>Teaching tips</h4>
+    <ul>
+      <li>Before the code, sort 5 volunteers by height using only "compare two neighbors, swap if needed". They discover bubble sort themselves.</li>
+      <li>Swapping needs a third variable: like swapping the drinks in two glasses, you need an empty glass (<code>temp</code>). Show the wrong version <code>arr[i] = arr[i+1]; arr[i+1] = arr[i];</code> (both become the same value).</li>
+      <li>The inner limit <code>SIZE - pass</code> shrinks each pass because the end of the array is already sorted.</li>
+      <li>Early exit: pass 3 made no swaps, so the array is sorted and <code>break</code> skips pass 4. In the tracer, try <code>1 2 3 4 5</code>: only one pass.</li>
+      <li>Trace <code>5 4 3 2 1</code> (worst case: 4 passes, 10 swaps) and <code>1 2 3 4 5</code> (best case: 1 pass, 0 swaps).</li>
+      <li>Descending order: change <code>&gt;</code> to <code>&lt;</code> in the comparison. Lab Exercise Problem 1 needs this.</li>
+    </ul>
+    <h4>Common student pitfalls</h4>
+    <ul>
+      <li>Inner loop <code>i &lt; SIZE</code>: then <code>arr[i + 1]</code> reads <code>arr[5]</code>, outside the array.</li>
+      <li>Resetting <code>swapped</code> outside the outer loop, so the early exit never (or always) triggers.</li>
+    </ul>
+    <h4>Ask the class</h4>
+    <ul>
+      <li>"For 5 elements, what is the most comparisons bubble sort can make?" (4 + 3 + 2 + 1 = 10.) "For n elements?" (n(n − 1)/2: the nested-loop triangle from Lab 8.)</li>
+    </ul>
+  </aside>
+</section>
+
+<!-- ========================= SLIDE 11 · SELECTION SORT ========================= -->
+<section class="slide" id="l9-selection" data-title="Selection Sort (optional)" data-section="Array Algorithms">
+  <header class="slide-head">
+    <p class="kicker">Lab 9 · Sorting (optional)</p>
+    <h2>Selection Sort: Find the Smallest, Put It in Front</h2>
+    <p class="lede">Each pass finds the smallest value in the unsorted part and swaps it into place: at most one swap per pass.</p>
+  </header>
+  <div class="grid-2 align-start">
+<pre class="code compact scroll" data-cpp>
+#include &lt;iostream&gt;
+using namespace std;
+
+int main() {
+    const int SIZE = 5;
+    int arr[SIZE] = {29, 10, 14, 37, 13};
+    for (int i = 0; i &lt; SIZE - 1; i++) {
+        int minIndex = i;           // smallest so far
+        for (int j = i + 1; j &lt; SIZE; j++) {
+            if (arr[j] &lt; arr[minIndex]) {
+                minIndex = j;
+            }
+        }
+        int temp = arr[i];      // one swap per pass
+        arr[i] = arr[minIndex];
+        arr[minIndex] = temp;
+        cout &lt;&lt; "After pass " &lt;&lt; i + 1 &lt;&lt; ":";
+        for (int k = 0; k &lt; SIZE; k++) {
+            cout &lt;&lt; " " &lt;&lt; arr[k];
+        }
+        cout &lt;&lt; endl;
+    }
+    return 0;
+}
+</pre>
+    <div class="stack">
+<pre class="console">After pass 1: 10 29 14 37 13
+After pass 2: 10 13 14 37 29
+After pass 3: 10 13 14 37 29
+After pass 4: 10 13 14 29 37</pre>
+      <div class="table-wrap">
+        <table class="table compact">
+          <thead><tr><th scope="col"></th><th scope="col">Bubble sort</th><th scope="col">Selection sort</th></tr></thead>
+          <tbody>
+            <tr><th scope="row">Idea</th><td>Swap out-of-order neighbors</td><td>Select the minimum, swap once</td></tr>
+            <tr><th scope="row">Comparisons (n = 5)</th><td>up to 10</td><td>always 10</td></tr>
+            <tr><th scope="row">Swaps per pass</th><td>many</td><td>at most 1</td></tr>
+            <tr><th scope="row">Early exit</th><td>yes, when no swaps</td><td>no</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+  <aside class="notes">
+    <p class="note-time">Suggested time: about 5 min (optional; skip if short on time)</p>
+    <h4>Teaching tips</h4>
+    <ul>
+      <li>Pass 3 shows "no change" because 14 was already in place; selection sort still does the full scan (no early exit).</li>
+      <li>Both sorts do about n²/2 comparisons, so both are slow for large arrays. Real programs use <code>std::sort</code> (later courses); writing your own sort is about learning nested loops and swaps.</li>
+    </ul>
+    <h4>Common student pitfalls</h4>
+    <ul>
+      <li>Storing the minimum <em>value</em> instead of its <em>index</em>, so there is no way to know which element to swap with.</li>
+      <li>Starting the inner loop at 0 instead of <code>i + 1</code>.</li>
+    </ul>
+    <h4>Ask the class</h4>
+    <ul>
+      <li>"Which sort would you choose if swaps were very expensive (e.g., moving heavy crates)?" (selection sort.)</li>
+    </ul>
+  </aside>
+</section>
+
+<!-- ========================= SLIDE 12 · 2D ARRAYS ========================= -->
+<section class="slide" id="l9-2d" data-title="2D Arrays" data-section="2D Arrays">
+  <header class="slide-head">
+    <p class="kicker">Lab 9 · 2D arrays</p>
+    <h2>Two-Dimensional Arrays: Rows and Columns</h2>
+    <p class="lede"><code>int m[3][4];</code> is 3 rows of 4 ints: a table. Use two indexes, <b>row first</b>, then column: <code>m[r][c]</code>.</p>
+  </header>
+  <div class="grid-2 align-start">
+    <div class="tabs" data-tabs>
+      <div class="tablist" role="tablist" aria-label="2D array code">
+        <button type="button" role="tab" data-tab="decl" aria-selected="true">Declare &amp; use</button>
+        <button type="button" role="tab" data-tab="print">Print it (full program)</button>
+      </div>
+      <div class="tabpanel" role="tabpanel" data-panel="decl">
+<pre class="code compact" data-cpp>
+const int ROWS = 3, COLS = 4;
+int m[ROWS][COLS] = {
+    {1, 2, 3, 4},       // row 0
+    {5, 6, 7, 8},       // row 1
+    {9, 10, 11, 12}     // row 2
+};
+cout &lt;&lt; m[1][2];        // row 1, col 2: prints 7
+m[2][0] = 0;            // change one element
+</pre>
+      </div>
+      <div class="tabpanel" role="tabpanel" data-panel="print">
+<pre class="code compact" data-cpp>
+#include &lt;iostream&gt;
+#include &lt;iomanip&gt;
+using namespace std;
+
+int main() {
+    const int ROWS = 3, COLS = 4;
+    int m[ROWS][COLS] = {
+        {1, 2, 3, 4},           // row 0
+        {5, 6, 7, 8},           // row 1
+        {9, 10, 11, 12}         // row 2
+    };
+    for (int r = 0; r &lt; ROWS; r++) {    // rows
+        for (int c = 0; c &lt; COLS; c++) {  // cols
+            cout &lt;&lt; setw(4) &lt;&lt; m[r][c];
+        }
+        cout &lt;&lt; endl;
+    }
+    cout &lt;&lt; "m[1][2] = " &lt;&lt; m[1][2] &lt;&lt; endl;
+    return 0;
+}
+</pre>
+<pre class="console" style="margin-top:.6rem">   1   2   3   4
+   5   6   7   8
+   9  10  11  12
+m[1][2] = 7</pre>
+      </div>
+    </div>
+    <div class="stack">
+      <div class="table-wrap">
+        <table class="table compact trace-table">
+          <caption>How you picture <code>m</code></caption>
+          <thead><tr><th scope="col"></th><th scope="col">col 0</th><th scope="col">col 1</th><th scope="col">col 2</th><th scope="col">col 3</th></tr></thead>
+          <tbody>
+            <tr><th scope="row">row 0</th><td>1</td><td>2</td><td>3</td><td>4</td></tr>
+            <tr class="is-hl"><th scope="row">row 1</th><td>5</td><td>6</td><td><b>7</b></td><td>8</td></tr>
+            <tr><th scope="row">row 2</th><td>9</td><td>10</td><td>11</td><td>12</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="concept"><p class="box-label">Key concept</p><p><b>Row first, then column.</b> Rows 0 to 2, columns 0 to 3: 3 × 4 = 12 ints = 48 bytes. Print it with the Lab 8 grid pattern: outer loop = rows, inner loop = columns.</p></div>
+    </div>
+  </div>
+  <p class="small" style="margin-top:1rem"><b>How memory stores it (row-major):</b> row 0, then row 1, then row 2, all in one line of 12 ints.</p>
+  <div class="mem array" aria-label="Row-major layout: m[0][0] to m[0][3] hold 1 to 4, then m[1][0] to m[1][3] hold 5 to 8, then m[2][0] to m[2][3] hold 9 to 12, all consecutive.">
+    <div class="mem-cell"><span class="mem-name">[0][0]</span><span class="mem-val">1</span></div>
+    <div class="mem-cell"><span class="mem-name">[0][1]</span><span class="mem-val">2</span></div>
+    <div class="mem-cell"><span class="mem-name">[0][2]</span><span class="mem-val">3</span></div>
+    <div class="mem-cell"><span class="mem-name">[0][3]</span><span class="mem-val">4</span></div>
+    <div class="mem-cell"><span class="mem-name">[1][0]</span><span class="mem-val">5</span></div>
+    <div class="mem-cell"><span class="mem-name">[1][1]</span><span class="mem-val">6</span></div>
+    <div class="mem-cell is-hl"><span class="mem-name">[1][2]</span><span class="mem-val">7</span></div>
+    <div class="mem-cell"><span class="mem-name">[1][3]</span><span class="mem-val">8</span></div>
+    <div class="mem-cell"><span class="mem-name">[2][0]</span><span class="mem-val">9</span></div>
+    <div class="mem-cell"><span class="mem-name">[2][1]</span><span class="mem-val">10</span></div>
+    <div class="mem-cell"><span class="mem-name">[2][2]</span><span class="mem-val">11</span></div>
+    <div class="mem-cell"><span class="mem-name">[2][3]</span><span class="mem-val">12</span></div>
+  </div>
+  <aside class="notes">
+    <p class="note-time">Suggested time: about 8 min</p>
+    <h4>Teaching tips</h4>
+    <ul>
+      <li>Read <code>m[1][2]</code> as "row 1, column 2". Find it in the table (highlighted), then in the memory strip: it is element 1 × 4 + 2 = 6 of the strip (counting from 0).</li>
+      <li>The nested loops are the Lab 8 grid pattern: outer loop = rows, inner loop = columns, <code>endl</code> after each row.</li>
+      <li>The inner braces in the initializer are optional but make the rows visible. Always include them.</li>
+      <li>"Multi-dimensional" also allows <code>int cube[2][3][4];</code> (3D), but 2D covers almost every lab problem.</li>
+    </ul>
+    <h4>Common student pitfalls</h4>
+    <ul>
+      <li>Writing <code>m[1, 2]</code> (Python/Excel style). In C++ that is not a 2D index; always use two brackets <code>m[1][2]</code>.</li>
+      <li>Swapping rows and columns: <code>m[c][r]</code> in the loops. It still compiles, but reads the wrong elements (and goes out of bounds when rows ≠ columns).</li>
+    </ul>
+    <h4>Ask the class</h4>
+    <ul>
+      <li>"How many bytes does <code>int m[3][4]</code> use?" (12 × 4 = 48.)</li>
+    </ul>
+  </aside>
+</section>
+
+<!-- ========================= SLIDE 13 · ROW & COLUMN SUMS ========================= -->
+<section class="slide" id="l9-2d-sums" data-title="Row and Column Sums" data-section="2D Arrays">
+  <header class="slide-head">
+    <p class="kicker">Lab 9 · 2D arrays</p>
+    <h2>Row Sums and Column Sums</h2>
+    <p class="lede">Rows: the outer loop picks a row, the inner loop walks across it. Columns: <b>swap the loops</b> so the inner loop walks down a column.</p>
+  </header>
+  <div class="code-pair">
+<pre class="code compact scroll" data-cpp>
+#include &lt;iostream&gt;
+#include &lt;iomanip&gt;
+using namespace std;
+
+int main() {
+    const int STUDENTS = 3, QUIZZES = 4;
+    int score[STUDENTS][QUIZZES] = {
+        {18, 15, 20, 17},
+        {12, 19, 16, 14},
+        {20, 18, 19, 20}
+    };
+    cout &lt;&lt; "           Q1  Q2  Q3  Q4  Total" &lt;&lt; endl;
+    for (int s = 0; s &lt; STUDENTS; s++) {
+        int rowSum = 0;             // reset per row
+        cout &lt;&lt; "Student " &lt;&lt; s + 1;
+        for (int q = 0; q &lt; QUIZZES; q++) {
+            cout &lt;&lt; setw(4) &lt;&lt; score[s][q];
+            rowSum += score[s][q];
+        }
+        cout &lt;&lt; setw(7) &lt;&lt; rowSum &lt;&lt; endl;
+    }
+    cout &lt;&lt; "Quiz sum ";
+    for (int q = 0; q &lt; QUIZZES; q++) {
+        int colSum = 0;         // reset per column
+        for (int s = 0; s &lt; STUDENTS; s++) {
+            colSum += score[s][q];  // walk DOWN
+        }
+        cout &lt;&lt; setw(4) &lt;&lt; colSum;
+    }
+    cout &lt;&lt; endl;
+    return 0;
+}
+</pre>
+    <div class="stack">
+<pre class="console">           Q1  Q2  Q3  Q4  Total
+Student 1  18  15  20  17     70
+Student 2  12  19  16  14     61
+Student 3  20  18  19  20     77
+Quiz sum   50  52  55  51</pre>
+      <div class="concept"><p class="box-label">Which loop is outside?</p>
+        <ul>
+          <li><b>Per row</b> (each student's total): <code>s</code> outside, <code>q</code> inside.</li>
+          <li><b>Per column</b> (each quiz's total): <code>q</code> outside, <code>s</code> inside.</li>
+          <li>Reset the sum at the start of <b>each</b> row or column.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+  <aside class="notes">
+    <p class="note-time">Suggested time: about 8 min</p>
+    <h4>Teaching tips</h4>
+    <ul>
+      <li>Point at the console: the "Total" column comes from the row loop, the "Quiz sum" row from the column loop.</li>
+      <li>The index order in <code>score[s][q]</code> never changes (always row first). Only the order of the loops changes.</li>
+      <li>Check one value by hand: Quiz 3 = 20 + 16 + 19 = 55.</li>
+      <li><code>setw(4)</code> and <code>setw(7)</code> keep the columns aligned with the header. Spacing in the header string was counted to match.</li>
+    </ul>
+    <h4>Common student pitfalls</h4>
+    <ul>
+      <li>Declaring <code>rowSum</code> before the outer loop: Student 2's total becomes 131 (70 + 61).</li>
+      <li>Writing <code>score[q][s]</code> in the column loop. With 3 rows and 4 columns, <code>q = 3</code> reads past the last row.</li>
+    </ul>
+    <h4>Ask the class</h4>
+    <ul>
+      <li>"How would you find the student with the highest total?" (track the max of <code>rowSum</code> and its row index: the max-with-index pattern.)</li>
+    </ul>
+  </aside>
+</section>
+
+<!-- ========================= SLIDE 14 · 2D EXAMPLES ========================= -->
+<section class="slide" id="l9-2d-examples" data-title="Seat Plan & Matrix Addition" data-section="2D Arrays">
+  <header class="slide-head">
+    <p class="kicker">Lab 9 · 2D arrays</p>
+    <h2>2D Arrays at Work: Seat Plan and Matrix Addition</h2>
+    <p class="lede">Any grid fits in a 2D array: seats in a room, pixels, a sensor grid, or a matrix in your math class.</p>
+  </header>
+  <div class="tabs" data-tabs>
+    <div class="tablist" role="tablist" aria-label="2D array examples">
+      <button type="button" role="tab" data-tab="seats" aria-selected="true">Seat plan (char)</button>
+      <button type="button" role="tab" data-tab="matrix">Matrix addition</button>
+    </div>
+    <div class="tabpanel" role="tabpanel" data-panel="seats">
+      <div class="code-pair">
+<pre class="code compact scroll" data-cpp>
+#include &lt;iostream&gt;
+using namespace std;
+
+int main() {
+    const int ROWS = 4, COLS = 6;
+    // O = open seat, X = taken
+    char seat[ROWS][COLS] = {
+        {'X', 'X', 'O', 'X', 'O', 'O'},
+        {'O', 'X', 'X', 'X', 'X', 'O'},
+        {'X', 'X', 'X', 'X', 'X', 'X'},
+        {'O', 'O', 'O', 'X', 'O', 'O'}
+    };
+    int totalOpen = 0;
+    for (int r = 0; r &lt; ROWS; r++) {
+        int open = 0;
+        cout &lt;&lt; "Row " &lt;&lt; char('A' + r) &lt;&lt; ": ";
+        for (int c = 0; c &lt; COLS; c++) {
+            cout &lt;&lt; seat[r][c] &lt;&lt; " ";
+            if (seat[r][c] == 'O') {
+                open++;
+            }
+        }
+        cout &lt;&lt; " open = " &lt;&lt; open &lt;&lt; endl;
+        totalOpen += open;
+    }
+    cout &lt;&lt; "Open seats: " &lt;&lt; totalOpen &lt;&lt; " of ";
+    cout &lt;&lt; ROWS * COLS &lt;&lt; endl;
+    return 0;
+}
+</pre>
+        <div class="stack">
+<pre class="console">Row A: X X O X O O  open = 3
+Row B: O X X X X O  open = 2
+Row C: X X X X X X  open = 0
+Row D: O O O X O O  open = 5
+Open seats: 10 of 24</pre>
+          <p class="small">A <code>char</code> 2D array, a per-row counter, and a grand total. <code>char('A' + r)</code> turns row 0, 1, 2, 3 into the letters A, B, C, D.</p>
+        </div>
+      </div>
+    </div>
+    <div class="tabpanel" role="tabpanel" data-panel="matrix">
+      <div class="code-pair">
+<pre class="code compact" data-cpp>
+#include &lt;iostream&gt;
+#include &lt;iomanip&gt;
+using namespace std;
+
+int main() {
+    const int ROWS = 2, COLS = 3;
+    int a[ROWS][COLS] = {{1, 2, 3}, {4, 5, 6}};
+    int b[ROWS][COLS] = {{10, 20, 30}, {40, 50, 60}};
+    int sum[ROWS][COLS];
+    for (int r = 0; r &lt; ROWS; r++) {
+        for (int c = 0; c &lt; COLS; c++) {
+            sum[r][c] = a[r][c] + b[r][c];
+        }
+    }
+    cout &lt;&lt; "A + B =" &lt;&lt; endl;
+    for (int r = 0; r &lt; ROWS; r++) {
+        for (int c = 0; c &lt; COLS; c++) {
+            cout &lt;&lt; setw(5) &lt;&lt; sum[r][c];
+        }
+        cout &lt;&lt; endl;
+    }
+    return 0;
+}
+</pre>
+        <div class="stack">
+<pre class="console">A + B =
+   11   22   33
+   44   55   66</pre>
+          <div class="concept"><p class="box-label">Matrix addition</p><p>Add elements in the <b>same position</b>: <code>sum[r][c] = a[r][c] + b[r][c]</code>. Both matrices must have the same number of rows and columns.</p></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <aside class="notes">
+    <p class="note-time">Suggested time: about 8 min</p>
+    <h4>Teaching tips</h4>
+    <ul>
+      <li>Seat plan: ask students to mark this room's seats and change the array to match. Then ask how to find the first open seat (a nested search with a flag, as in Lab 8).</li>
+      <li>Matrix addition: connect to their math class (matrices in algebra). One nested loop computes, a second one prints, which keeps the logic clear.</li>
+      <li>Matrix multiplication needs three nested loops. It is a good challenge for strong students, but not required here.</li>
+    </ul>
+    <h4>Common student pitfalls</h4>
+    <ul>
+      <li>Using <code>"O"</code> (a string) instead of <code>'O'</code> (a char) in the comparison: it does not compile.</li>
+      <li>Trying <code>sum = a + b;</code> for whole arrays. Arrays don't support <code>+</code> or <code>=</code>; work element by element.</li>
+    </ul>
+    <h4>Ask the class</h4>
+    <ul>
+      <li>"How would you compute A − B? 2 × A?" (same loops, different formula.)</li>
+    </ul>
+  </aside>
+</section>
+
+<!-- ========================= SLIDE 15 · STRINGS ========================= -->
+<section class="slide" id="l9-strings" data-title="char Arrays vs string" data-section="Rules & Pitfalls">
+  <header class="slide-head">
+    <p class="kicker">Lab 9 · Text</p>
+    <h2>Character Arrays vs <code>string</code></h2>
+    <p class="lede">A C-style string is a <code>char</code> array ending in <code>'\0'</code>. The C++ <code>string</code> type is easier and safer.</p>
+  </header>
+  <div class="grid-2 align-start">
+    <div class="stack">
+<pre class="code compact" data-cpp>
+#include &lt;iostream&gt;
+#include &lt;string&gt;
+using namespace std;
+
+int main() {
+    char course[7] = "CPE104";  // 6 chars + '\0'
+    string title = "Programming Logic";
+    title = title + " and Design";  // + works
+    cout &lt;&lt; course &lt;&lt; ": " &lt;&lt; title &lt;&lt; endl;
+    cout &lt;&lt; "First letter: " &lt;&lt; course[0] &lt;&lt; endl;
+    cout &lt;&lt; "Length: " &lt;&lt; title.length() &lt;&lt; endl;
+    return 0;
+}
+</pre>
+<pre class="console">CPE104: Programming Logic and Design
+First letter: C
+Length: 28</pre>
+    </div>
+    <div class="table-wrap">
+      <table class="table compact">
+        <thead><tr><th scope="col"></th><th scope="col"><code>char name[7]</code></th><th scope="col"><code>string name</code></th></tr></thead>
+        <tbody>
+          <tr><th scope="row">Size</th><td>Fixed; needs room for <code>'\0'</code></td><td>Grows as needed</td></tr>
+          <tr><th scope="row">Join</th><td>No <code>+</code></td><td><code>a + b</code></td></tr>
+          <tr><th scope="row">Assign</th><td>No <code>=</code> after declaring</td><td><code>s = "new";</code></td></tr>
+          <tr><th scope="row">Length</th><td>Count up to <code>'\0'</code></td><td><code>s.length()</code></td></tr>
+          <tr><th scope="row">Index</th><td><code>name[0]</code></td><td><code>s[0]</code> (also works)</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <aside class="notes">
+    <p class="note-time">Suggested time: about 4 min</p>
+    <h4>Teaching tips</h4>
+    <ul>
+      <li>Keep this brief. The point: a string is "an array of characters", so indexing works the same way. In this course, prefer <code>string</code>.</li>
+      <li><code>"CPE104"</code> has 6 visible characters but needs 7 bytes because of the terminating <code>'\0'</code>.</li>
+      <li>Students will meet C-style strings in older code, in Arduino sketches, and in C (embedded systems courses).</li>
+    </ul>
+    <h4>Common student pitfalls</h4>
+    <ul>
+      <li><code>char course[6] = "CPE104";</code> is a compile error in C++ (no room for <code>'\0'</code>).</li>
+      <li>Using <code>cin &gt;&gt; name</code> for a full name with spaces; it stops at the first space. (<code>getline</code> handles that.)</li>
+    </ul>
+    <h4>Ask the class</h4>
+    <ul>
+      <li>"What does <code>title[title.length() - 1]</code> give?" (the last character, <code>'n'</code>.)</li>
+    </ul>
+  </aside>
+</section>
+
+<!-- ========================= SLIDE 16 · BOUNDS & COPY ========================= -->
+<section class="slide" id="l9-bounds" data-title="Out of Bounds & Copying" data-section="Rules & Pitfalls">
+  <header class="slide-head">
+    <p class="kicker">Lab 9 · Rules that bite</p>
+    <h2>Out-of-Bounds Access and Copying Arrays</h2>
+    <p class="lede">C++ does not check array indexes, and it cannot copy a whole array with <code>=</code>. Both are your job.</p>
+  </header>
+  <div class="grid-2 align-start">
+    <div class="stack">
+      <div class="pitfall"><p class="box-label">Out of bounds = undefined behavior</p>
+<pre class="code compact bad-code" data-cpp data-nocheck>
+#include &lt;iostream&gt;
+using namespace std;
+
+int main() {
+    int scores[3] = {90, 85, 77};
+    for (int i = 0; i &lt;= 3; i++) {  // BUG
+        cout &lt;&lt; scores[i] &lt;&lt; " ";
+    }
+    cout &lt;&lt; endl;
+    return 0;
+}
+</pre>
+        <p style="margin-top:.6rem">There is <b>no automatic error</b>. One run printed:</p>
+<pre class="console">90 85 77 -495524352 </pre>
+        <p class="small">The next run printed a different number. With <code>-O2</code> optimization, the loop never stopped and crashed. Anything can happen.</p>
+      </div>
+    </div>
+    <div class="stack">
+      <figure class="codeblock">
+        <figcaption>Copy element by element</figcaption>
+<pre class="code compact" data-cpp>
+#include &lt;iostream&gt;
+using namespace std;
+
+int main() {
+    const int SIZE = 4;
+    int original[SIZE] = {7, 3, 9, 1};
+    int backup[SIZE];
+    // backup = original;   // ERROR
+    for (int i = 0; i &lt; SIZE; i++) {
+        backup[i] = original[i];    // one by one
+    }
+    original[0] = 100;      // change original
+    cout &lt;&lt; "original[0] = " &lt;&lt; original[0] &lt;&lt; endl;
+    cout &lt;&lt; "backup[0]   = " &lt;&lt; backup[0] &lt;&lt; endl;
+    return 0;
+}
+</pre>
+      </figure>
+<pre class="console">original[0] = 100
+backup[0]   = 7</pre>
+      <p class="small"><b>Coming later:</b> <code>std::vector</code> (can grow, knows its size) and <code>std::array</code> (fixed size, copies with <code>=</code>) solve many of these problems. They are covered in later courses.</p>
+    </div>
+  </div>
+  <aside class="notes">
+    <p class="note-time">Suggested time: about 7 min</p>
+    <h4>Teaching tips</h4>
+    <ul>
+      <li>The left output is a real run with g++ (no optimization); the garbage value differed on every run. When this exact program was compiled with <code>g++ -O2</code>, the optimizer assumed the out-of-bounds read could not happen, so the loop did not stop at i = 3: it printed thousands of garbage values and then crashed (segmentation fault). That is what "undefined behavior" means: the compiler promises nothing.</li>
+      <li>Out-of-bounds <em>writes</em> are worse than reads: they can silently change other variables. This is a classic source of security bugs (buffer overflows).</li>
+      <li><code>backup = original;</code> does not compile ("invalid array assignment"). Uncomment line 8 live to show the error.</li>
+    </ul>
+    <h4>Common student pitfalls</h4>
+    <ul>
+      <li>"It ran fine, so it's correct." Undefined behavior can look fine today and fail on the instructor's machine or in Codechum.</li>
+      <li>Comparing arrays with <code>==</code>: it compares addresses, not contents, and is almost always false. Compare element by element.</li>
+    </ul>
+    <h4>Ask the class</h4>
+    <ul>
+      <li>"Which one-character change fixes the left program?" (<code>&lt;=</code> → <code>&lt;</code>.)</li>
+    </ul>
+  </aside>
+</section>
+
+<!-- ========================= SLIDE 17 · PITFALLS ========================= -->
+<section class="slide" id="l9-pitfalls" data-title="Common Pitfalls" data-section="Rules & Pitfalls">
+  <header class="slide-head">
+    <p class="kicker">Lab 9 · Debugging</p>
+    <h2>Four Classic Array Bugs</h2>
+    <p class="lede">Each one compiles. Find the bug, predict what happens, then reveal the fix.</p>
+  </header>
+  <div class="tabs" data-tabs>
+    <div class="tablist" role="tablist" aria-label="Array bugs">
+      <button type="button" role="tab" data-tab="p1" aria-selected="true">1 · Off by one</button>
+      <button type="button" role="tab" data-tab="p2">2 · Uninitialized</button>
+      <button type="button" role="tab" data-tab="p3">3 · Variable size</button>
+      <button type="button" role="tab" data-tab="p4">4 · Bad max start</button>
+    </div>
+    <div class="tabpanel" role="tabpanel" data-panel="p1">
+      <div class="grid-2 align-start">
+        <div class="pitfall"><p class="box-label">Bug 1 · <code>i &lt;= SIZE</code></p>
+<pre class="code compact no-ln bad-code" data-cpp data-nocheck>
+int a[5];
+for (int i = 0; i &lt;= 5; i++) {  // BUG
+    a[i] = 0;                   // a[5]!
+}
+</pre>
+          <p style="margin-top:.6rem">The last pass writes <code>a[5]</code>, one past the end, and may overwrite another variable.</p>
+        </div>
+        <details class="hint"><summary>Show the fix</summary>
+<pre class="code compact no-ln" data-cpp style="margin:0 .8rem .6rem">
+const int SIZE = 5;
+int a[SIZE];
+for (int i = 0; i &lt; SIZE; i++) {
+    a[i] = 0;
+}
+</pre>
+          <p>Use <code>i &lt; SIZE</code>. The valid indexes are 0 to SIZE − 1.</p>
+        </details>
+      </div>
+    </div>
+    <div class="tabpanel" role="tabpanel" data-panel="p2">
+      <div class="grid-2 align-start">
+        <div class="pitfall"><p class="box-label">Bug 2 · Uninitialized array</p>
+<pre class="code compact no-ln bad-code" data-cpp data-nocheck>
+int count[5];           // BUG: garbage
+for (int i = 0; i &lt; 5; i++) {
+    count[i]++;         // garbage + 1
+}
+</pre>
+          <p style="margin-top:.6rem">A local array starts with <b>garbage</b>, so the counts are garbage + 1.</p>
+        </div>
+        <details class="hint"><summary>Show the fix</summary>
+<pre class="code compact no-ln" data-cpp style="margin:0 .8rem .6rem">
+int count[5] = {};      // all five start at 0
+for (int i = 0; i &lt; 5; i++) {
+    count[i]++;         // now 1 each
+}
+</pre>
+          <p>Initialize counters and accumulators: <code>= {}</code> sets every element to 0.</p>
+        </details>
+      </div>
+    </div>
+    <div class="tabpanel" role="tabpanel" data-panel="p3">
+      <div class="grid-2 align-start">
+        <div class="pitfall"><p class="box-label">Bug 3 · Variable as the size</p>
+<pre class="code compact no-ln bad-code" data-cpp data-nocheck>
+int n;
+cin &gt;&gt; n;
+int grades[n];          // BUG: not standard C++
+</pre>
+          <p style="margin-top:.6rem">A "variable-length array" is a g++ extension, not standard C++. Other compilers (like MSVC) reject it, and a large n can crash the program.</p>
+        </div>
+        <details class="hint"><summary>Show the fix</summary>
+<pre class="code compact no-ln" data-cpp style="margin:0 .8rem .6rem">
+const int MAX = 50;     // biggest allowed
+int grades[MAX];
+int n;
+cin &gt;&gt; n;               // then check n &lt;= MAX
+// use only grades[0] .. grades[n - 1]
+</pre>
+          <p>Declare the <b>maximum</b> size as a constant and use only the first n elements.</p>
+        </details>
+      </div>
+    </div>
+    <div class="tabpanel" role="tabpanel" data-panel="p4">
+      <div class="grid-2 align-start">
+        <div class="pitfall"><p class="box-label">Bug 4 · Max starts at 0</p>
+<pre class="code compact no-ln bad-code" data-cpp data-nocheck>
+int highest = 0;        // BUG: assumes &gt;= 0
+for (int i = 0; i &lt; SIZE; i++) {
+    if (temp[i] &gt; highest) {
+        highest = temp[i];
+    }
+}   // temps -5, -8, -2 give 0
+</pre>
+          <p style="margin-top:.6rem">With all-negative data (a freezer sensor), no value beats 0, so the "highest" is 0, which is not even in the array.</p>
+        </div>
+        <details class="hint"><summary>Show the fix</summary>
+<pre class="code compact no-ln" data-cpp style="margin:0 .8rem .6rem">
+int highest = temp[0];  // start from a real value
+for (int i = 1; i &lt; SIZE; i++) {
+    if (temp[i] &gt; highest) {
+        highest = temp[i];
+    }
+}   // temps -5, -8, -2 give -2
+</pre>
+          <p>Start from the first element. In 2D problems, reset max/min at the start of <b>each</b> row too.</p>
+        </details>
+      </div>
+    </div>
+  </div>
+  <aside class="notes">
+    <p class="note-time">Suggested time: about 8 min</p>
+    <h4>Teaching tips</h4>
+    <ul>
+      <li>Open one tab at a time. Give pairs 1 minute to find the bug and predict what happens, then click "Show the fix".</li>
+      <li>Bug 3: compile with <code>g++ -pedantic</code> to see the warning "ISO C++ forbids variable length array". Codechum may accept it, but the rubric's "Standards" criterion should not.</li>
+      <li>Bug 4 also appears as "forgetting to reset max/min": when finding the highest score <em>per student</em> in a 2D array, the max must restart for each row, or student 2 inherits student 1's maximum.</li>
+    </ul>
+    <h4>Common student pitfalls</h4>
+    <ul>
+      <li>Fixing bug 1 by making the array bigger (<code>int a[6]</code>) instead of fixing the loop condition.</li>
+      <li>Using a huge "safe" maximum like <code>int a[10000000];</code> as a local variable: it can overflow the stack and crash.</li>
+    </ul>
+    <h4>Ask the class</h4>
+    <ul>
+      <li>"Which of these four bugs gives a compiler error?" (None! That is why tracing and testing matter.)</li>
+    </ul>
+  </aside>
+</section>
+
+<!-- ========================= SLIDE 18 · QUICK CHECK ========================= -->
+<section class="slide" id="l9-quick-check" data-title="Quick Check" data-section="Practice">
+  <header class="slide-head">
+    <p class="kicker">Lab 9 · Quick check</p>
+    <h2>Quick Check</h2>
+    <p class="lede">Answer on paper first, then click to reveal.</p>
+  </header>
+  <div class="qa-grid">
+    <details class="qa"><summary><span class="q-num">1</span><span class="q-text">For <code>int a[5];</code>, which indexes are valid?</span></summary><p><b>0 to 4.</b> The index counts from 0, so the last one is SIZE − 1.</p></details>
+    <details class="qa"><summary><span class="q-num">2</span><span class="q-text">After <code>int a[5] = {3, 1};</code>, what is <code>a[3]</code>?</span></summary><p><b>0.</b> Elements without an initializer value are set to 0 when a list is given.</p></details>
+    <details class="qa"><summary><span class="q-num">3</span><span class="q-text">What is wrong with <code>for (int i = 0; i &lt;= 5; i++) a[i] = 0;</code> for <code>int a[5]</code>?</span></summary><p>It writes <code>a[5]</code>, which is outside the array: undefined behavior, with no automatic error. Use <code>i &lt; 5</code>.</p></details>
+    <details class="qa"><summary><span class="q-num">4</span><span class="q-text">Can you copy an array with <code>b = a;</code>?</span></summary><p>No, it does not compile. Copy element by element in a loop.</p></details>
+    <details class="qa"><summary><span class="q-num">5</span><span class="q-text">Linear search in an array of 100 elements: at most how many comparisons?</span></summary><p><b>100</b>, when the target is the last element or not in the array at all.</p></details>
+    <details class="qa"><summary><span class="q-num">6</span><span class="q-text"><code>int m[3][4];</code> has how many elements, and which one is stored right after <code>m[0][3]</code>?</span></summary><p><b>12</b> elements. Memory is row-major, so <code>m[1][0]</code> comes right after <code>m[0][3]</code>.</p></details>
+  </div>
+  <aside class="notes">
+    <p class="note-time">Suggested time: about 6 min</p>
+    <h4>Teaching tips</h4>
+    <ul>
+      <li>Ask students to write answers 1–6 on a ¼ sheet, then reveal one at a time with a show of hands.</li>
+      <li>Q3 is the most important one for the lab exercise: ask a student to fix the loop out loud.</li>
+    </ul>
+    <h4>Common student pitfalls</h4>
+    <ul>
+      <li>Q1: answering "1 to 5". Q2: answering "garbage" (true only without an initializer list).</li>
+      <li>Q6: answering <code>m[0][4]</code>, which does not exist (columns are 0 to 3).</li>
+    </ul>
+    <h4>Ask the class</h4>
+    <ul>
+      <li>"Which question would you put on the next quiz?" Their choice tells you what they found tricky.</li>
+    </ul>
+  </aside>
+</section>
+
+<!-- ========================= SLIDE 19 · SEATWORK ========================= -->
+<section class="slide" id="l9-seatwork" data-title="Seatwork: Above Average" data-section="Practice">
+  <header class="slide-head">
+    <p class="kicker">Lab 9 · Seatwork</p>
+    <h2>Seatwork: Readings Above the Average</h2>
+  </header>
+  <div class="story">
+    <p>A technician wants the average of 6 sensor readings, then <b>every reading above the average</b>: the slide 2 problem that needs an array.</p>
+    <p class="task"><b>Instruction:</b> Read 6 <code>double</code> readings into an array. Print the average, the readings above it (in input order), and how many there are.</p>
+  </div>
+  <div class="grid-2 align-start">
+    <div class="card">
+      <h3 class="card-title">Need a hint?</h3>
+      <details class="hint"><summary>Hint 1</summary><p>You need <b>two</b> loops: the first reads and sums, the second compares each reading with the average.</p></details>
+      <details class="hint"><summary>Hint 2</summary><p>The average can only be computed after the first loop ends. That is why the readings must be stored.</p></details>
+      <details class="hint"><summary>Hint 3</summary><p>Print a space before each value (<code>cout &lt;&lt; " " &lt;&lt; reading[i];</code>) to avoid a trailing space.</p></details>
+      <figure class="sample" style="margin-top:.6rem"><figcaption>Sample run</figcaption><pre class="console">Enter 6 readings: <span class="in">12 15 9 20 11 17</span>
+Average: 14
+Above average: 15 20 17
+Count: 3</pre></figure>
+    </div>
+    <div class="card timer" data-timer data-minutes="10">
+      <h3 class="card-title">Seatwork timer</h3>
+      <p class="timer-display">10:00</p>
+      <div class="timer-presets" role="group" aria-label="Timer presets">
+        <button type="button" class="btn ghost" data-min="5">5 min</button>
+        <button type="button" class="btn ghost" data-min="10">10 min</button>
+        <button type="button" class="btn ghost" data-min="15">15 min</button>
+      </div>
+      <div class="timer-actions">
+        <button type="button" class="btn primary" data-timer-act="toggle">Start</button>
+        <button type="button" class="btn" data-timer-act="reset">Reset</button>
+      </div>
+    </div>
+  </div>
+  <details class="answer">
+    <summary><span>Reveal answer &amp; walkthrough</span></summary>
+    <div class="code-pair" style="margin-top:1rem">
+<pre class="code compact" data-cpp data-stdin="12 15 9 20 11 17">
+#include &lt;iostream&gt;
+using namespace std;
+
+int main() {
+    const int SIZE = 6;
+    double reading[SIZE], sum = 0;
+    cout &lt;&lt; "Enter " &lt;&lt; SIZE &lt;&lt; " readings: ";
+    for (int i = 0; i &lt; SIZE; i++) {    // pass 1
+        cin &gt;&gt; reading[i];
+        sum += reading[i];
+    }
+    double average = sum / SIZE;
+    cout &lt;&lt; "Average: " &lt;&lt; average &lt;&lt; endl;
+    int count = 0;
+    cout &lt;&lt; "Above average:";
+    for (int i = 0; i &lt; SIZE; i++) {    // pass 2
+        if (reading[i] &gt; average) {
+            cout &lt;&lt; " " &lt;&lt; reading[i];
+            count++;
+        }
+    }
+    cout &lt;&lt; endl &lt;&lt; "Count: " &lt;&lt; count &lt;&lt; endl;
+    return 0;
+}
+</pre>
+      <div class="stack">
+<pre class="console">Enter 6 readings: <span class="in">12 15 9 20 11 17</span>
+Average: 14
+Above average: 15 20 17
+Count: 3</pre>
+        <div class="concept"><p class="box-label">Walkthrough</p><p>Pass 1 stores and sums: 84 ÷ 6 = 14. Pass 2 compares every stored reading with 14: 15, 20, and 17 are greater.</p></div>
+        <p class="small">With decimals, e.g. <code>12.5 13.1 11.8 14.2 12.9 13.6</code>, the average prints as 13.0167 (6 significant digits by default).</p>
+      </div>
+    </div>
+  </details>
+  <aside class="notes">
+    <p class="note-time">Suggested time: about 15 min (10 working, 5 review)</p>
+    <h4>Running the seatwork</h4>
+    <ul>
+      <li>Start the timer. Open hints one at a time only if many students are stuck.</li>
+      <li>Fast finishers: also print the readings <em>below</em> the average, or the reading closest to the average.</li>
+      <li>Before revealing, run a student's program with <code>14 14 14 14 14 14</code>: nothing is above the average, so the line is just "Above average:" and Count is 0. A good edge case.</li>
+    </ul>
+    <h4>Common student pitfalls</h4>
+    <ul>
+      <li>Comparing with the average inside the first loop, before the average is known.</li>
+      <li>Using <code>int</code> for the readings or the sum, so the average is truncated.</li>
+      <li>Using <code>&gt;=</code>: the problem says "above".</li>
+    </ul>
+    <h4>Ask the class</h4>
+    <ul>
+      <li>"Why can't the Lab 7 sentinel loop (no array) solve this?" (The readings are gone by the time the average is known.)</li>
+    </ul>
+  </aside>
+</section>
+
+<!-- ========================= SLIDE 20 · LAB EXERCISE ========================= -->
+<!-- LOCKED-ACTIVITY:START lab-09 -->
+<section class="slide locked-slide" id="l9-exercise" data-title="Laboratory Exercise No. 9 (locked)" data-section="Laboratory Exercise" data-locked="lab-09">
+  <header class="slide-head">
+    <p class="kicker">Laboratory Exercise No. 9</p>
+    <h2>This lab activity is locked</h2>
+    <p class="lede">It opens when your instructor releases it. Enter the passphrase your instructor gives you.</p>
+  </header>
+  <div class="lock-card">
+    <svg class="lock-icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="10.5" width="14" height="10" rx="2"/><path d="M8 10.5V7.5a4 4 0 0 1 8 0v3M12 14.5v2.5"/></svg>
+    <h3>Laboratory Exercise No. 9</h3>
+    <form class="lock-form" autocomplete="off">
+      <label class="sr-only" for="unlock-lab-09">Passphrase</label>
+      <input id="unlock-lab-09" type="password" placeholder="Passphrase" autocomplete="off" spellcheck="false">
+      <button type="submit" class="btn primary">Unlock</button>
+    </form>
+    <p class="lock-msg" aria-live="polite"></p>
+    <p class="small muted">The activity is stored encrypted on this site and is unlocked in your browser. Once unlocked, it stays open on this device.</p>
+  </div>
+  <script type="application/json" class="locked-data">{"v":1,"iter":250000,"salt":"vjP2aNAQbO+WdF0ngRlT4Q==","iv":"PnyDNAOP/Vh3IUVm","data":"bNHr9oZJxACOED6JXYUhMML9YzayDlj1M41zPW+7zSebd5Zipm0NV4gpzuvp4iGv/MHjf+uiMBlC8m/2mPJTbsKB7/iwlYjJJTpM79GN4eV4lZ1nIQNY85RzvlHRhG6IGLjAo5IQPzZ7+OAx3rUVl/DytvrCARAT06ZxIoUvl4rlNX7bZYI11NonkK05Aza+HyonuohRcxNeABBWrtOpiTHcvqX/JFoyRAa0PYZmFRJQ5YoYm8mg0Jw4L1MoDZwAJ6zyQ72oZaOezbCzEo9/dOb60h9xEs+ChhTeqSdKQZVXMwJsUDIQEWm2y9RquEGrR/9Iy3OQ83g9Pbhx6rXT4UkRjqYM9EXJ5zL6YfsNXj2/V1lAQJ2wLi95mAPy3Z7fxmUlr2GK4fm4RffxNwF6SX+P69J06xrqSheH1L+5juoBnw3qbSmt60FaLgC08TZv+c8wbwpbs2oVvfinnWuSbM92tLfhx/murQXBDJSZdTTUO5dnC93Nrk/VrgwF8oLz+77HHRwZvv2CnksG6nifZtDfp3nTBUNmThlDVymZDKdUmA8wK/EjRSmkh78XP4lZKq1mUAItDKw9oxtexidEQ2Amo3ElzDBx8KUd0CPD1ZTOb5R4dJfn7fQQyeseyeZFNd+DRIsrZld8ApUO9OSdOzxGq6x5hKS1y+ndl9R+ehxIFE9OMIBOXC7U3NZzt1N+u0poXxfWZ4QF/AGCcR7N4jd/JV/KSn/nQLKX8BEq5ZGZL0kOhKBzjQ2awvvTv6uWB/kAaUHTcPlDpzcGWFUtJUOnpo8r7VhXLvPxGmBnjE32SgMDR4qDNO9Rurkk9OJ+crBphLqDu4gXJ9/fYrNSlRn7/tJwNcxEYnquK4joJRt3tsXzHyLgoH9nU3B59HX7mPyMtsZOJ4PBbSY5oVBYENQ1oER2Xc/IuV4/CQAkG/Cbpol2z5ziDG2xyYqQ1FuMDf8iskwwfCx+OyRJkEyRg8wQWZTpO66SNlFGynWOsVDiZkZNyJnh9i2SoyTCqPW1q8eXd3EblXxcFA7zfEP3DOHFDYnnGwf5YEzPFvKPNz+7xo5y0vXy39NFqZeAMMFgCzdvcOkevL44vQvElK1uoJkquEI/gIghHh/DaTjj++5sHPcM3h7WiNtO4jyX9DUmtiCTKuM6Fag0ZhEeY0BKSj22hfSR7TS0H2/z5Z3r8GW3/bsNlk51SU0Y5OMI5j+YSUeOVUdI7917zIRHUcMRxe/EICRrL0IUY5bXgiBGJIZbzzD2rEY1Z9evb/+//3gahQRCSERM6SkP2dmakwUMVk89km3Hn3vS1x70ZQJL53AHdAZZfEjfTgTou2smOL46MNp5F5tRgfAJ1cZkwEFUAR7VfaOZMNT9EuS8nlwg8jiolF2rar+rQf8ZnsNvVck/MtOLAPUE7xcKQAM4r/2DB1AU9y4FAwZ984/bbwJwz2m9G+yZ8oQ8+1fWP5n6R8JlKoNYKnGI0SnAq3mIQN0lIKRreLDfYYN1LJWLf0qhRtNoaGCGXzLsYUmEC9LQL6Sjdrx6hd9qEZsvw7G5ZsAn1Zk+Cgc7LW0xfKQaZpKQF2Q7f0B4t9Q+ItNSlJCt9tDMw5QWedHTv3qn6LEVwqX+PmcZCRoRChgu8wi43hDsKp0OPHiKGEYa6dJkmLG9vgLk+jqQMOMErgmbzTl2wGr5RTMYe5FyR1wAIQklWpl8HTNzy0Pk7iXHKum0ptExaMpAhrXhK28T2jSTaRhPri4LMWzGw7ci9m8AiYFA9gNk50SWkLFhr3IDlCTV4IEt+tokOQY5O7+ebeySRBribcR4T2Wymi24apaJTWyvdIVSHp06V9oUMpP5KQ367VkVlRWJWebXXPD18Z4NCBx6gmE87R+HD96gqNQrLhx+XuNXsDE497HBoeCL9ySuKfzNpVVBHTstC38Mabz6jEYKPIlEyOv51NzoLkajLmA5EZAL2lePTm1WEFtmsMBe/rI9nrRqfc4sfoMyZNW6s5tHn0aeqsYrChovgdp7FVqIwowFHmOcch4SP3hK048/w4eUXQbeTBSCuYptFGKrvtkKV4RKYV4kZLqkuPsQoaR6DJZ3kdFUv1uBG7IPsgZAHYtNYPfXIZkCO55vkiIhBjntOx8AhHfM3sawZlR17aHteNUHxdLdEZ5s8a1Yud2r+wzVluV2F/c9lB06o2hYKUVbrVlNdi3RgpgmEKV3AgT/q6UVerHJpHlbROytwECHbLDFyFJVRP+IvNaUuXaBc6l9p5oKXnLLHgnzvtjk3UVjAysqywIjzjkFiFy4Px67NUvv933+ERR1cVYMJ9T6mPcq2+ZDI2Ov5LyNfY2RnCtVF+a7+eaDGrKlCXyZqQ3sflKqy9Kx8zSSZsnKzAuOa51hC5ip4MSjU8TApJpH9PNPD7TkvY7s0qEkUpERuvJA2N86dG8nJ5juBIQhtvx1OGUIwG+FX1SIOaVyJ1EwFMzp797qQjjipmeFKX6/GGIQqBBo8lU43CAJGuAOAfEyoWc1CwG5Ls2BI7E1NtpL+8ve46DZFhAm6NYY+6CG/XnPHJrK40LElJhnXlPeWlV9+v6y+QrOgDCwESN0neFsboVW63By8pTXwHquiInJrzYhG5b2XB8i6l0oXDXmCy+5/37estxFPCCSJPiUeBoSeklwByYx/4u/gvkZ5oo9vStrpi1sZbrf6In79TCwjlMbLbwHAUdGRiWYOK1NoVGcLOmWkY2HMoJTl7wJrrxyiiezQs2wSIcbh3PfzG0KGvwrYx8hVoPEmy/PdfYp4QqUGD2otHCXbrJ2tnHqjNDDzaGFVjIaiStzU+R8w20zvQi85Ne+a7ACZQ8uI0fEQOS3JC2nsoAtLHvBhIhOPRlDZ767Nk3g9piAL7PtWDvV/AopeouE7oypmex0x6hQ1KS/IJ12oMIW6NTz95Bg3M1zZ8VMYG92mgz5G82rIqxtfazso3lLRuiTHxZRUgIzYNI8l5ckiyTBu0n1av84asr5YYV1k48qqdwXqPFHwNzJep+6jLBnj9fN8YHsfB9zP6mmiW0hde+7+bN4KHj4LRUY25WqOOoY6oxU6XdfDdHnmHlCyzJXs0GEeRIxHEp9vzJpNP0WSm2rc8xckGkzTpn4qMwq0lhXWiPXZ8p0CpVcC6KnpOAIRkaPxWg4azLgwDxA23xgfSz00FUwfyRunht8ierHarVZf+4wte8H8GzTzzMSlD3GcLfk9aHuHhGamhJ47SnDLwOaXRcSkKAvjx1j1YrRsb7klgrrDomyKn5TMh/cINszQYTXqa4+JhTmFPvr/ZrwKCdbqsqbManIs6SnI5/HUj008dtLs8Pwl5f1q6AWEHTVIF7yHuUR2mFxssiKZWNqZ4nDmzSp9bUBO3+Hhp70TmolQaHUsCr/0sh25gw+3jxR46fUyo6hDKGVSpj2ccVr0xIUpZKoKEtSMtI0u2mfrwPa2jQPXVnmc3KJ7vNEJ1vaq8Mp9+L3MS8zMa9Tuva4Hj5+r3n6yN5p2z31ccv1oVgRohVYFRG9gP7BLDMCL+Ishfj/+5pah/T4KBmQ1SKW7mPzEAT7mNSysTfnQDKMkBlhk7nG+5ibBerbmFzgWrVJgslyznrp16g9p4ThxENihhNr9TU8AQT3JMGSvuj8mYW+VEOyLu6oH8R5zVrd2lW0m87DKlsaYlqIsYD5ZRkWktw5KLft/3XVuubyY0eBhZnSVHO1Nqx5rs4QVUaDdYrKUZMrjWvicRldIou+xkA1OG8FotqlzMrOmyBSrcvEri1a2GS4SEri9ic4A3IymOiZM2GOpH9dGtW1t3kYSCMq8r3T3kwjbytks+tiQQgGZZwfZPnOUTwYocoZoDmH6CD3EXenPA2ENGokNgCe9+dYp8bdnl0eRBU6Y+WT4rrdLmyGeDJuj23nbhoI1QX0BsYWE1H20UkJW5xU/ePwCR+r+N0oVTve9CCONhhzlwaue8ttkAfNiBpLz5SwgVuTndJbWPX/UcBlpUIyD4AUwHb1hoJKZCjzspbBMFp87P5RkSp9VDGkpSmbrdU/yW09vFfdU1hUBX8l+EWsRU4YAftbH/hRzTtE0NBskZ+IO034Ga2SRADEDbLMA2KgvcZAhP3YolOGyntzCEyiaFl2bMVD4rVSTTenb3XjyvYqt7D3oXlyMTxq0TB35zzmgGTbRaDzpw1LBQaikGqFNlpN9O4sqFDwSKryajhmAx8ycCOZmKS9YTFtcFEooSRPdqDQxBIHVVS/awj7or0QX4SbpdVhP6OTnOW+ydpdDpuFOSEfwdL7wi/GTfE46bFKA3V4na0e0Vazk1fUGptMxbAQ6LzO1J2M3ZmuJLo5rHRx+Qgz1sV9a9C7E1idbKGlqaQKov5qg/+UVBz0FQJxbH91iPQuSWl574Ec2pBHd2JHiXFueBljXvy4HwTKjEzi39FkbjulNvEs8QGFKBjbu23wOGyUBBFtNkndKsgn4WbujN3CCigkm1D8LU5vmAkPcFPV314OrseeiKe7/WeVN+m0iHvCI/Uoqd3SPbVwFtC7V8vdsJOlp029eDeKio4Ti+5Hbnac7JqPhDt+YH+Pvzo8njSlD7LGwdd9kkEZJHmXj8C9DUKnObMUR6NYLyD/qmvKT/Id7rR4HimtspjfO+1oTapVAnAUI/rrEuTm6OcAOr3wH6IExKo1O/NY9PmRO/VCxhsvm9+iNHuqNs2XsIi/DihGJKwixP27P+2AUcIFH0IK0EfC90rAkRQaTuqCOZKmJfkyrV533TboVtd0UnR2kn5BaV+hkgZhVgqAmxwwNkaTdbV2pgtG2x2Atla8OR1DHJ9xHFLqq+44l6Hh8R6mvtIPNEcPu/57fCU6BUilfjUuR18xkoiKed4kOaCJakqOlCudUtal5iJtZm3jTwJFhpfjTcI9Lu1Ybc6OH2bbC6GVydnFsmn8MP/BxdOktiSjKaAxUP5l4lRmNE72xvjW0TEEsC3jrzSWm8l8YjpgbuLWT5HT481UM1z6lLfy1v1YWAtF5cE7cg2bLMHC0YJFnLdZv2ZUgimA33SEebxalQwgqBgF1N39EbxYWK7JlgZHPVxZsiZrFM5dpZo7Ybec6wyVocsBNUu7fNM2DJkJl8peKvs3NXJo8yJYLU+hngXA9CBTKCzl2MXOHDimoVr7Qr9Sn4EPK0T+g3ioetooO6QSY+GvcdUjfMNo6xHuljQ/S2ZazIrgidFoTczo/SDEIWIQMU4G/yo07Wv82z7lM39frIXo76S3V3AfAlD3Zf3EygrdK0yHKd7dfDd8SvMnhQ0xmsvADepx/fl3CwV7HHEQH5ErSMIKKiGMRpOp8DrQONA4MCY8w4pbGNfwWzn8TuLd+zVyh//2/FKiOb3cAgZCfranShSTcM8Jq2jOtfGynGuSccNeSx3asChCplXSjDfD+chSOWS7SI3IAcL8xV6IfPkmYiZwoP/9x80fwtJ3oTyu9AufGjENUiUWXBvKjageQAunW4qLZOlnCDxnv73ulIlSX31O++FeAXkV6Clnks2sNHe8K4dpMakozuPl8HdXlDfETcEqRn53IyTOFoKlq8fs6BJ7zj4DPSw2vwHpCKFTEaZIKH8o0zPpy8wMs3qd5GtzJE7w2O0SvNhMoDRGEO3klCHSxYEbMHD+k4uTOx2erjkkM4mlfJCFvp0v5+WeuKX9B4sVrppTYBaQKFFmbcLqUcZT9WIJaeaL+neF3BY0PxUtqreur9QkNrZca7rSXzUtaGcIS49Vgkzd6W0nuoMjgofG/SaYTPsbjauIYVPQ9Nxa/fBQe7Nx6Cz++U4lc9ykprTI3VX3/M7+YGwbJly+vlsgk3RaPCZNdwkXEfAZByg2/bM9LhlHLCp/T9tGJy5ZuA3S2wF4zP78HOkmZoBoYuov6UGT83Ko10eFmUVNZLG/Uqt/15gOXlkWa/C6SqZnqE1qBwc+Puo/mnjc464JwQwBtmOknv+vgkkAAEVeetsneKOhiQarGcRGGyrfER7d1kg88sTMskapOdhHUWAmZNmi+0mTOLKMssYAy9Il+0+5iv9wgXBRWY4jQsoIN7m7y4LdkjIlg31s1igCWDwX97UiUlKt4lUFNG4Njgp6FtSg0Yw6/c274P/vB+zqj+1Dix9vLCPfAPmKs4Ih0lxmSyoCQVtRlFRMLTNzqyYmTHvO4Vd5nQf9hTrx/iG6Hgzv62Aw6uP34806Np4DTYsbarvtDiIcJob7axWrGfE98UTNX+W4r4q4x1K15gUoaDnl0XZ9m4b8p8oYImBzGjeZ500vButTFLgk3dCkJaSCRUicXkMp39ZTj1PLQBJ+Fse0LFEqZyDUFNyYGHYs+GAibtCJ6Emd2fVnkLwubERtu1jaK4WVNPprRsDeWHp46A8WIPs3bmfkPHtt2CRqQl74re/F3hk1FdgsuwIt8Onopwc/CcVO3UPlT5dafzIKabrX50prdlDeUxpYb/LI8kgBQbmJWY9pPykG0KhwJ+wGPA+B2D92H0R1wyEVHNsbO82AYMwwIbw4hEHAXFI6voGU20QugvDWRALif2wh9OQanSiMv2OmTp+ciVlDgvLOXXbYOar0IZPado5jAZkyMqfvOxUCK3M4PzBmAkq8y4z+0M/nMt6YWsg3TeHQPAMnBKcxsz9+b6nYMIB+WELsUVhWjkESzgsiE6X+o2aAzROMnE4sjHyKbs4BEokmp1BwOu6+Rg2xX/Sa6eJCVx7XxwStSlhEdYgcR+yEvrINNznG0M/Qv7gyIZ5B7tLOoRGIQNq4xDdkzsIkmOeIwXakWYnynNusRG6yP9tohroxjvMWQqkcxmiUEf0/bs+R+QbiE9vNtUZXJ+Yiwiuynxg8LIWsuucqNlY8pUeki9NdhZ4X0wT66y7Ph3jjCxZBQIlV6mv7+nfuNYj11EN5XlIqn+P2kqhPtHfrlvHtx1y2FIYIKXXjJSYT/QK/bqrUvH3YbTKSjvQNlsYrlI2GQOBWENh7UI1iakStquaoYRitMbig+MlsZyEVP7sXmizLuVG3fiQ6tKC1pU7VFAQKKr4E9soNIWGcIZGvuYvS0UFNRd/+syD7pE3intS/EV72mfzqCyvG/wwZrVAJLayhlqpEG7cvtZK1+xmapZqShbTmDjCXqLOsMsyJh5UzSWvDSmFIKJqfkvp/1R9MPRCikcOPVWOAv3Dgt+dBCGowGur76FOigDrVSZS10G9pJuiDMvfB10hLp6bd47BiULON/iprqPGu7g8m5G9Dym2TAigJMZS8/pc37vqwVe18C+R1wDMqFLYIF9A/987Ytfp0O/YIZvIP3IBQ9qjH+kXDCSPoJ87p0JwE9UG+l5jGYz72BxF5c+ybNJR2Q4FkLEIbjwBIbFiks4rimpkZR7o/oUKIM+Vyf0NeUuTAwffIOvMhCczM4BOS32wK1vCEyZBLakgkBuQNpsiOOpfI+MVlHLSPrwqL4nMDTz0zbPso08VELJiTNQe8GYtPDcXnfMRVkjKJqgR4AK1JE5iz+KLFG3hObxjl1OKcnzoAPcTEWEWfObP68WFi9gAYWj8LE44IzQoU9ntKm9EtSCPt3GcxYUnWq8I3QgXZQ2EUUqi7gEctcyUe5tPOgI8AiSXevqF1cZP8L7wOkPDuSpl0yyZZG8Gy8/tDU2s2tyrnS13V5Cr7qhg99HxsZkLYW6s8hJ4TNRmRcPq98Y/qLBblLCqbbF9IZXYVfAjovXRk0aEJAxOxCqenshIeYp9MmJiljFoFf/69Ee9i5h7b8nWWX1VmwxdSMf1PmRV0LP3ihvO8Gca9LRZKMRDJT7v99UxHXPUYegffoT/9O1TURKta8TwKi665LIoQb+zImy+tLC1d/Q7W3Vl9LRWQ4Xk0oHBaLgRhArX0aQLhUNjsucYpZvjyL4UNLFgGW5y/8nY9mLnbl1vvqmQOzF68cdtrpmVjKkP3fIVGyvTh2g16PE2CtFSFPXRbhYg5sjYccT8a22angNWnOUBImJPJY+yMGB5GlHBMHvSkw27ZKlFyZl6YsScor6idOZQnmr98XzhW08r0msHoWXZrFb3UMkxZ8LVRiaptV9eb1Q1ne5jjAuQ9Evj9ljV7KbKwMLOVsPnKm9a1ARpoNh9h3wyqDLK5jHc6Llhj9yd+ZFTetOs3QKkBxRuPRdWnMrv5GTGsmc3CGZGuDqJfh4aCdZU00KJk56slV5TjVUl5F7czg9G6lyLFqB6M4DbZuhBi7HUjX5/oro7E2zt2isViDirEtyOIbCCJZC13Je26w0HJrqJNBV3BwX3FYjE/dzvlEMMNBQZ9k9YMGExBfnqDa14BR3e+W0pz4gOMFXoD3eqX+f8R+Zm+t1ybNsBK8JFGIHrB2u1SjpJZWBZ8D/ZkBFSZTInKavi7vFettrv9ElOBLSHaSAGuXEBDjuNNqLZRt/O5es05JRocYLdXysdqZGowiSSQLFSCRJX0kJsMnRWkgWXFy9DUINP8oq+2JCzLs0NVbTOoMS1zfY4WG/aBG3McqE8G9pcqVKlMEsrv20zIp7sw1utw7395CyzBSXjiTkAE2d65UdXkPD05dSWTUkh4e89SuBlovIN9ln6uIviUM3N23FOqciDMrccdOTy4mAFM/KOga4NxjAkQXlDADEjk1TXm4WKt5ewBjudgDVlcVw8z57G4V3/2IQc6nDa+T3qiOSmh+I6QWP9GoSetO9apyVMQVO78K0QaMqgODziGgEhHgNTe9Ph7n5hRpfRgqeO3O7Afx2Dm0vJluX2NGONm2fAIxvD926ZvwElMZuOmyZsGWVopzsS+wd5xjeMSZ0FKIyY7ZNq9WGnMouMB84iMBnHRFjQy5p8S+It5mYbgOk3+Ed19wFCGKpa0fg/SCJE5HAG4B23xmTgMBoi2aJRUERnEBQ21dme/TlDBKup8Zga7Qv7E5wYa9MyEg9xLiVDzPwjzpG6NO4lfT95LzfUBmqEz2/eV0lEtl0RX8xEhPdJwHs/+LJjDHxmuEnEQuf1Zmjasgd4bTc65OsPBUk1wY35tmqZ1BB3oj5Vg7YUE/aA4pJfP+2qgjx7TxfoYTP4+LIUjTnzfiQJiBnHQB76INQBNdm3KBPytYQE4UYuLRVS8HU7WSXXdO/AoBvyF6x/54GyXn4j6nfd5ZSVQGZdyn/qFJVLhUUvL9MYsAHmX2eB/OsOyXSqUsmqfxtOf+NCmg7NAfre4HmlEeJw8GviHfk17IbSp8UM5qPZqzYHQNiNA6r4Xg6jy81gWQs6Ku8yAgH2kVVb/mDSCNju3xja9el5wDMrLopcRx0egIN+bRNNZPcwRVtlp7uGQ6+f1P/2UwC1hlaz3U//GO4rwFUDgJhTbJUPBXMZzupeKqIjeAHaZh/i/Ge9G7s9QTELRImRaVj4Cm0eyEGU8R2CGj23uAA8G22U9mxsw+zi3lnPHOI+AD6bKG84tWQ4Gwb4YPwdBhGf8+5hykSmTMo8PcbMt17IVwghQOCSafJ4HBfAByH3SS6JLNsawu3gbkGFB6k53RBRZotQhIv+l4FYPPuH9o7WmmzduCcm63ozB6T40SWaC1DB54SM7J/SNy9+itKSn8+gEQT2f30YPLYisO8KVDTvRuWNsAQN+MRJWkI6QE9KPcfGOMlxCJMG+/qcLWAeM4EsDsqHkmp/SIWMTUdM957DZPBQ86WvPP9NwmqsrK4GgtDD8blZtD0yNJ1qOFGurzA6zI4Z2O/l4RF8c/fRtaHrZMyy7SFMQkqOW81M8A8K8lNFGKJ++bD+uVDn/gDYlGlw5Lf97lj9OA9qNRz9IwDJlYNX55eecqhInCcK+z6jmkzlx4mKUqUgaWH6g81x0HVHrLwuYlgdAcCnL7DGiC4HrNvnVQ+y7mQCFP94q30Jx6lZY0aLtcboI4W7I6z7MjKpPYGxirk703j2UtDFJezdAZ2M0+pgFPTd/4JDAzKp3+qwJcj51boaJ4bQtkadHD/ogZwgDLi6h6EL6pzjH8ClMfaC1bapHsoNszoQj8GagH4xZJ0Hi0/cQ4ZwD23NQWg1HGBwfo9HCBSQXESyvreNTg1wVs4ZPJizUFhQ646AryxeDU4UcOCTIVqzkNOtAWEO5lRCWzm7Rc9yLEsQt9D3HMcCAkbSv8Z/fIyBYTqKAEeR5/Z6bFFSrvM7bZFkSBw/DYBu8HYadNgZMrGAhYabzhxiweEJItH42sNja1EeAXAOtEKqbpFxdvaptjrnunBOS6Vw//wdkXpM+APGI5ZZNxxhBAg2gkWQsvB6FibHULrVVVqnmqCrp+4DUzxbemGoSRbxLLZbit6Cjvy4XFVAA7Q7szcORPxPhZRQsh7spadkBjIbfo9BkPvRCU1DwheU5QCpKmNSKeAdK6XbBuLCunR8WwAUvvt3faRF1mKss0U83YiVeXTLvjinZ5kqm7zLMdxEpePuzqRiQWb8IJ/8zDPhoWf/48G94EWO2Rzujgj0z4BBYIkt+eIToJSqU33fGvCYRet7ZJGzv7Nj/F1Oi54Q0xPVdPz112HxngfrsdsBYdM7IrclKbHIa23frJ5cQRdfH6lbri0UB0ade7YB6YgCkhlCmmLhS3+v3GrzSbZ2R6yj0Z0iYdwvZdYOsyHmMkBdq+1p8lO7cUkYsLmnvcwkWpiK/mZ+XBvy/vgAoXA/yrI/9LQ0w2GpgwdyZIn3yRKcUclNPufTUQbBjz5iWhV1i23bCiIQVBCdZD68U71EFrc7raWfgIYePBmOpyZVf48CYCu729TKgq00QAgJPCyay0+07Mt/34IwmLPS1W0rrdytN9TU9PoCG4AepnmcJXtxuVYaA3nJjPu03ntiN2s47NH3023yapf1is4/F2rFeW4zeTM1I2W5Ko7C+nT/+l0izFMjw4rohntOWxUgwhVjBLNPfnd+g26sBSSPo9RXknrcqNuVTY0QdkoriIhq7HOh/fv2repiOE54g4ZIstx++Ci25U/bv7bo3D4otWHyiGMX5Wzg4ynOQXKUve62AAPykMnWQRP9hGvIZCH/U+XdgFhuLFOT5VPvZhMXEj5fy/mak3ceBSaz0bJf8UaR1YZFwKKXDWEMb4ZUx8LQgLKBk1WArsfAm39BvXlE="}</script>
+  <aside class="notes">
+    <p class="note-time">Locked activity (1 slide)</p>
+    <h4>Instructor</h4>
+    <ul>
+      <li>Type this lab's passphrase (private instructor package → <code>passwords.json</code>) to open the activity on the classroom PC. It stays unlocked on that browser until you press "Lock again".</li>
+      <li>To release the activity to students, announce or post the passphrase (e.g. in MS Teams).</li>
+      <li>To re-lock it for everyone, change the passphrase and rerun <code>node tools/lock-activities.js</code>.</li>
+    </ul>
+  </aside>
+</section>
+<!-- LOCKED-ACTIVITY:END lab-09 -->
+
+<!-- ========================= SLIDE 21 · WRAP-UP ========================= -->
+<section class="slide" id="l9-wrap-up" data-title="Wrap-up" data-section="Wrap-up">
+  <header class="slide-head">
+    <p class="kicker">Wrap-up</p>
+    <h2>Arrays: One Name, Many Values</h2>
+  </header>
+  <div class="table-wrap">
+    <table class="table compact">
+      <thead><tr><th scope="col">Task</th><th scope="col">Pattern</th></tr></thead>
+      <tbody>
+        <tr><th scope="row">Declare</th><td><code>const int SIZE = 5;  int a[SIZE] = {};</code></td></tr>
+        <tr><th scope="row">Visit every element</th><td><code>for (int i = 0; i &lt; SIZE; i++) { … a[i] … }</code></td></tr>
+        <tr><th scope="row">Sum / count / max</th><td>Accumulator, counter, "best so far" starting at <code>a[0]</code></td></tr>
+        <tr><th scope="row">Search</th><td>Compare each element; <code>break</code> on the first match; flag + position</td></tr>
+        <tr><th scope="row">Sort</th><td>Bubble sort: swap neighbors, stop early when a pass makes no swaps</td></tr>
+        <tr><th scope="row">2D</th><td><code>m[row][col]</code>, nested loops, rows stored one after another</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="grid-3">
+    <div class="card"><h3 class="card-title">Remember</h3><ul class="tight"><li>Indexes run from <b>0</b> to <b>SIZE − 1</b>.</li><li>No bounds checking, no <code>=</code> copy.</li><li>Initialize before you add to elements.</li></ul></div>
+    <div class="card"><h3 class="card-title">Exit ticket</h3><p>On a ¼ sheet: write the loop that prints <code>int a[6]</code> <b>backwards</b>, and say what <code>a[6]</code> would do.</p></div>
+    <div class="card"><h3 class="card-title">Next: Lab No. 10</h3><p><b>References and Pointers</b> (Week 11): the addresses you saw today, and how to work with data through them.</p><p><a href="lab-10.html">Open Lab 10 →</a></p></div>
+  </div>
+  <aside class="notes">
+    <p class="note-time">Suggested time: about 4 min</p>
+    <h4>Teaching tips</h4>
+    <ul>
+      <li>Exit ticket answer: <code>for (int i = 5; i &gt;= 0; i--) cout &lt;&lt; a[i];</code>. <code>a[6]</code> is out of bounds: undefined behavior, no error message guaranteed.</li>
+      <li>Preview Lab 10: the memory diagram's addresses (4 bytes apart) are exactly what pointers store. An array name behaves like the address of its first element.</li>
+      <li>Announce the Lab Exercise No. 9 deadline.</li>
+    </ul>
+    <h4>Common student pitfalls</h4>
+    <ul>
+      <li>Leaving the lab with <code>i &lt;= SIZE</code> habits. Repeat: "less than SIZE".</li>
+    </ul>
+    <h4>Ask the class</h4>
+    <ul>
+      <li>"Which algorithm today would you use to check if a student ID is registered?" (linear search.)</li>
+    </ul>
+  </aside>
+</section>
+
+      </div>
+    </main>
+  </div>
+</body>
+</html>

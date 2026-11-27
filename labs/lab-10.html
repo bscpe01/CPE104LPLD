@@ -1,0 +1,1259 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Lab 10 · References and Pointers · CPE 104L</title>
+  <meta name="description" content="CPE 104L Programming Logic and Design, Lab No. 10: References and Pointers. Memory addresses, references, pointers, pointer arithmetic, and dynamic memory in C++.">
+  <meta name="color-scheme" content="light dark">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%232f3410'/%3E%3Cpath d='M32 11 53 32 32 53 11 32Z' fill='none' stroke='%23f5c518' stroke-width='6' stroke-linejoin='round'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="../css/styles.css">
+  <script>
+    (function () { var d = document.documentElement; d.classList.add('js');
+      try { var t = localStorage.getItem('cpe104l.theme'); if (t === 'dark' || t === 'light') d.setAttribute('data-theme', t); } catch (e) {} })();
+  </script>
+  <script src="../js/course.js" defer></script>
+  <script src="../js/search-index.js" defer></script>
+  <script src="../js/script.js" defer></script>
+  <script src="../js/labs/lab-10.js" defer></script>
+</head>
+<body data-page="lab-10" data-root="../">
+  <svg class="svg-defs" aria-hidden="true" focusable="false"><defs><marker id="arrow" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="10" markerHeight="10" markerUnits="userSpaceOnUse" orient="auto"><path class="arrowhead" d="M0 0 L10 5 L0 10 Z"/></marker></defs></svg>
+  <div class="app" id="app">
+    <main class="stage" id="stage">
+      <div class="deck" id="deck" tabindex="-1">
+<noscript><p class="noscript">JavaScript is off, so every slide is shown in one long page. Turn JavaScript on for slide navigation, speaker notes, and the live tracers.</p></noscript>
+
+<!-- ========================= SLIDE 1 · TITLE ========================= -->
+<section class="slide" id="l10-title" data-title="Title & ILOs" data-section="Introduction">
+  <div class="lab-title">
+    <div>
+      <div class="lab-badges"><span class="badge-lab">Lab No. 10</span><span class="badge-week">Week 11</span><span class="badge-co">CO1 · CO2</span></div>
+      <p class="kicker">CPE 104L · Programming Logic and Design</p>
+      <h1>References and Pointers <span>Addresses, aliases, and indirect access</span></h1>
+      <p class="lede">Every variable lives at an address in memory. Today you learn to read that address, give a variable a second name, and change data <em>through</em> a pointer.</p>
+      <ol class="roadmap" aria-label="Lab roadmap" style="margin-top:1rem">
+        <li><a href="#l10-memory">Memory &amp; addresses</a></li>
+        <li><a href="#l10-references">References</a></li>
+        <li><a href="#l10-pointers">Pointers</a></li>
+        <li><a href="#l10-ptr-arrays">Pointers &amp; arrays</a></li>
+        <li><a href="#l10-dynamic">new / delete</a></li>
+        <li><a href="#l10-worksheet">Memory tracing</a></li>
+        <li><a href="#l10-exercise-a">Lab exercise</a></li>
+      </ol>
+    </div>
+    <div class="ilo-card">
+      <h2>Intended Learning Outcomes</h2>
+      <ol>
+        <li>Explain computer memory addressing, references, and pointer variables.</li>
+        <li>Manipulate data indirectly using pointers and references in C++.</li>
+      </ol>
+      <div class="ilo-meta">
+        <span><b>Activities:</b> Memory tracing exercises · Live coding demonstrations · Laboratory activities</span>
+        <span><b>Assessment:</b> Lab Exercise No. 10 · 5-Level Lab Rubric</span>
+      </div>
+    </div>
+  </div>
+  <aside class="notes">
+    <p class="note-time">Suggested time: about 3 min</p>
+    <h4>Teaching tips</h4>
+    <ul>
+      <li>Hook: "Your house has an address, and a delivery rider can bring something to it without knowing who lives there. A pointer is a variable that holds an address." Come back to this picture all session.</li>
+      <li>Set expectations: pointers are the topic many students fear. Promise that we will <b>draw every step</b> before we code it. Boxes and arrows on paper are the main tool today.</li>
+      <li>Have scratch paper ready for the memory-tracing worksheet and Part A of the lab exercise.</li>
+    </ul>
+    <h4>Common student pitfalls</h4>
+    <ul>
+      <li>Trying to memorize symbols (<code>&amp;</code>, <code>*</code>) without a picture of memory. Insist on diagrams.</li>
+    </ul>
+    <h4>Ask the class</h4>
+    <ul>
+      <li>"When you write <code>readings[2]</code>, how does the computer know where element 2 is?" Leave it open; the next slide answers it.</li>
+    </ul>
+  </aside>
+</section>
+
+<!-- ========================= SLIDE 2 · BRIDGE ========================= -->
+<section class="slide" id="l10-bridge" data-title="From Arrays to Addresses" data-section="Introduction">
+  <header class="slide-head">
+    <p class="kicker">Lab 10 · Review &amp; bridge</p>
+    <h2>From Arrays to Addresses</h2>
+    <p class="lede">You have been using memory addresses since Lab 9 without seeing them.</p>
+  </header>
+  <div class="grid-2 align-start">
+    <div class="table-wrap">
+      <table class="table compact">
+        <thead><tr><th scope="col">You already know</th><th scope="col">What is really happening</th></tr></thead>
+        <tbody>
+          <tr><td>Lab 3: <code>sizeof(int)</code> is 4, <code>sizeof(double)</code> is 8</td><td>Each variable occupies that many <b>bytes</b> of memory.</td></tr>
+          <tr><td>Lab 9: <code>int readings[4];</code></td><td>Four <code>int</code>s sit <b>side by side</b> in memory.</td></tr>
+          <tr><td>Lab 9: <code>readings[2]</code></td><td>Start at the address of <code>readings[0]</code>, move 2 × 4 = 8 bytes.</td></tr>
+          <tr><td>Lab 9: array size must be a constant</td><td>Today: <code>new int[n]</code> picks the size at run time.</td></tr>
+          <tr><td>Midterm: desk-checking values</td><td>Today: trace <b>addresses</b> too, not just values.</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="stack">
+      <div class="card">
+        <h3 class="card-title">How <code>readings[2]</code> is found</h3>
+        <div class="mem array" aria-label="Array readings with four elements 12, 7, 30, 18 at addresses 0x7ffd20, 0x7ffd24, 0x7ffd28, 0x7ffd2c">
+          <div class="mem-cell"><span class="mem-name">[0]</span><span class="mem-val">12</span><span class="mem-addr">0x7ffd20</span></div>
+          <div class="mem-cell"><span class="mem-name">[1]</span><span class="mem-val">7</span><span class="mem-addr">0x7ffd24</span></div>
+          <div class="mem-cell is-hl"><span class="mem-name">[2]</span><span class="mem-val">30</span><span class="mem-addr">0x7ffd28</span></div>
+          <div class="mem-cell"><span class="mem-name">[3]</span><span class="mem-val">18</span><span class="mem-addr">0x7ffd2c</span></div>
+        </div>
+        <p class="small" style="margin-top:.6rem">0x7ffd20 + 2 × 4 bytes = <b>0x7ffd28</b>. (Addresses are hexadecimal and illustrative.)</p>
+      </div>
+      <div class="concept"><p class="box-label">Today's questions</p>
+        <ul>
+          <li>Where exactly is a variable stored?</li>
+          <li>Can one variable have two names?</li>
+          <li>Can a variable store the <em>address</em> of another variable?</li>
+          <li>How do we make an array whose size the user decides?</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+  <aside class="notes">
+    <p class="note-time">Suggested time: about 4 min</p>
+    <h4>Teaching tips</h4>
+    <ul>
+      <li>Quick review of hexadecimal: digits 0–9 then a–f, so 0x7ffd28 + 4 = 0x7ffd2c, and 0x7ffd2c + 4 = 0x7ffd30. Students saw number systems in their other first-year courses; one minute is enough.</li>
+      <li>Point to the highlighted cell. "The computer never searches for element 2. It computes the address with one multiplication and one addition." This is why array access is fast, and it is exactly pointer arithmetic, which comes later today.</li>
+      <li>Read the four questions aloud. Each one is answered by a section of today's lab.</li>
+    </ul>
+    <h4>Common student pitfalls</h4>
+    <ul>
+      <li>Thinking the address moves by 1 per element. It moves by <code>sizeof</code> the element type (4 for <code>int</code>, 8 for <code>double</code>).</li>
+    </ul>
+    <h4>Ask the class</h4>
+    <ul>
+      <li>"If this were a <code>double</code> array starting at 0x7ffd20, where would element 2 be?" (0x7ffd20 + 2 × 8 = 0x7ffd30.)</li>
+    </ul>
+  </aside>
+</section>
+
+<!-- ========================= SLIDE 3 · MEMORY MODEL ========================= -->
+<section class="slide" id="l10-memory" data-title="Memory: Numbered Byte Cells" data-section="Memory & References">
+  <header class="slide-head">
+    <p class="kicker">Lab 10 · Memory · ILO 1</p>
+    <h2>Memory Is a Row of Numbered Bytes</h2>
+    <p class="lede">RAM is a long row of 1-byte cells. Each cell has a number, its <b>address</b>. A variable occupies one or more neighboring cells.</p>
+  </header>
+  <figure class="card" style="margin:0 0 1.2rem">
+    <svg class="fc" viewBox="0 24 760 166" style="max-width:880px" role="img" aria-label="Twelve memory bytes with addresses ending 0c to 17. Bytes 0c to 0f hold age, an int of 4 bytes with value 19. Bytes 10 to 17 hold gpa, a double of 8 bytes with value 1.75.">
+      <text class="fc-label" x="14" y="106">…</text>
+      <text class="fc-label" x="746" y="106">…</text>
+      <path class="fc-line plain" d="M34 70 V60 H262 V70"/>
+      <text x="148" y="42">age · int · 4 bytes · value 19</text>
+      <path class="fc-line plain" d="M266 70 V60 H726 V70"/>
+      <text x="496" y="42">gpa · double · 8 bytes · value 1.75</text>
+      <rect class="s-process" x="32" y="80" width="58" height="52"/><rect class="s-process" x="90" y="80" width="58" height="52"/>
+      <rect class="s-process" x="148" y="80" width="58" height="52"/><rect class="s-process" x="206" y="80" width="58" height="52"/>
+      <rect class="s-predef" x="264" y="80" width="58" height="52"/><rect class="s-predef" x="322" y="80" width="58" height="52"/>
+      <rect class="s-predef" x="380" y="80" width="58" height="52"/><rect class="s-predef" x="438" y="80" width="58" height="52"/>
+      <rect class="s-predef" x="496" y="80" width="58" height="52"/><rect class="s-predef" x="554" y="80" width="58" height="52"/>
+      <rect class="s-predef" x="612" y="80" width="58" height="52"/><rect class="s-predef" x="670" y="80" width="58" height="52"/>
+      <text class="fc-label" x="61" y="148">0c</text><text class="fc-label" x="119" y="148">0d</text><text class="fc-label" x="177" y="148">0e</text><text class="fc-label" x="235" y="148">0f</text>
+      <text class="fc-label" x="293" y="148">10</text><text class="fc-label" x="351" y="148">11</text><text class="fc-label" x="409" y="148">12</text><text class="fc-label" x="467" y="148">13</text>
+      <text class="fc-label" x="525" y="148">14</text><text class="fc-label" x="583" y="148">15</text><text class="fc-label" x="641" y="148">16</text><text class="fc-label" x="699" y="148">17</text>
+      <text class="fc-label a-start" x="32" y="176">Byte addresses 0x7ffd0c … 0x7ffd17 (only the last two hex digits shown)</text>
+    </svg>
+  </figure>
+  <div class="grid-2 align-start">
+    <div class="table-wrap">
+      <table class="table compact">
+        <caption>Every variable has four properties</caption>
+        <thead><tr><th scope="col">Property</th><th scope="col" style="text-transform:none"><code>int age = 19;</code></th><th scope="col" style="text-transform:none"><code>double gpa = 1.75;</code></th></tr></thead>
+        <tbody>
+          <tr><th scope="row">Type</th><td><code>int</code> (4 bytes)</td><td><code>double</code> (8 bytes)</td></tr>
+          <tr><th scope="row">Name</th><td><code>age</code></td><td><code>gpa</code></td></tr>
+          <tr><th scope="row">Value</th><td>19</td><td>1.75</td></tr>
+          <tr><th scope="row">Address</th><td>0x7ffd0c (its first byte)</td><td>0x7ffd10</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="stack">
+      <div class="concept"><p class="box-label">Key concept</p><p>A variable's <b>address</b> is the address of its <b>first byte</b>. The type tells the computer how many bytes to read from there.</p></div>
+      <div class="note-box"><p class="box-label">Note</p><p>Addresses on these slides are <b>illustrative</b> and shortened. Real ones look like <code>0x7ffd5e8c3a4c</code> and <b>change on every run</b>.</p></div>
+    </div>
+  </div>
+  <aside class="notes">
+    <p class="note-time">Suggested time: about 5 min</p>
+    <h4>Teaching tips</h4>
+    <ul>
+      <li>Analogy: a long street where every house holds exactly one byte and has a house number. A 4-byte <code>int</code> rents four houses in a row; we refer to it by the first house number.</li>
+      <li>Emphasize the four properties. Until today students only cared about name and value; type mattered for <code>sizeof</code>. Address is the new property.</li>
+      <li>Why "0x"? It marks a hexadecimal number. Addresses are printed in hex because they are long binary numbers, and hex is a compact way to write binary.</li>
+      <li>Modern operating systems randomize where a program's memory starts (a security feature), so addresses change from run to run. Tell students not to be surprised in the next demo.</li>
+    </ul>
+    <h4>Common student pitfalls</h4>
+    <ul>
+      <li>Confusing the <b>value</b> (19) with the <b>address</b> (where 19 is stored).</li>
+      <li>Thinking variables always sit in declaration order. The compiler decides the layout.</li>
+    </ul>
+    <h4>Ask the class</h4>
+    <ul>
+      <li>"How many byte addresses does a <code>double</code> use?" (8.) "And a <code>char</code>?" (1.)</li>
+    </ul>
+  </aside>
+</section>
+
+<!-- ========================= SLIDE 4 · ADDRESS-OF ========================= -->
+<section class="slide" id="l10-address-of" data-title="The Address-of Operator &" data-section="Memory & References">
+  <header class="slide-head">
+    <p class="kicker">Lab 10 · Memory · ILO 1</p>
+    <h2>The Address-of Operator <code>&amp;</code></h2>
+    <p class="lede">Put <code>&amp;</code> in front of a variable to get its address. <code>cout</code> prints addresses in hexadecimal.</p>
+  </header>
+  <div class="code-pair">
+    <figure class="codeblock">
+      <figcaption><code>addresses.cpp</code></figcaption>
+<pre class="code" data-cpp>
+#include &lt;iostream&gt;
+using namespace std;
+
+int main() {
+    int age = 19;
+    double gpa = 1.75;
+
+    cout &lt;&lt; "age  = " &lt;&lt; age &lt;&lt; endl;
+    cout &lt;&lt; "&amp;age = " &lt;&lt; &amp;age &lt;&lt; endl;
+    cout &lt;&lt; "gpa  = " &lt;&lt; gpa &lt;&lt; endl;
+    cout &lt;&lt; "&amp;gpa = " &lt;&lt; &amp;gpa &lt;&lt; endl;
+    cout &lt;&lt; "Bytes: " &lt;&lt; sizeof(age) &lt;&lt; " and "
+         &lt;&lt; sizeof(gpa) &lt;&lt; endl;
+    return 0;
+}
+</pre>
+    </figure>
+    <div class="stack">
+      <figure class="codeblock">
+        <figcaption>Sample run (your addresses will differ)</figcaption>
+<pre class="console">age  = 19
+&amp;age = 0x7fff2b6dad6c
+gpa  = 1.75
+&amp;gpa = 0x7fff2b6dad70
+Bytes: 4 and 8</pre>
+      </figure>
+      <div class="concept"><p class="box-label">Key concept</p><p><code>age</code> gives the <b>value</b>. <code>&amp;age</code> gives the <b>address</b>. Same variable, two different questions.</p></div>
+      <div class="note-box"><p class="box-label">Try it twice</p><p>Run the program again: the values stay the same, but the addresses change. Here <code>&amp;gpa</code> happens to be 4 bytes after <code>&amp;age</code>; on another compiler it may not be.</p></div>
+    </div>
+  </div>
+  <aside class="notes">
+    <p class="note-time">Suggested time: about 5 min</p>
+    <h4>Teaching tips</h4>
+    <ul>
+      <li>Live-code this in Codechum or your IDE. Run it twice and let students notice that the addresses change. That is the moment "addresses are illustrative" becomes real.</li>
+      <li>Read <code>&amp;age</code> aloud as "the address of age".</li>
+      <li>On Windows (MinGW / Dev-C++), addresses look shorter, like <code>0x61fe1c</code>. Both are fine.</li>
+      <li>Avoid printing the address of a <code>char</code> today: <code>cout &lt;&lt; &amp;letter</code> treats it as text and prints garbage characters. If a student tries it, cast to <code>(void*)</code> or just skip it.</li>
+    </ul>
+    <h4>Common student pitfalls</h4>
+    <ul>
+      <li>Expecting a decimal number. Addresses print in hex with a <code>0x</code> prefix.</li>
+      <li>Copying an address from the slide into their answer. Their own run will differ, and that's correct.</li>
+    </ul>
+    <h4>Ask the class</h4>
+    <ul>
+      <li>"In this run, 0x…d70 − 0x…d6c = ? bytes." (4, exactly the size of <code>age</code>.)</li>
+    </ul>
+  </aside>
+</section>
+
+<!-- ========================= SLIDE 5 · REFERENCES (TRACER 1) ========================= -->
+<section class="slide" id="l10-references" data-title="References: Another Name" data-section="Memory & References">
+  <header class="slide-head">
+    <p class="kicker">Lab 10 · References · ILO 1–2</p>
+    <h2>References: A Second Name for a Variable</h2>
+    <p class="lede"><code>int&amp; ref = x;</code> makes <code>ref</code> an <b>alias</b> of <code>x</code>: two names, one memory box.</p>
+  </header>
+  <div class="example-grid" style="grid-template-columns:minmax(0,1.2fr) minmax(0,1fr)">
+<pre class="code" id="l10-ref-code" data-cpp>
+#include &lt;iostream&gt;
+using namespace std;
+
+int main() {
+    int x = 10;
+    int&amp; ref = x;     // ref is another name for x
+
+    ref = 20;         // changes x
+    cout &lt;&lt; "x=" &lt;&lt; x &lt;&lt; " ref=" &lt;&lt; ref &lt;&lt; endl;
+
+    x = x + 5;        // ref sees the change too
+    cout &lt;&lt; "x=" &lt;&lt; x &lt;&lt; " ref=" &lt;&lt; ref &lt;&lt; endl;
+
+    int y = 99;
+    ref = y;          // copies 99 into x
+    y = 1;            // x is not affected
+    cout &lt;&lt; "x=" &lt;&lt; x &lt;&lt; " ref=" &lt;&lt; ref;
+    cout &lt;&lt; " y=" &lt;&lt; y &lt;&lt; endl;
+    cout &lt;&lt; (&amp;ref == &amp;x) &lt;&lt; endl;  // 1 = true
+    return 0;
+}
+</pre>
+    <div class="stack">
+      <div class="tracer" data-trace="l10-ref" data-code="#l10-ref-code" data-title="Trace: reference"></div>
+      <div class="concept"><p class="box-label">Rules for references</p>
+        <div style="display:flex;flex-wrap:wrap;gap:.8rem 1.2rem;align-items:center">
+          <ul style="flex:1 1 15rem">
+            <li>Must be initialized: <code>int&amp; r;</code> is an error.</li>
+            <li>Cannot be <b>re-seated</b>: <code>ref = y;</code> only copies a value.</li>
+            <li>Same address as the original.</li>
+          </ul>
+          <div class="mem" aria-label="One memory box with two names, x and ref, holding 99">
+            <div class="mem-cell is-hl"><span class="mem-name">x · ref</span><span class="mem-val">99</span><span class="mem-addr">0x7ffd10</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <aside class="notes">
+    <p class="note-time">Suggested time: about 8 min</p>
+    <h4>Teaching tips</h4>
+    <ul>
+      <li>Analogy: a nickname. "Juan" and "Jun-jun" are the same person; if Jun-jun gets a haircut, Juan has a haircut.</li>
+      <li>Step through the tracer. Stop at line 15 and ask the class to predict before pressing Step: most will say "ref now refers to y". The Memory panel shows x became 99 and y is still separate.</li>
+      <li>The memory diagram shows <b>one box with two names</b>. Draw it that way on the board; never draw a reference as its own box with an arrow.</li>
+      <li>Line 19 prints <code>1</code> because a <code>bool</code> prints as 1 (true) or 0 (false) by default.</li>
+      <li>Preview: references are the main tool for pass-by-reference in Lab 11.</li>
+    </ul>
+    <h4>Common student pitfalls</h4>
+    <ul>
+      <li>Declaring <code>int&amp; r;</code> without a variable (compile error: "declared as reference but not initialized").</li>
+      <li>Thinking <code>ref = y;</code> re-points the reference.</li>
+      <li>Confusing <code>int&amp; ref = x;</code> (a declaration) with <code>&amp;x</code> (address-of). The next slides untangle this.</li>
+    </ul>
+    <h4>Ask the class</h4>
+    <ul>
+      <li>"After line 16, why is x still 99 when y became 1?" (Line 15 copied the value; it did not link ref to y.)</li>
+    </ul>
+  </aside>
+</section>
+
+<!-- ========================= SLIDE 6 · POINTERS ========================= -->
+<section class="slide" id="l10-pointers" data-title="Pointers: Variables That Hold Addresses" data-section="Pointers">
+  <header class="slide-head">
+    <p class="kicker">Lab 10 · Pointers · ILO 1</p>
+    <h2>Pointers: Variables That Hold Addresses</h2>
+    <p class="lede">A <b>pointer</b> is a variable whose value is the address of another variable. Declare it, point it, then follow it.</p>
+  </header>
+  <div class="grid-2 align-start" style="grid-template-columns:minmax(0,1.2fr) minmax(0,1fr)">
+<pre class="code" data-cpp>
+#include &lt;iostream&gt;
+using namespace std;
+
+int main() {
+    int x = 10;
+    int* p = &amp;x;         // p holds x's address
+
+    cout &lt;&lt; "x  = " &lt;&lt; x &lt;&lt; endl;
+    cout &lt;&lt; "&amp;x = " &lt;&lt; &amp;x &lt;&lt; endl;
+    cout &lt;&lt; "p  = " &lt;&lt; p &lt;&lt; endl;     // same
+    cout &lt;&lt; "*p = " &lt;&lt; *p &lt;&lt; endl;    // 10
+
+    int* q = nullptr;    // points nowhere
+    cout &lt;&lt; "q  = " &lt;&lt; q &lt;&lt; endl;
+    cout &lt;&lt; "sizeof(p) = " &lt;&lt; sizeof(p) &lt;&lt; endl;
+    return 0;
+}
+</pre>
+    <div class="stack">
+      <figure class="codeblock">
+        <figcaption>Sample run (your addresses will differ)</figcaption>
+<pre class="console">x  = 10
+&amp;x = 0x7ffc435d2d34
+p  = 0x7ffc435d2d34
+*p = 10
+q  = 0
+sizeof(p) = 8</pre>
+      </figure>
+      <div class="table-wrap">
+        <table class="table compact">
+          <tbody>
+            <tr><th scope="row">Declare</th><td><code>int* p;</code></td><td>p is a pointer to an int</td></tr>
+            <tr><th scope="row">Point</th><td><code>p = &amp;x;</code></td><td>p gets the address of x</td></tr>
+            <tr><th scope="row">Follow</th><td><code>*p</code></td><td>the int p points to (dereference)</td></tr>
+            <tr><th scope="row">Nothing</th><td><code>nullptr</code></td><td>points nowhere (prints as 0)</td></tr>
+            <tr><th scope="row">Size</th><td><code>sizeof(p)</code></td><td>8 bytes on 64-bit, for any pointer type</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="mem" aria-label="x holds 10 at address 0x7ffd10. Pointer p at 0x7ffd18 holds 0x7ffd10.">
+        <div class="mem-cell"><span class="mem-name">x</span><span class="mem-val">10</span><span class="mem-addr">0x7ffd10</span></div>
+        <div class="mem-cell is-pointer"><span class="mem-name">p</span><span class="mem-val">0x7ffd10</span><span class="mem-addr">0x7ffd18</span></div>
+        <div class="mem-cell is-pointer"><span class="mem-name">q</span><span class="mem-val">0 (nullptr)</span><span class="mem-addr">0x7ffd20</span></div>
+      </div>
+    </div>
+  </div>
+  <aside class="notes">
+    <p class="note-time">Suggested time: about 8 min</p>
+    <h4>Teaching tips</h4>
+    <ul>
+      <li>Compare the memory diagram with the output: the pointer's <b>value</b> equals x's <b>address</b>. The pointer also has its own address, since it is a variable too.</li>
+      <li>Pointer size: every address has the same size, so <code>int*</code>, <code>double*</code>, and <code>char*</code> are all 8 bytes on our 64-bit lab PCs (4 bytes on an old 32-bit system).</li>
+      <li>Pointer types matter: an <code>int*</code> may only hold the address of an <code>int</code>. <code>double* d = &amp;x;</code> does not compile.</li>
+      <li><code>nullptr</code> is C++11 and later. Older books use <code>NULL</code> or <code>0</code>; use <code>nullptr</code> in this course.</li>
+      <li>Spacing: <code>int* p</code>, <code>int *p</code>, and <code>int * p</code> all mean the same. We write <code>int* p</code> to say "the type is pointer to int".</li>
+    </ul>
+    <h4>Common student pitfalls</h4>
+    <ul>
+      <li>Printing <code>p</code> when they wanted the value (<code>*p</code>), or the other way around.</li>
+      <li>Declaring <code>int* p;</code> and using <code>*p</code> before assigning an address (a "wild" pointer; see the errors slide).</li>
+    </ul>
+    <h4>Ask the class</h4>
+    <ul>
+      <li>"What is <code>sizeof(double*)</code> on our lab PCs?" (8, the same as any pointer.)</li>
+    </ul>
+  </aside>
+</section>
+
+<!-- ========================= SLIDE 7 · & AND * ========================= -->
+<section class="slide" id="l10-amp-star" data-title="The Two Meanings of & and *" data-section="Pointers">
+  <header class="slide-head">
+    <p class="kicker">Lab 10 · Pointers · ILO 1</p>
+    <h2>The Two Meanings of <code>&amp;</code> and <code>*</code></h2>
+    <p class="lede">The meaning depends on <b>where</b> the symbol appears: next to a type in a declaration, or inside an expression.</p>
+  </header>
+  <div class="table-wrap">
+    <table class="table">
+      <thead><tr><th scope="col">Symbol</th><th scope="col">In a declaration (after a type)</th><th scope="col">In an expression</th></tr></thead>
+      <tbody>
+        <tr><th scope="row"><code>&amp;</code></th><td><code>int&amp; r = x;</code> → r is a <b>reference</b> to x</td><td><code>&amp;x</code> → the <b>address of</b> x<br><span class="small muted">(between two values, <code>a &amp; b</code> is bitwise AND; <code>a &amp;&amp; b</code> is logical AND)</span></td></tr>
+        <tr><th scope="row"><code>*</code></th><td><code>int* p = &amp;x;</code> → p is a <b>pointer</b> to int</td><td><code>*p</code> → <b>dereference</b>: the value p points to<br><span class="small muted">(between two values, <code>a * b</code> is multiplication)</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="grid-2 align-start" style="margin-top:1.2rem">
+    <div class="stack">
+      <div class="concept"><p class="box-label">Read declarations right to left</p>
+        <ul>
+          <li><code>int* p</code> → "p is a pointer to int"</li>
+          <li><code>int&amp; r</code> → "r is a reference to int"</li>
+          <li><code>double* d</code> → "d is a pointer to double"</li>
+        </ul>
+      </div>
+      <div class="pitfall"><p class="box-label">Common pitfall</p><p><code>int* p, q;</code> makes only <b>p</b> a pointer; <b>q</b> is a plain <code>int</code>. Declare one pointer per line.</p></div>
+    </div>
+    <div class="card reveal" data-reveal>
+      <p class="eyebrow">Say it out loud</p>
+      <p class="expr"><code>int a = 3;  int* p = &amp;a;</code><br><code>int&amp; r = a;  *p = r + 1;</code></p>
+      <ol class="reveal-steps">
+        <li data-step><code>int* p = &amp;a;</code> <span>p holds the address of a</span></li>
+        <li data-step><code>int&amp; r = a;</code> <span>r is another name for a</span></li>
+        <li data-step><code>r + 1</code> <span>3 + 1 = 4</span></li>
+        <li data-step class="final"><code>*p = 4</code> <span>Store 4 where p points: a is now 4</span></li>
+      </ol>
+      <div class="reveal-actions">
+        <button type="button" class="btn primary" data-reveal-next>Show next step</button>
+        <button type="button" class="btn ghost" data-reveal-reset>Reset</button>
+      </div>
+    </div>
+  </div>
+  <aside class="notes">
+    <p class="note-time">Suggested time: about 6 min</p>
+    <h4>Teaching tips</h4>
+    <ul>
+      <li>This is the slide students will come back to. Ask them to copy the table into their notebooks.</li>
+      <li>Rule of thumb: if a <b>type</b> is right before the symbol, it is a declaration (making a pointer or reference). Otherwise it is an operator (address-of, dereference, AND, multiply).</li>
+      <li>Run the "say it out loud" reveal. Have a student read each step before you click.</li>
+    </ul>
+    <h4>Common student pitfalls</h4>
+    <ul>
+      <li>Writing <code>*p = &amp;x;</code> when they mean <code>p = &amp;x;</code> (compile error: cannot assign an address to an int).</li>
+      <li>Writing <code>int&amp; r = &amp;x;</code> (wrong: a reference binds to the variable itself, not its address).</li>
+      <li><code>int* p, q;</code> as shown in the pitfall box.</li>
+    </ul>
+    <h4>Ask the class</h4>
+    <ul>
+      <li>"In <code>int y = *p * 2;</code>, which <code>*</code> is which?" (First: dereference. Second: multiplication.)</li>
+    </ul>
+  </aside>
+</section>
+
+<!-- ========================= SLIDE 8 · POINTER DIAGRAMS ========================= -->
+<section class="slide" id="l10-diagrams" data-title="Drawing Pointer Diagrams" data-section="Pointers">
+  <header class="slide-head">
+    <p class="kicker">Lab 10 · Pointers · Memory tracing</p>
+    <h2>Draw It: Boxes and Arrows</h2>
+    <p class="lede">Draw each variable as a box. Draw a pointer as a box with an <b>arrow</b> to the box whose address it holds. Redraw after every line.</p>
+  </header>
+  <figure class="card" style="margin:0">
+    <svg class="fc" viewBox="0 0 1200 236" role="img" aria-label="Four memory diagrams. Step 1, int pointer p equals address of x: x is 10, y is 50, p points to x. Step 2, star p equals 25: x becomes 25. Step 3, p equals address of y: p now points to y. Step 4, star p equals star p plus 1: y becomes 51.">
+      <path class="fc-line plain dashed" d="M300 6 V230 M600 6 V230 M900 6 V230"/>
+      <!-- Panel 1 -->
+      <g>
+        <text x="150" y="16" style="font-family:var(--font-mono)">① int* p = &amp;x;</text>
+        <text x="228" y="44">x</text>
+        <rect class="s-process" x="176" y="56" width="104" height="46"/><text x="228" y="79">10</text>
+        <text class="fc-label" x="228" y="116">0x7ffd10</text>
+        <text x="228" y="144">y</text>
+        <rect class="s-process" x="176" y="156" width="104" height="46"/><text x="228" y="179">50</text>
+        <text class="fc-label" x="228" y="216">0x7ffd14</text>
+        <text x="72" y="94">p</text>
+        <g class="fc-node is-active"><rect class="s-io" x="14" y="106" width="116" height="46"/><text x="72" y="129">0x7ffd10</text></g>
+        <text class="fc-label" x="72" y="166">0x7ffd18</text>
+        <path class="fc-line" d="M130 129 C152 129 152 79 174 79"/>
+      </g>
+      <!-- Panel 2 -->
+      <g transform="translate(300,0)">
+        <text x="150" y="16" style="font-family:var(--font-mono)">② *p = 25;</text>
+        <text x="228" y="44">x</text>
+        <g class="fc-node is-active"><rect class="s-process" x="176" y="56" width="104" height="46"/><text x="228" y="79">25</text></g>
+        <text class="fc-label" x="228" y="116">0x7ffd10</text>
+        <text x="228" y="144">y</text>
+        <rect class="s-process" x="176" y="156" width="104" height="46"/><text x="228" y="179">50</text>
+        <text class="fc-label" x="228" y="216">0x7ffd14</text>
+        <text x="72" y="94">p</text>
+        <rect class="s-io" x="14" y="106" width="116" height="46"/><text x="72" y="129">0x7ffd10</text>
+        <text class="fc-label" x="72" y="166">0x7ffd18</text>
+        <path class="fc-line" d="M130 129 C152 129 152 79 174 79"/>
+      </g>
+      <!-- Panel 3 -->
+      <g transform="translate(600,0)">
+        <text x="150" y="16" style="font-family:var(--font-mono)">③ p = &amp;y;</text>
+        <text x="228" y="44">x</text>
+        <rect class="s-process" x="176" y="56" width="104" height="46"/><text x="228" y="79">25</text>
+        <text class="fc-label" x="228" y="116">0x7ffd10</text>
+        <text x="228" y="144">y</text>
+        <rect class="s-process" x="176" y="156" width="104" height="46"/><text x="228" y="179">50</text>
+        <text class="fc-label" x="228" y="216">0x7ffd14</text>
+        <text x="72" y="94">p</text>
+        <g class="fc-node is-active"><rect class="s-io" x="14" y="106" width="116" height="46"/><text x="72" y="129">0x7ffd14</text></g>
+        <text class="fc-label" x="72" y="166">0x7ffd18</text>
+        <path class="fc-line" d="M130 129 C152 129 152 179 174 179"/>
+      </g>
+      <!-- Panel 4 -->
+      <g transform="translate(900,0)">
+        <text x="150" y="16" style="font-family:var(--font-mono)">④ *p = *p + 1;</text>
+        <text x="228" y="44">x</text>
+        <rect class="s-process" x="176" y="56" width="104" height="46"/><text x="228" y="79">25</text>
+        <text class="fc-label" x="228" y="116">0x7ffd10</text>
+        <text x="228" y="144">y</text>
+        <g class="fc-node is-active"><rect class="s-process" x="176" y="156" width="104" height="46"/><text x="228" y="179">51</text></g>
+        <text class="fc-label" x="228" y="216">0x7ffd14</text>
+        <text x="72" y="94">p</text>
+        <rect class="s-io" x="14" y="106" width="116" height="46"/><text x="72" y="129">0x7ffd14</text>
+        <text class="fc-label" x="72" y="166">0x7ffd18</text>
+        <path class="fc-line" d="M130 129 C152 129 152 179 174 179"/>
+      </g>
+    </svg>
+  </figure>
+  <div class="grid-2 align-start" style="margin-top:1.2rem">
+<pre class="code" data-cpp>
+int x = 10;
+int y = 50;
+int* p = &amp;x;     // ① p points to x
+*p = 25;         // ② change x through p
+p = &amp;y;          // ③ move p to y
+*p = *p + 1;     // ④ change y through p
+</pre>
+    <div class="stack">
+      <div class="concept"><p class="box-label">Key concept</p><p>An arrow means "holds the address of". <code>*p</code> means "follow the arrow". <code>p = …</code> moves the arrow; <code>*p = …</code> changes the box at the end of the arrow.</p></div>
+      <p class="small muted">Highlighted box = what that line changed. Addresses are illustrative.</p>
+    </div>
+  </div>
+  <aside class="notes">
+    <p class="note-time">Suggested time: about 6 min</p>
+    <h4>Teaching tips</h4>
+    <ul>
+      <li>Cover panels 2–4 with paper (or zoom in) and have students draw the next panel themselves before revealing it.</li>
+      <li>The key contrast is panel 2 vs panel 3: <code>*p = …</code> changes the <b>target</b>; <code>p = …</code> changes the <b>arrow</b>.</li>
+      <li>Students may write either the address (0x7ffd10) or just draw the arrow. On paper, the arrow is enough; in the worksheet, we will also write assumed addresses.</li>
+      <li>The next slide steps through this exact program in the tracer.</li>
+    </ul>
+    <h4>Common student pitfalls</h4>
+    <ul>
+      <li>In panel 3, also changing x to 50 ("p = &amp;y copies y"). It doesn't; only p changes.</li>
+      <li>Drawing the arrow from x to p (backwards). The arrow starts at the pointer.</li>
+    </ul>
+    <h4>Ask the class</h4>
+    <ul>
+      <li>"After panel 4, what does <code>*p</code> print? And <code>x</code>?" (51 and 25.)</li>
+    </ul>
+  </aside>
+</section>
+
+<!-- ========================= SLIDE 9 · TRACER 2: MODIFY THROUGH A POINTER ========================= -->
+<section class="slide" id="l10-ptr-trace" data-title="Trace: Changing x Through p" data-section="Pointers">
+  <header class="slide-head">
+    <p class="kicker">Lab 10 · Pointers · ILO 2</p>
+    <h2>Trace It: Changing a Variable Through a Pointer</h2>
+    <p class="lede">The program from the diagrams. Watch <code>p</code> and <code>*p</code> in the Memory panel.</p>
+  </header>
+  <div class="example-grid" style="grid-template-columns:minmax(0,1.2fr) minmax(0,1fr)">
+<pre class="code" id="l10-through-code" data-cpp>
+#include &lt;iostream&gt;
+using namespace std;
+
+int main() {
+    int x = 10;
+    int y = 50;
+    int* p = &amp;x;       // p points to x
+
+    *p = 25;           // x is now 25
+    cout &lt;&lt; "x = " &lt;&lt; x &lt;&lt; ", y = " &lt;&lt; y &lt;&lt; endl;
+
+    p = &amp;y;            // p now points to y
+    *p = *p + 1;       // y becomes 51
+    cout &lt;&lt; "x = " &lt;&lt; x &lt;&lt; ", y = " &lt;&lt; y &lt;&lt; endl;
+    cout &lt;&lt; "*p = " &lt;&lt; *p &lt;&lt; endl;
+    return 0;
+}
+</pre>
+    <div class="stack">
+      <div class="tracer" data-trace="l10-through" data-code="#l10-through-code" data-title="Trace: pointer"></div>
+      <figure class="codeblock">
+        <figcaption>Real output</figcaption>
+<pre class="console">x = 25, y = 50
+x = 25, y = 51
+*p = 51</pre>
+      </figure>
+    </div>
+  </div>
+  <aside class="notes">
+    <p class="note-time">Suggested time: about 6 min</p>
+    <h4>Teaching tips</h4>
+    <ul>
+      <li>Use Step, not Play. Before each step ask: "Which box changes now: p, or the box p points to?"</li>
+      <li>Point out that x changes on line 9 even though line 9 never names x. This is "manipulating data indirectly" from ILO 2.</li>
+      <li>The Memory panel shows p as an illustrative address plus its target, e.g. <code>0x7ffd10 (&amp;x)</code>. The "(&amp;x)" part is only a label for students; a real pointer stores just the number.</li>
+    </ul>
+    <h4>Common student pitfalls</h4>
+    <ul>
+      <li>Thinking <code>*p = *p + 1;</code> moves the pointer. It changes the value; <code>p++</code> would move the pointer (next section).</li>
+    </ul>
+    <h4>Ask the class</h4>
+    <ul>
+      <li>"Without writing x on the left side, how could we make x equal to x + y?" (Point p back to x with <code>p = &amp;x;</code>, then <code>*p = *p + y;</code>.)</li>
+    </ul>
+  </aside>
+</section>
+
+<!-- ========================= SLIDE 10 · REFERENCE VS POINTER ========================= -->
+<section class="slide" id="l10-ref-vs-ptr" data-title="Reference vs Pointer (and const)" data-section="Pointers">
+  <header class="slide-head">
+    <p class="kicker">Lab 10 · Compare · ILO 1</p>
+    <h2>Reference vs Pointer</h2>
+    <p class="lede">Both let you reach a variable indirectly. A reference is simpler; a pointer is more flexible.</p>
+  </header>
+  <div class="split-row" style="margin-top:0">
+    <div class="table-wrap">
+      <table class="table compact compare-table">
+        <thead><tr><th scope="col"></th><th scope="col">Reference</th><th scope="col">Pointer</th></tr></thead>
+        <tbody>
+          <tr><th scope="row">Example</th><td><code>int&amp; r = x;</code></td><td><code>int* p = &amp;x;</code></td></tr>
+          <tr><th scope="row">What it is</th><td>Another name for x</td><td>A variable holding x's address</td></tr>
+          <tr><th scope="row">Initialize?</th><td>Required at declaration</td><td>Optional (but always do it)</td></tr>
+          <tr><th scope="row">Re-target?</th><td>No, always x</td><td>Yes: <code>p = &amp;y;</code></td></tr>
+          <tr><th scope="row">Can be null?</th><td>No</td><td>Yes: <code>nullptr</code></td></tr>
+          <tr><th scope="row">Get the value</th><td><code>r</code></td><td><code>*p</code></td></tr>
+          <tr><th scope="row">Own memory?</th><td>Not as a separate box</td><td>Yes, 8 bytes (64-bit)</td></tr>
+          <tr><th scope="row">Typical use</th><td>Function parameters (Lab 11)</td><td>Arrays, <code>new</code>/<code>delete</code>, "maybe nothing"</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="stack">
+      <figure class="codeblock">
+        <figcaption><code>const</code> with pointers and references</figcaption>
+<pre class="code compact" data-cpp>
+int limit = 100;
+const int* p = &amp;limit;  // read-only view
+cout &lt;&lt; *p;             // OK: read
+// *p = 50;             // error!
+int other = 7;
+p = &amp;other;             // OK: p can move
+
+const int&amp; r = limit;   // read-only alias
+</pre>
+      </figure>
+      <div class="note-box"><p class="box-label">Preview: Lab 11</p><p>References and pointers power <b>pass-by-reference</b>: a function that changes the caller's variable, or reads a big value without copying it (<code>const string&amp;</code>).</p></div>
+    </div>
+  </div>
+  <aside class="notes">
+    <p class="note-time">Suggested time: about 5 min</p>
+    <h4>Teaching tips</h4>
+    <ul>
+      <li>Rule of thumb for this course: use a <b>reference</b> when you just need another name (especially for function parameters); use a <b>pointer</b> when the target can change, can be "nothing", or comes from <code>new</code>.</li>
+      <li><code>const int* p</code> reads right to left: "p is a pointer to an int that is const". You cannot change the int through p, but p can point elsewhere.</li>
+      <li>Optional extra: <code>int* const q = &amp;x;</code> is the opposite, a const pointer (q cannot move, but <code>*q</code> can change). Mention it only if a student asks.</li>
+    </ul>
+    <h4>Common student pitfalls</h4>
+    <ul>
+      <li>Thinking <code>const int* p</code> makes <code>limit</code> itself constant. It only prevents changes <b>through p</b>; <code>limit = 50;</code> still works.</li>
+    </ul>
+    <h4>Ask the class</h4>
+    <ul>
+      <li>"You need something that can point to the first reading, then the next, then the next. Reference or pointer?" (Pointer: it must move.)</li>
+    </ul>
+  </aside>
+</section>
+
+<!-- ========================= SLIDE 11 · POINTERS AND ARRAYS ========================= -->
+<section class="slide" id="l10-ptr-arrays" data-title="Pointers and Arrays" data-section="Arrays & Dynamic Memory">
+  <header class="slide-head">
+    <p class="kicker">Lab 10 · Pointers &amp; arrays · ILO 2</p>
+    <h2>Pointers and Arrays</h2>
+    <p class="lede">An array's name converts to a pointer to element 0. Adding 1 to a pointer moves it to the <b>next element</b>, not the next byte.</p>
+  </header>
+  <div class="grid-2 align-start" style="grid-template-columns:minmax(0,1.2fr) minmax(0,1fr)">
+<pre class="code" data-cpp>
+#include &lt;iostream&gt;
+using namespace std;
+
+int main() {
+    int readings[4] = {12, 7, 30, 18};
+    int* p = readings;          // &amp;readings[0]
+
+    cout &lt;&lt; p &lt;&lt; endl;          // address of [0]
+    cout &lt;&lt; (p + 1) &lt;&lt; endl;    // 4 bytes later
+    cout &lt;&lt; *(p + 1) &lt;&lt; endl;   // readings[1]
+    cout &lt;&lt; readings[2] &lt;&lt; " "
+         &lt;&lt; *(readings + 2) &lt;&lt; endl;
+    cout &lt;&lt; ((p + 3) - p) &lt;&lt; endl;  // elements
+    return 0;
+}
+</pre>
+    <div class="stack">
+      <div class="mem array" aria-label="readings array 12, 7, 30, 18. p points to element 0 at address ending 160, p plus 1 to element 1 at 164, p plus 2 to element 2 at 168, p plus 3 to element 3 at 16c.">
+        <div class="mem-cell is-hl"><span class="mem-name">p</span><span class="mem-val">12</span><span class="mem-addr">…160</span></div>
+        <div class="mem-cell"><span class="mem-name">p + 1</span><span class="mem-val">7</span><span class="mem-addr">…164</span></div>
+        <div class="mem-cell"><span class="mem-name">p + 2</span><span class="mem-val">30</span><span class="mem-addr">…168</span></div>
+        <div class="mem-cell"><span class="mem-name">p + 3</span><span class="mem-val">18</span><span class="mem-addr">…16c</span></div>
+      </div>
+      <figure class="codeblock">
+        <figcaption>Sample run (your addresses will differ)</figcaption>
+<pre class="console">0x7fffe22df160
+0x7fffe22df164
+7
+30 30
+3</pre>
+      </figure>
+      <div class="concept"><p class="box-label">Key concept</p>
+        <ul>
+          <li><code>readings</code> (alone) → <code>&amp;readings[0]</code></li>
+          <li><code>p + 1</code> → address + <code>sizeof(int)</code> = 4 bytes</li>
+          <li><code>*(readings + i)</code> is the same as <code>readings[i]</code></li>
+          <li>Pointer − pointer = number of <b>elements</b> apart</li>
+          <li>Valid only inside the array (and one past the end)</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+  <aside class="notes">
+    <p class="note-time">Suggested time: about 8 min</p>
+    <h4>Teaching tips</h4>
+    <ul>
+      <li>Connect to the bridge slide: <code>readings[2]</code> is literally computed as <code>*(readings + 2)</code>. The brackets are a convenient shorthand.</li>
+      <li>Show the hex: …160 → …164 is a jump of 4 bytes even though we wrote <code>+ 1</code>. Ask what the jump would be for a <code>double</code> array (8).</li>
+      <li>Going past the end with pointer arithmetic is undefined behavior, exactly like an out-of-bounds index in Lab 9.</li>
+      <li>An array name is not a variable you can move: <code>readings++</code> does not compile. A pointer copy (<code>p</code>) can move.</li>
+    </ul>
+    <h4>Common student pitfalls</h4>
+    <ul>
+      <li>Writing <code>*readings + 2</code> (which is 12 + 2 = 14) instead of <code>*(readings + 2)</code> (which is 30). Parentheses matter: <code>*</code> binds tighter than <code>+</code>.</li>
+      <li>Expecting <code>p + 1</code> to be 1 byte later.</li>
+    </ul>
+    <h4>Ask the class</h4>
+    <ul>
+      <li>"What is <code>*readings + 2</code>?" (14.) "What is <code>*(readings + 2)</code>?" (30.)</li>
+    </ul>
+  </aside>
+</section>
+
+<!-- ========================= SLIDE 12 · TRACER 3: TRAVERSE WITH A POINTER ========================= -->
+<section class="slide" id="l10-ptr-traverse" data-title="Trace: Traversing an Array with a Pointer" data-section="Arrays & Dynamic Memory">
+  <header class="slide-head">
+    <p class="kicker">Lab 10 · Pointers &amp; arrays · ILO 2</p>
+    <h2>Trace It: Walking Through an Array with a Pointer</h2>
+    <p class="lede">Instead of an index <code>i</code>, a pointer starts at element 0 and moves one element per loop pass.</p>
+  </header>
+  <div class="example-grid" style="grid-template-columns:minmax(0,1.2fr) minmax(0,1fr)">
+    <div class="stack">
+<pre class="code" id="l10-traverse-code" data-cpp>
+#include &lt;iostream&gt;
+using namespace std;
+
+int main() {
+    const int SIZE = 5;
+    int scores[SIZE] = {12, 7, 30, 18, 25};
+    int sum = 0;
+
+    for (int* p = scores; p &lt; scores + SIZE; p++) {
+        sum += *p;
+        cout &lt;&lt; *p &lt;&lt; " ";
+    }
+    cout &lt;&lt; endl;
+    cout &lt;&lt; "Sum = " &lt;&lt; sum &lt;&lt; endl;
+    return 0;
+}
+</pre>
+      <div class="concept"><p class="box-label">The pattern: start at [0] · stop one past the end · step one element</p><p class="syntax" style="margin-top:.3rem">for (int* p = arr; p &lt; arr + SIZE; p++)</p></div>
+    </div>
+    <div class="stack">
+      <div class="tracer" data-trace="l10-traverse" data-code="#l10-traverse-code" data-speed="250" data-title="Trace: pointer loop"></div>
+<pre class="console">12 7 30 18 25
+Sum = 92</pre>
+      <div class="pitfall"><p class="box-label">Common pitfall</p><p><code>p &lt;= scores + SIZE</code> runs one pass too many and reads past the end (undefined behavior).</p></div>
+    </div>
+  </div>
+  <aside class="notes">
+    <p class="note-time">Suggested time: about 6 min</p>
+    <h4>Teaching tips</h4>
+    <ul>
+      <li>Compare with the Lab 9 index loop on the board: <code>for (int i = 0; i &lt; SIZE; i++) { sum += scores[i]; }</code>. Same output, different "cursor".</li>
+      <li>In the tracer, the Memory panel shows <code>p</code> as <code>&amp;scores[k]</code> so students see which element it points to without hex addresses.</li>
+      <li>On the last test, p equals <code>scores + 5</code>: a legal address to compare against, but never to dereference.</li>
+    </ul>
+    <h4>Common student pitfalls</h4>
+    <ul>
+      <li>Writing <code>sum += p;</code> (adding an address) instead of <code>sum += *p;</code>. g++ rejects it: "invalid conversion from int* to int".</li>
+      <li>Using <code>&lt;=</code> in the loop condition.</li>
+    </ul>
+    <h4>Ask the class</h4>
+    <ul>
+      <li>"How would you print the scores backwards with a pointer?" (Start at <code>scores + SIZE - 1</code>, loop while <code>p &gt;= scores</code>, use <code>p--</code>.)</li>
+    </ul>
+  </aside>
+</section>
+
+<!-- ========================= SLIDE 13 · DYNAMIC MEMORY ========================= -->
+<section class="slide" id="l10-dynamic" data-title="Dynamic Memory: new and delete" data-section="Arrays & Dynamic Memory">
+  <header class="slide-head">
+    <p class="kicker">Lab 10 · Dynamic memory · ILO 2</p>
+    <h2>Dynamic Memory: <code>new</code> and <code>delete</code></h2>
+    <p class="lede">Size known only at run time? Request memory with <code>new</code>; give it back with <code>delete</code>.</p>
+  </header>
+  <div class="grid-2 align-start" style="grid-template-columns:minmax(0,1.2fr) minmax(0,1fr)">
+    <figure class="codeblock">
+      <figcaption><code>readings.cpp</code></figcaption>
+<pre class="code compact" data-cpp data-stdin="4 2.5 3.1 2.9 3.4">
+#include &lt;iostream&gt;
+using namespace std;
+
+int main() {
+    int n;
+    cout &lt;&lt; "How many readings? ";
+    cin &gt;&gt; n;
+    double* readings = new double[n];
+
+    for (int i = 0; i &lt; n; i++) {
+        cout &lt;&lt; "Reading " &lt;&lt; (i + 1) &lt;&lt; ": ";
+        cin &gt;&gt; readings[i];
+    }
+    cout &lt;&lt; "Newest to oldest:";
+    for (int i = n - 1; i &gt;= 0; i--) {
+        cout &lt;&lt; " " &lt;&lt; readings[i];
+    }
+    cout &lt;&lt; endl;
+    delete[] readings;     // give the memory back
+    readings = nullptr;    // no dangling pointer
+    return 0;
+}
+</pre>
+    </figure>
+    <div class="stack">
+      <figure class="codeblock">
+        <figcaption>Sample run</figcaption>
+<pre class="console">How many readings? <span class="in">4</span>
+Reading 1: <span class="in">2.5</span>
+Reading 2: <span class="in">3.1</span>
+Reading 3: <span class="in">2.9</span>
+Reading 4: <span class="in">3.4</span>
+Newest to oldest: 3.4 2.9 3.1 2.5</pre>
+      </figure>
+      <div class="table-wrap">
+        <table class="table compact">
+          <thead><tr><th scope="col">Allocate</th><th scope="col">Free with</th></tr></thead>
+          <tbody>
+            <tr><td><code>int* c = new int(0);</code></td><td><code>delete c;</code></td></tr>
+            <tr><td><code>double* r = new double[n];</code></td><td><code>delete[] r;</code></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="concept"><p class="box-label">Key concept</p><p>Locals vanish when their block ends; <code>new</code> memory stays until you <code>delete</code> it. Forgetting = a <b>memory leak</b>.</p><p class="small"><b>Note:</b> <code>int arr[n];</code> with a run-time <code>n</code> is a g++ extension, not standard C++. Use <code>new[]</code>.</p></div>
+    </div>
+  </div>
+  <aside class="notes">
+    <p class="note-time">Suggested time: about 8 min</p>
+    <h4>Teaching tips</h4>
+    <ul>
+      <li>Why store the readings at all? Printing them newest-first needs every value kept until the end. That is the reason for an array whose size the user chooses.</li>
+      <li><code>new double[n]</code> returns a pointer to element 0, so <code>readings[i]</code> works exactly like an ordinary array (and <code>*(readings + i)</code> works too).</li>
+      <li>Vocabulary if students ask: local variables live on the <b>stack</b>; <code>new</code> memory comes from the <b>heap</b> (free store). Later courses use <code>vector</code>, which manages this automatically.</li>
+      <li>Leaks matter in programs that run for a long time (servers, embedded devices): a little leaked memory per loop eventually uses up all RAM.</li>
+      <li>Robust versions should check <code>n &gt; 0</code> before calling <code>new</code>. The lab exercise requires that check.</li>
+    </ul>
+    <h4>Common student pitfalls</h4>
+    <ul>
+      <li>Using <code>delete readings;</code> for an array (must be <code>delete[]</code>).</li>
+      <li>Using <code>readings</code> after <code>delete[]</code>.</li>
+      <li>Forgetting <code>delete[]</code> entirely: the program still works, which hides the leak.</li>
+    </ul>
+    <h4>Ask the class</h4>
+    <ul>
+      <li>"Why set <code>readings = nullptr;</code> if the program ends right after?" (Habit: in bigger programs the pointer may be used later, and a null pointer is easy to test.)</li>
+    </ul>
+  </aside>
+</section>
+
+<!-- ========================= SLIDE 14 · COMMON ERRORS ========================= -->
+<section class="slide" id="l10-errors" data-title="Common Pointer Errors" data-section="Arrays & Dynamic Memory">
+  <header class="slide-head">
+    <p class="kicker">Lab 10 · Debugging</p>
+    <h2>Common Pointer Errors</h2>
+    <p class="lede">Most of these <b>compile</b>. At run time the program may crash, print garbage, or seem to work today and fail tomorrow (undefined behavior).</p>
+  </header>
+  <div class="grid-2 align-start">
+    <figure class="codeblock">
+      <figcaption>Find the bug (do not run these)</figcaption>
+<pre class="code bad-code" data-cpp data-nocheck>
+// 1. Wild pointer: never given an address
+int* p;
+*p = 5;              // writes to a random place
+
+// 2. Dereferencing nullptr
+int* q = nullptr;
+cout &lt;&lt; *q;          // crash (segmentation fault)
+
+// 3. Dangling pointer: memory already freed
+int* r = new int(7);
+delete r;
+cout &lt;&lt; *r;          // reads memory you gave back
+
+// 4. Mismatched delete
+int* list = new int[10];
+delete list;         // must be delete[] list;
+</pre>
+    </figure>
+    <div class="stack">
+      <div class="practice"><p class="box-label">Safe pointer habits</p>
+        <ol>
+          <li>Initialize every pointer: a real address or <code>nullptr</code>.</li>
+          <li>Check before following: <code>if (p != nullptr) { … }</code></li>
+          <li>After <code>delete</code>, set the pointer to <code>nullptr</code>.</li>
+          <li>Match <code>new</code>↔<code>delete</code> and <code>new[]</code>↔<code>delete[]</code>; free each block exactly once.</li>
+          <li>Never keep a pointer to a variable that no longer exists.</li>
+        </ol>
+      </div>
+      <div class="pitfall"><p class="box-label">Why these are dangerous</p>
+        <ul>
+          <li>"It worked when I ran it" proves nothing: undefined behavior can look correct.</li>
+          <li>A wild or dangling pointer can silently overwrite another variable.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+  <aside class="notes">
+    <p class="note-time">Suggested time: about 6 min</p>
+    <h4>Teaching tips</h4>
+    <ul>
+      <li>Ask pairs to name the bug in each block before you explain it.</li>
+      <li>Optional live demo: compile bug 1 with <code>g++ -Wall</code>. g++ warns "'p' is used uninitialized". Teach students to read warnings, not just errors (Lab 15 debugging preview).</li>
+      <li>Bug 2 usually crashes with "Segmentation fault" on Linux/Codechum, or the program just stops on Windows. Either way it's a bug.</li>
+      <li>Bug 3 often prints 7 or a random number. That is the scary part: it may look fine.</li>
+    </ul>
+    <h4>Common student pitfalls</h4>
+    <ul>
+      <li>Believing "no compile error" means "no bug".</li>
+      <li>Calling <code>delete</code> twice on the same pointer (also undefined). Deleting a <code>nullptr</code> is safe, one more reason to set it after delete.</li>
+    </ul>
+    <h4>Ask the class</h4>
+    <ul>
+      <li>"Which habit prevents bug 3?" (Set r to nullptr after delete, and check before use.)</li>
+    </ul>
+  </aside>
+</section>
+
+<!-- ========================= SLIDE 15 · MEMORY-TRACING WORKSHEET ========================= -->
+<section class="slide" id="l10-worksheet" data-title="Memory-Tracing Worksheet" data-section="Practice">
+  <header class="slide-head">
+    <p class="kicker">Lab 10 · Memory tracing exercise</p>
+    <h2>Worksheet: Trace the Memory</h2>
+    <p class="lede">Copy the table onto paper. Fill one row per line <b>before</b> revealing it. Assume <code>&amp;a</code> is 0x1000 and <code>&amp;b</code> is 0x1004.</p>
+  </header>
+  <div class="grid-2 align-start">
+    <div class="stack">
+<pre class="code" data-cpp>
+int a = 4;
+int b = 9;
+int* p = &amp;a;
+int&amp; r = b;
+*p = *p + r;
+p = &amp;b;
+r = r * 2;
+*p = *p - a;
+cout &lt;&lt; a &lt;&lt; " " &lt;&lt; b &lt;&lt; " " &lt;&lt; *p &lt;&lt; endl;
+</pre>
+      <div class="note-box"><p class="box-label">How to fill it</p>
+        <ul>
+          <li>Write the value of every variable after each line.</li>
+          <li>For <code>p</code>, write the address it holds (and the name it points to).</li>
+          <li>For <code>r</code>, remember: it is just another name for <code>b</code>.</li>
+        </ul>
+      </div>
+    </div>
+    <div class="card reveal" data-reveal>
+      <div class="table-wrap">
+        <table class="table compact trace-table">
+          <thead><tr><th scope="col">Line</th><th scope="col">a</th><th scope="col">b</th><th scope="col">p</th><th scope="col">*p</th><th scope="col">r</th><th scope="col">Output</th></tr></thead>
+          <tbody>
+            <tr data-step><td>1</td><td><b>4</b></td><td>—</td><td>—</td><td>—</td><td>—</td><td></td></tr>
+            <tr data-step><td>2</td><td>4</td><td><b>9</b></td><td>—</td><td>—</td><td>—</td><td></td></tr>
+            <tr data-step><td>3</td><td>4</td><td>9</td><td><b>0x1000</b> (a)</td><td>4</td><td>—</td><td></td></tr>
+            <tr data-step><td>4</td><td>4</td><td>9</td><td>0x1000 (a)</td><td>4</td><td><b>9</b> (= b)</td><td></td></tr>
+            <tr data-step><td>5</td><td><b>13</b></td><td>9</td><td>0x1000 (a)</td><td>13</td><td>9</td><td></td></tr>
+            <tr data-step><td>6</td><td>13</td><td>9</td><td><b>0x1004</b> (b)</td><td>9</td><td>9</td><td></td></tr>
+            <tr data-step><td>7</td><td>13</td><td><b>18</b></td><td>0x1004 (b)</td><td>18</td><td>18</td><td></td></tr>
+            <tr data-step><td>8</td><td>13</td><td><b>5</b></td><td>0x1004 (b)</td><td>5</td><td>5</td><td></td></tr>
+            <tr data-step class="is-hl"><td>9</td><td>13</td><td>5</td><td>0x1004 (b)</td><td>5</td><td>5</td><td><b>13 5 5</b></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="reveal-actions" style="margin:.8rem 0 0">
+        <button type="button" class="btn primary" data-reveal-next>Show next step</button>
+        <button type="button" class="btn ghost" data-reveal-reset>Reset</button>
+      </div>
+    </div>
+  </div>
+  <aside class="notes">
+    <p class="note-time">Suggested time: about 12 min (7 working, 5 review)</p>
+    <h4>Teaching tips</h4>
+    <ul>
+      <li>This is the "Memory tracing exercises" activity from the syllabus. Give 6–7 minutes, then reveal one row at a time while students self-check.</li>
+      <li>Line 5 is the first trap: <code>*p</code> is a (4) and <code>r</code> is b (9), so a becomes 13.</li>
+      <li>Line 7 changes b through <code>r</code>, so <code>*p</code> (which now points to b) also shows 18 without line 7 touching p.</li>
+      <li>Line 8 uses the current a (13): 18 − 13 = 5.</li>
+      <li>The program behind this worksheet was compiled and run to confirm the output <code>13 5 5</code>.</li>
+    </ul>
+    <h4>Common student pitfalls</h4>
+    <ul>
+      <li>Leaving <code>*p</code> unchanged on line 7 because "line 7 doesn't mention p".</li>
+      <li>Writing p's own address instead of the address it holds.</li>
+      <li>Treating r as a copy of b (so it stays 9 forever).</li>
+    </ul>
+    <h4>Ask the class</h4>
+    <ul>
+      <li>"Which variables can change on a line that never names them?" (Any variable that a pointer points to, or that has a reference.)</li>
+    </ul>
+  </aside>
+</section>
+
+<!-- ========================= SLIDE 16 · QUICK CHECK ========================= -->
+<section class="slide" id="l10-quick-check" data-title="Quick Check" data-section="Practice">
+  <header class="slide-head">
+    <p class="kicker">Lab 10 · Check your understanding</p>
+    <h2>Quick Check</h2>
+    <p class="lede">Answer on paper first, then click to compare.</p>
+  </header>
+  <div class="qa-grid">
+    <details class="qa"><summary><span class="q-num">1</span><span class="q-text">After <code>int x = 7; int* p = &amp;x;</code>, what are <code>p</code> and <code>*p</code>?</span></summary><p><code>p</code> is the address of x (some hex number like 0x7ffd10). <code>*p</code> is 7, the value at that address.</p></details>
+    <details class="qa"><summary><span class="q-num">2</span><span class="q-text">Why does <code>int&amp; r;</code> fail to compile?</span></summary><p>A reference must be initialized when it is declared, e.g. <code>int&amp; r = x;</code>. It cannot exist without a variable to refer to.</p></details>
+    <details class="qa"><summary><span class="q-num">3</span><span class="q-text"><code>int x = 5; int&amp; r = x; int y = 8; r = y;</code> What is x now?</span></summary><p>8. <code>r = y;</code> copies y's value into x. r still refers to x; references cannot be re-seated.</p></details>
+    <details class="qa"><summary><span class="q-num">4</span><span class="q-text">In <code>int* a, b;</code> what are the types of a and b?</span></summary><p>a is <code>int*</code> (a pointer); b is a plain <code>int</code>. The <code>*</code> belongs to a only.</p></details>
+    <details class="qa"><summary><span class="q-num">5</span><span class="q-text"><code>int arr[5]; int* p = arr;</code> How many bytes after <code>p</code> is <code>p + 2</code>?</span></summary><p>8 bytes: 2 elements × <code>sizeof(int)</code> (4). <code>p + 2</code> points to <code>arr[2]</code>.</p></details>
+    <details class="qa"><summary><span class="q-num">6</span><span class="q-text">You wrote <code>double* d = new double[n];</code>. How do you free it, and what next?</span></summary><p><code>delete[] d;</code> (with brackets, because it is an array), then <code>d = nullptr;</code> so it does not dangle.</p></details>
+  </div>
+  <aside class="notes">
+    <p class="note-time">Suggested time: about 6 min</p>
+    <h4>Teaching tips</h4>
+    <ul>
+      <li>Think-pair-share: 2 minutes alone, 1 minute with a seatmate, then open the answers.</li>
+      <li>Questions 3 and 4 catch the most students. If many miss Q3, replay the reference tracer.</li>
+    </ul>
+    <h4>Common student pitfalls</h4>
+    <ul>
+      <li>Q5: answering "2 bytes".</li>
+      <li>Q6: forgetting the brackets in <code>delete[]</code>.</li>
+    </ul>
+    <h4>Ask the class</h4>
+    <ul>
+      <li>"Which question would you put on a quiz?" Students choosing questions shows what they found hard.</li>
+    </ul>
+  </aside>
+</section>
+
+<!-- ========================= SLIDE 17 · SEATWORK ========================= -->
+<section class="slide" id="l10-seatwork" data-title="Seatwork: Lowest Temperature" data-section="Practice">
+  <header class="slide-head">
+    <p class="kicker">Lab 10 · Seatwork · Pointers &amp; arrays</p>
+    <h2>Seatwork: Lowest Temperature, Pointers Only</h2>
+  </header>
+  <div class="story">
+    <p class="task" style="margin-top:0;padding-top:0;border-top:0"><b>Instruction:</b> Read <b>5</b> integer temperatures into an array. Using <b>only pointers</b> (no <code>[ ]</code> anywhere), find the lowest temperature and its <b>position</b> (1 to 5).</p>
+  </div>
+  <div class="grid-2 align-start">
+    <div class="card">
+      <h3 class="card-title">Need a hint?</h3>
+      <details class="hint"><summary>Hint 1</summary><p>Read input with a pointer loop: <code>for (int* p = temps; p &lt; temps + SIZE; p++) { cin &gt;&gt; *p; }</code></p></details>
+      <details class="hint"><summary>Hint 2</summary><p>Keep a second pointer, <code>lowest</code>, that remembers <b>where</b> the smallest value is. Start it at <code>temps</code>.</p></details>
+      <details class="hint"><summary>Hint 3</summary><p>Pointer minus pointer gives an element count: <code>lowest - temps</code> is the index (0–4). Add 1 for the position.</p></details>
+      <figure class="codeblock" style="margin-top:.6rem">
+        <figcaption>Expected run</figcaption>
+<pre class="console">Enter 5 temperatures: <span class="in">31 29 33 27 30</span>
+Lowest: 27
+Position: 4</pre>
+      </figure>
+    </div>
+    <div class="card timer" data-timer data-minutes="10">
+      <h3 class="card-title">Seatwork timer</h3>
+      <p class="timer-display">10:00</p>
+      <div class="timer-presets" role="group" aria-label="Timer presets">
+        <button type="button" class="btn ghost" data-min="5">5 min</button>
+        <button type="button" class="btn ghost" data-min="10">10 min</button>
+        <button type="button" class="btn ghost" data-min="15">15 min</button>
+      </div>
+      <div class="timer-actions">
+        <button type="button" class="btn primary" data-timer-act="toggle">Start</button>
+        <button type="button" class="btn" data-timer-act="reset">Reset</button>
+      </div>
+    </div>
+  </div>
+  <details class="answer">
+    <summary><span>Reveal answer &amp; walkthrough</span></summary>
+    <div class="code-pair" style="margin-top:1rem">
+      <figure class="codeblock">
+        <figcaption><code>lowest_temp.cpp</code></figcaption>
+<pre class="code" data-cpp data-stdin="31 29 33 27 30">
+#include &lt;iostream&gt;
+using namespace std;
+
+int main() {
+    const int SIZE = 5;
+    int temps[SIZE];
+    cout &lt;&lt; "Enter 5 temperatures: ";
+    for (int* p = temps; p &lt; temps + SIZE; p++) {
+        cin &gt;&gt; *p;
+    }
+
+    int* lowest = temps;            // start at element 0
+    for (int* p = temps + 1; p &lt; temps + SIZE; p++) {
+        if (*p &lt; *lowest) {
+            lowest = p;             // remember where it is
+        }
+    }
+    int position = (lowest - temps) + 1;
+    cout &lt;&lt; "Lowest: " &lt;&lt; *lowest &lt;&lt; endl;
+    cout &lt;&lt; "Position: " &lt;&lt; position &lt;&lt; endl;
+    return 0;
+}
+</pre>
+      </figure>
+      <div class="stack">
+        <figure class="codeblock">
+          <figcaption>Output</figcaption>
+<pre class="console">Enter 5 temperatures: <span class="in">31 29 33 27 30</span>
+Lowest: 27
+Position: 4</pre>
+        </figure>
+        <div class="concept"><p class="box-label">Walkthrough</p>
+          <ul>
+            <li><code>cin &gt;&gt; *p</code> stores each input where p points.</li>
+            <li><code>lowest</code> is a pointer, so it remembers the <b>location</b>, not just the value.</li>
+            <li><code>*p &lt; *lowest</code> compares values; <code>lowest = p</code> copies an address.</li>
+            <li><code>lowest - temps</code> = 3 elements, so position 4.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </details>
+  <aside class="notes">
+    <p class="note-time">Suggested time: about 15 min (10 working, 5 review)</p>
+    <h4>Teaching tips</h4>
+    <ul>
+      <li>Start the timer and walk around. Open hints one at a time only if many students are stuck.</li>
+      <li>Accept the variant that stores an index or uses <code>*(temps + i)</code>, but praise the version with a <code>lowest</code> pointer: it is the idea we want.</li>
+      <li>Test with the lowest value in position 1 and in position 5 (boundary cases).</li>
+    </ul>
+    <h4>Common student pitfalls</h4>
+    <ul>
+      <li><code>if (p &lt; lowest)</code>: comparing addresses instead of values.</li>
+      <li><code>*lowest = *p;</code>: overwrites the array instead of moving the pointer.</li>
+      <li>Printing <code>lowest</code> (an address) instead of <code>*lowest</code>.</li>
+    </ul>
+    <h4>Ask the class</h4>
+    <ul>
+      <li>"If two temperatures tie for lowest, which position does this code report?" (The first one, because the test is <code>&lt;</code>, not <code>&lt;=</code>.)</li>
+    </ul>
+  </aside>
+</section>
+
+<!-- ========================= SLIDE 18 · LAB EXERCISE PART A ========================= -->
+<!-- LOCKED-ACTIVITY:START lab-10 -->
+<section class="slide locked-slide" id="l10-exercise-a" data-title="Laboratory Exercise No. 10 (locked)" data-section="Lab Exercise & Wrap-up" data-locked="lab-10">
+  <header class="slide-head">
+    <p class="kicker">Laboratory Exercise No. 10</p>
+    <h2>This lab activity is locked</h2>
+    <p class="lede">It opens when your instructor releases it. Enter the passphrase your instructor gives you.</p>
+  </header>
+  <div class="lock-card">
+    <svg class="lock-icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="10.5" width="14" height="10" rx="2"/><path d="M8 10.5V7.5a4 4 0 0 1 8 0v3M12 14.5v2.5"/></svg>
+    <h3>Laboratory Exercise No. 10</h3>
+    <form class="lock-form" autocomplete="off">
+      <label class="sr-only" for="unlock-lab-10">Passphrase</label>
+      <input id="unlock-lab-10" type="password" placeholder="Passphrase" autocomplete="off" spellcheck="false">
+      <button type="submit" class="btn primary">Unlock</button>
+    </form>
+    <p class="lock-msg" aria-live="polite"></p>
+    <p class="small muted">The activity is stored encrypted on this site and is unlocked in your browser. Once unlocked, it stays open on this device.</p>
+  </div>
+  <script type="application/json" class="locked-data">{"v":1,"iter":250000,"salt":"HveRFHaztf8dwd+H4mraMQ==","iv":"xoCXC0UbDlxQtGYv","data":"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"}</script>
+  <aside class="notes">
+    <p class="note-time">Locked activity (2 slides)</p>
+    <h4>Instructor</h4>
+    <ul>
+      <li>Type this lab's passphrase (private instructor package → <code>passwords.json</code>) to open the activity on the classroom PC. It stays unlocked on that browser until you press "Lock again".</li>
+      <li>To release the activity to students, announce or post the passphrase (e.g. in MS Teams).</li>
+      <li>To re-lock it for everyone, change the passphrase and rerun <code>node tools/lock-activities.js</code>.</li>
+    </ul>
+  </aside>
+</section>
+<!-- LOCKED-ACTIVITY:END lab-10 -->
+
+<!-- ========================= SLIDE 20 · WRAP-UP ========================= -->
+<section class="slide" id="l10-wrap-up" data-title="Wrap-up" data-section="Lab Exercise & Wrap-up">
+  <header class="slide-head">
+    <p class="kicker">Wrap-up</p>
+    <h2>Five Expressions to Remember</h2>
+  </header>
+  <div class="table-wrap">
+    <table class="table compact compare-table">
+      <thead><tr><th scope="col">Code</th><th scope="col">Meaning</th><th scope="col">In the memory diagram</th></tr></thead>
+      <tbody>
+        <tr><th scope="row"><code>&amp;x</code></th><td>the address of x</td><td>the number under x's box</td></tr>
+        <tr><th scope="row"><code>int&amp; r = x;</code></th><td>r is another name for x</td><td>a second label on x's box</td></tr>
+        <tr><th scope="row"><code>int* p = &amp;x;</code></th><td>p holds x's address</td><td>a new box with an arrow to x</td></tr>
+        <tr><th scope="row"><code>*p</code></th><td>the value p points to</td><td>follow the arrow</td></tr>
+        <tr><th scope="row"><code>new</code> / <code>delete[]</code></th><td>get / return memory at run time</td><td>a box that exists until you free it</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="grid-3">
+    <div class="card"><h3 class="card-title">Remember</h3><ul class="tight"><li>Draw boxes and arrows before you code.</li><li><code>p = …</code> moves the arrow; <code>*p = …</code> changes the target.</li><li>Initialize pointers; <code>nullptr</code> after <code>delete</code>.</li></ul></div>
+    <div class="card"><h3 class="card-title">Exit ticket</h3><p>On a ¼ sheet, draw the memory diagram after: <code>int a = 3; int* p = &amp;a; *p = 9;</code> What is a?</p></div>
+    <div class="card"><h3 class="card-title">Next: Lab No. 11</h3><p><b>Functions</b>: break programs into reusable modules, and use references to pass values <b>by reference</b>.</p><p><a href="lab-11.html">Open Lab 11 →</a></p></div>
+  </div>
+  <aside class="notes">
+    <p class="note-time">Suggested time: about 3 min</p>
+    <h4>Teaching tips</h4>
+    <ul>
+      <li>Have students read the table aloud row by row. The middle column is the vocabulary they need for the exercise.</li>
+      <li>Collect exit tickets. Anyone who draws the arrow from a to p, or says a is still 3, needs help before Part A is due.</li>
+      <li>Preview Lab 11: "Next week you'll write <code>void swapValues(int&amp; x, int&amp; y)</code>, a function that changes the caller's variables. Today's references make that possible."</li>
+    </ul>
+    <h4>Common student pitfalls</h4>
+    <ul>
+      <li>Leaving with "pointers are magic". Ask each student to say one row of the table in their own words.</li>
+    </ul>
+    <h4>Ask the class</h4>
+    <ul>
+      <li>"Which is safer for a function parameter you only need to rename, a reference or a pointer, and why?" (A reference: it cannot be null or re-seated.)</li>
+    </ul>
+  </aside>
+</section>
+
+      </div>
+    </main>
+  </div>
+</body>
+</html>

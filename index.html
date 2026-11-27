@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>CPE 104L · Programming Logic and Design · Lecture Slides</title>
+  <meta name="description" content="Interactive lecture slides for CPE 104L Programming Logic and Design, Labs 1–15: algorithms, flowcharts, and C++. BS Computer Engineering, Bulacan State University.">
+  <meta name="color-scheme" content="light dark">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%232f3410'/%3E%3Cpath d='M32 11 53 32 32 53 11 32Z' fill='none' stroke='%23f5c518' stroke-width='6' stroke-linejoin='round'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="css/styles.css">
+  <script>
+    (function () { var d = document.documentElement; d.classList.add('js');
+      try { var t = localStorage.getItem('cpe104l.theme'); if (t === 'dark' || t === 'light') d.setAttribute('data-theme', t); } catch (e) {} })();
+  </script>
+  <script src="js/course.js" defer></script>
+  <script src="js/search-index.js" defer></script>
+  <script src="js/script.js" defer></script>
+</head>
+<body data-page="home" data-root="">
+  <div class="home">
+    <header class="home-top">
+      <a class="brand" href="index.html"><svg class="brand-mark" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.5 21.5 12 12 21.5 2.5 12Z"/></svg><b>CPE 104L</b> <span class="brand-sub">Programming Logic and Design</span></a>
+      <span class="spacer"></span>
+      <a class="btn ghost" href="labs/orientation.html">Course Orientation</a>
+      <button class="icon-btn" id="btn-theme" type="button" title="Light / dark mode (T)">
+        <svg class="i-moon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5Z"/></svg>
+        <svg class="i-sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2.5M12 19.5V22M4.9 4.9l1.8 1.8M17.3 17.3l1.8 1.8M2 12h2.5M19.5 12H22M4.9 19.1l1.8-1.8M17.3 6.7l1.8-1.8"/></svg>
+        <span class="sr-only">Toggle light or dark mode</span>
+      </button>
+    </header>
+
+    <main class="home-main" id="main">
+      <section class="home-hero">
+        <div>
+          <p class="kicker">BS Computer Engineering · College of Engineering · Bulacan State University</p>
+          <h1>CPE 104L <span>Programming Logic and Design</span></h1>
+          <p class="lede">Lecture slides for every laboratory: from algorithms and flowcharts to C++ control structures, arrays, pointers, functions, object-oriented programming, and debugging.</p>
+        </div>
+        <div class="home-facts">
+          <div><b>15</b><span>Laboratories</span></div>
+          <div><b>2</b><span>Unit laboratory</span></div>
+          <div><b>C++</b><span>Course language</span></div>
+        </div>
+      </section>
+
+      <div class="home-search" role="search">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l4.5 4.5"/></svg>
+        <label for="home-search" class="sr-only">Search labs and slides</label>
+        <input id="home-search" type="search" placeholder="Search every lab and slide: try “switch”, “pointer”, “bubble sort”, “lab 7”" autocomplete="off" spellcheck="false">
+        <kbd>/</kbd>
+      </div>
+      <div class="home-results-wrap" hidden>
+        <p id="home-results-info"></p>
+        <ul class="search-results" id="home-results" role="listbox" aria-label="Matching slides"></ul>
+      </div>
+
+      <div class="part-filters" id="part-filters" role="group" aria-label="Filter by part of the course"></div>
+      <ol class="lab-grid" id="lab-grid" aria-label="Labs in course order"></ol>
+      <noscript><p class="noscript">Turn on JavaScript to see the lab list, or open the files in the <code>labs/</code> folder directly.</p></noscript>
+
+      <h2 class="home-section-title">Assessment at a glance</h2>
+      <div class="home-grid-2">
+        <div class="card">
+          <h3 class="card-title">Grading system (pure laboratory course)</h3>
+          <div class="table-wrap">
+            <table class="table compact">
+              <thead><tr><th scope="col">Component</th><th scope="col">Midterm (MTG)</th><th scope="col">Final Term (FTG)</th></tr></thead>
+              <tbody>
+                <tr><th scope="row">Term Examinations</th><td>30%</td><td>30%</td></tr>
+                <tr><th scope="row">Laboratory Exercises</th><td>60%</td><td>30%</td></tr>
+                <tr><th scope="row">Final Project</th><td>—</td><td>30%</td></tr>
+                <tr><th scope="row">Participation / Recitation</th><td>10%</td><td>10%</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p class="small muted" style="margin-top:.6rem">Final Grade = (MTG + FTG) / 2</p>
+        </div>
+        <div class="card">
+          <h3 class="card-title">Lab exercises are graded with the 5-Level Lab Rubric</h3>
+          <ul class="tight">
+            <li>Problem Analysis &amp; Algorithm Formulation: <b>20</b></li>
+            <li>Program Functionality, Testing &amp; Debugging: <b>40</b></li>
+            <li>Structure, Readability &amp; Standards: <b>25</b></li>
+            <li>Completeness &amp; Timely Delivery: <b>15</b></li>
+          </ul>
+          <p style="margin-top:.7rem"><a href="labs/orientation.html#rubrics">All rubrics and policies →</a></p>
+        </div>
+      </div>
+
+      <footer class="home-footer">
+        <p>CPE 104L · Programming Logic and Design · 2nd Semester, A.Y. 2026–2027. Works offline: open <code>index.html</code> directly. Press <kbd>/</kbd> to search, <kbd>T</kbd> for dark mode.</p>
+        <p>Main references: Farrell, <i>Programming Logic and Design</i> (10th ed.); Gaddis, <i>Starting Out with C++</i> (10th ed.); Malik, <i>C++ Programming</i> (8th ed.); Deitel, <i>C++ How to Program</i> (11th ed.).</p>
+      </footer>
+    </main>
+  </div>
+</body>
+</html>
