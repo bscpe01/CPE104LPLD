@@ -1,12 +1,17 @@
 #!/usr/bin/env node
 /* ==========================================================================
-   Locks the graded laboratory activities (encrypts them into the public pages).
+   Locks the graded laboratory activities and the seatwork answers
+   (encrypts them into the public pages).
 
      node tools/lock-activities.js ../cpe104l-instructor-private
 
    The PRIVATE folder (never commit it to the public repository) contains:
-     passwords.json            { "lab-01": "mango-relay-tiger-47", ... }
-     activities/lab-01.html    the readable activity slides for Lab 1 (edit these)
+     passwords.json                 { "lab-01": "mango-relay-tiger-47", ... }
+     activities/lab-01.html         the readable activity slides for Lab 1 (edit these)
+     seatwork-answers/lab-01.html   the readable seatwork answer for Lab 1 (edit these)
+
+   Seatwork answers use the SAME passphrase as the lab's activity, but each is
+   unlocked separately: opening one does not open the other.
 
    For every activities/lab-NN.html this tool:
      1. encrypts the slides with AES-256-GCM, using a key derived from the lab's
@@ -15,6 +20,10 @@
         labs/lab-NN.html, between the markers
           <!-- LOCKED-ACTIVITY:START lab-NN -->  …  <!-- LOCKED-ACTIVITY:END lab-NN -->
      3. decrypts the result again to verify it before saving.
+
+   Seatwork answers work the same way, between
+          <!-- LOCKED-ANSWER:START lab-NN -->  …  <!-- LOCKED-ANSWER:END lab-NN -->
+   on the seatwork slide (a small lock box replaces the "Reveal answer" button).
 
    Students see a lock card on that slide. Typing the passphrase decrypts the
    activity in the browser (js/script.js). Rerun this tool after editing an
@@ -83,6 +92,55 @@ function placeholder(labId, labNum, first, slideCount, payload) {
 </section>`;
 }
 
+function answerPlaceholder(labId, labNum, payload) {
+  const lockId = labId + '-seatwork';
+  return `<div class="locked-answer" data-locked="${lockId}">
+    <svg class="lock-icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="10.5" width="14" height="10" rx="2"/><path d="M8 10.5V7.5a4 4 0 0 1 8 0v3M12 14.5v2.5"/></svg>
+    <div class="locked-answer-text">
+      <p class="locked-answer-title">Answer &amp; walkthrough: locked</p>
+      <p class="small muted">Opens when your instructor releases it. Enter the passphrase your instructor gives you.</p>
+    </div>
+    <form class="lock-form" autocomplete="off">
+      <label class="sr-only" for="unlock-${lockId}">Passphrase</label>
+      <input id="unlock-${lockId}" type="password" placeholder="Passphrase" autocomplete="off" spellcheck="false">
+      <button type="submit" class="btn primary">Unlock</button>
+    </form>
+    <p class="lock-msg" aria-live="polite"></p>
+    <script type="application/json" class="locked-data">${JSON.stringify(payload)}</script>
+  </div>`;
+}
+
+/* Seatwork answers: seatwork-answers/lab-NN.html → labs/lab-NN.html (LOCKED-ANSWER markers) */
+function lockAnswers(privDir, passwords) {
+  const ansDir = path.join(privDir, 'seatwork-answers');
+  if (!fs.existsSync(ansDir)) return { done: 0, problems: 0 };
+  const files = fs.readdirSync(ansDir).filter(f => /^lab-\d+\.html$/.test(f)).sort();
+  let done = 0, problems = 0;
+  for (const f of files) {
+    const labId = f.replace(/\.html$/, '');
+    const labNum = Number(labId.split('-')[1]);
+    const pass = passwords[labId];
+    const pagePath = path.join(ROOT, 'labs', f);
+    if (!pass) { console.error(`! ${labId} seatwork: no passphrase in passwords.json`); problems++; continue; }
+    if (!fs.existsSync(pagePath)) { console.error(`! ${labId} seatwork: labs/${f} not found`); problems++; continue; }
+    const answer = fs.readFileSync(path.join(ansDir, f), 'utf8');
+    let page = fs.readFileSync(pagePath, 'utf8');
+    const startMark = `<!-- LOCKED-ANSWER:START ${labId} -->`;
+    const endMark = `<!-- LOCKED-ANSWER:END ${labId} -->`;
+    const a = page.indexOf(startMark), b = page.indexOf(endMark);
+    if (a === -1 || b === -1 || b < a) { console.error(`! ${labId} seatwork: LOCKED-ANSWER markers not found in labs/${f}`); problems++; continue; }
+    const payload = encrypt(answer, pass);
+    if (decrypt(payload, pass) !== answer) { console.error(`! ${labId} seatwork: verification failed`); problems++; continue; }
+    const lineStart = page.lastIndexOf('\n', a) + 1;
+    const indent = page.slice(lineStart, a).replace(/\S/g, '');
+    page = page.slice(0, a + startMark.length) + '\n' + indent + answerPlaceholder(labId, labNum, payload) + '\n' + indent + page.slice(b);
+    fs.writeFileSync(pagePath, page);
+    done++;
+    console.log(`locked ${labId} seatwork answer → labs/${f}`);
+  }
+  return { done, problems };
+}
+
 function main() {
   const priv = process.argv[2];
   if (!priv) {
@@ -127,8 +185,10 @@ function main() {
     done++;
     console.log(`locked ${labId}: ${tags.length} slide(s) → labs/${f}`);
   }
-  console.log(`\n${done} lab activit${done === 1 ? 'y' : 'ies'} locked` + (problems ? `, ${problems} problem(s)` : '') +
-    '. Now run: node tools/build-search-index.js');
+  const ans = lockAnswers(privDir, passwords);
+  problems += ans.problems;
+  console.log(`\n${done} lab activit${done === 1 ? 'y' : 'ies'} and ${ans.done} seatwork answer${ans.done === 1 ? '' : 's'} locked` +
+    (problems ? `, ${problems} problem(s)` : '') + '. Now run: node tools/build-search-index.js');
   if (problems) process.exit(1);
 }
 

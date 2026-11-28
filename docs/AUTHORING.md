@@ -118,3 +118,17 @@ Graded activity slides are **not** written into `labs/lab-NN.html` in readable f
 4. Run `node tools/lock-activities.js ../cpe104l-instructor-private`, then `node tools/build-search-index.js`.
 
 The tool writes an encrypted placeholder slide between the markers. The engine shows a lock card and inserts the real slides after the passphrase is typed. Tracers, tabs, and code blocks inside the activity work normally after unlocking.
+
+### Locking a seatwork answer
+
+Seatwork answers (the `<details class="answer">` "Reveal answer & walkthrough" block) are locked the same way, with the lab's passphrase:
+
+1. Put the `<details class="answer">…</details>` block in `cpe104l-instructor-private/seatwork-answers/lab-NN.html`.
+2. On the seatwork slide in `labs/lab-NN.html`, where the answer belongs, add:
+
+   ```html
+   <!-- LOCKED-ANSWER:START lab-NN -->
+   <!-- LOCKED-ANSWER:END lab-NN -->
+   ```
+
+3. Run the same two commands. A small lock box replaces the answer until the passphrase is typed in it. It is saved separately from the activity (browser key `lab-NN-seatwork`), so each is unlocked on its own.

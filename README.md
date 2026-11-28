@@ -47,7 +47,7 @@ The syllabus lists "Lab No. 13 & 14 – Encapsulation, Inheritance, and Polymorp
 - **Readable in class:** light/dark mode (`T`), text size (`A−`/`A+`), full screen (`F`), and blank screen (`B`).
 - **Distinct boxes** for Key Concepts, Common Pitfalls, Practice, and Notes. **C++ highlighting** with line numbers and a Copy button. **Inline SVG flowcharts and memory diagrams**, with no image files to break.
 - **Live tracers:** step through a program line by line. The current code line and flowchart symbol light up, and the Memory (variables) and Output panels update as you go.
-- Seatwork **timer**, step-by-step **reveals**, **Quick Check** questions, and hidden seatwork answers.
+- Seatwork **timer**, step-by-step **reveals**, **Quick Check** questions, and **locked** seatwork answers.
 - **Print-friendly:** each slide prints on its own page, and notes print too if they are switched on.
 
 ## Run it locally
@@ -100,7 +100,7 @@ cpe104l-pld/
 ├── materials/                 ← put PPT/PDF handouts here (see below)
 ├── tools/
 │   ├── build-search-index.js  ← regenerates js/search-index.js (Node.js, no packages)
-│   └── lock-activities.js     ← encrypts the graded activities (uses the private package)
+│   └── lock-activities.js     ← encrypts the graded activities + seatwork answers (uses the private package)
 ├── docs/AUTHORING.md          ← how to write slides and components
 └── README.md
 ```
@@ -132,14 +132,16 @@ The full guide is in **[docs/AUTHORING.md](docs/AUTHORING.md)**. In short:
 
 > Everything in a public GitHub repository is public on GitHub Pages, including file contents and the page source. Keep answer keys and solution files out of `materials/`.
 
-## Locked laboratory activities
+## Locked laboratory activities and seatwork answers
 
-Each lab's **graded activity** (the Laboratory Exercise slides) is **locked**. In this repository those slides are stored encrypted (AES-256-GCM, key derived from a per-lab passphrase with PBKDF2). Visitors see a "This lab activity is locked" card instead. The activity appears only after someone types that lab's passphrase, and without it the content cannot be read, even in the page source. Lectures, examples, seatwork, and quick checks stay open to everyone.
+Each lab's **graded activity** (the Laboratory Exercise slides) is **locked**. In this repository those slides are stored encrypted (AES-256-GCM, key derived from a per-lab passphrase with PBKDF2). Visitors see a "This lab activity is locked" card instead. The activity appears only after someone types that lab's passphrase, and without it the content cannot be read, even in the page source.
 
-- **Instructors:** unlock on the classroom PC by typing the passphrase on the locked slide. It stays unlocked on that browser until you press **Lock again**.
+Each lab's **seatwork answer** ("Reveal answer & walkthrough") is locked the same way, with the **same passphrase** as that lab's activity, but it is **unlocked separately**: opening the answer does not open the activity, and opening the activity does not open the answer. Lectures, examples, the seatwork problems and hints, and quick checks stay open to everyone.
+
+- **Instructors:** unlock on the classroom PC by typing the passphrase on the locked slide (or in the locked answer box on the seatwork slide). Each stays unlocked on that browser until you press its **Lock again** button.
 - **Release to students:** announce or post the passphrase (e.g. in MS Teams). Each student types it once.
-- **Passphrases, readable activity files, and answer keys** live in the separate **private instructor package** (`cpe104l-instructor-private`). Never commit that folder here.
-- **Edit an activity, or change a passphrase to re-lock it for everyone:** edit the private files, then run:
+- **Passphrases, readable activity and seatwork-answer files, and answer keys** live in the separate **private instructor package** (`cpe104l-instructor-private`). Never commit that folder here.
+- **Edit an activity or a seatwork answer, or change a passphrase to re-lock it for everyone:** edit the private files, then run:
 
   ```bash
   node tools/lock-activities.js ../cpe104l-instructor-private

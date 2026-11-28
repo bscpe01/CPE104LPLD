@@ -1081,7 +1081,7 @@
     var start = indexFromHash();
     go(start >= 0 ? start : 0, { fromHash: start >= 0 });
 
-    $$('.locked-slide[data-locked]', deck).forEach(initLock);
+    $$('.locked-slide[data-locked], .locked-answer[data-locked]', deck).forEach(initLock);
     document.addEventListener('click', function (e) {
       var b = e.target.closest('[data-relock]');
       if (!b) return;
@@ -1107,7 +1107,9 @@
      tools/lock-activities.js encrypts each lab's graded activity slides with
      AES-256-GCM (key = PBKDF2-SHA256 of the lab's passphrase). The public page
      only holds ciphertext in <section class="slide locked-slide" data-locked="lab-NN">.
-     The right passphrase decrypts it in the browser and the real slides appear. */
+     The right passphrase decrypts it in the browser and the real slides appear.
+     Seatwork answers work the same way (<div class="locked-answer" data-locked="lab-NN-seatwork">):
+     same passphrase as the lab, but saved under their own key, so each is unlocked separately. */
   function normalizePass(p) { return String(p).trim().toLowerCase().replace(/\s+/g, '-'); }
   function b64bytes(b64) {
     var bin = atob(b64), out = new Uint8Array(bin.length);
@@ -1139,7 +1141,8 @@
       if (manual) { msg.className = 'lock-msg'; msg.textContent = 'Checking…'; btn.disabled = true; }
       decryptActivity(payload, pass).then(function (html) {
         store.set(key, normalizePass(pass));
-        insertUnlocked(ph, html, labId, manual);
+        if (ph.classList.contains('locked-answer')) insertAnswer(ph, html, labId, manual);
+        else insertUnlocked(ph, html, labId, manual);
       }, function (err) {
         if (!manual) { store.remove(key); return; }   /* saved passphrase no longer valid: stay locked */
         btn.disabled = false;
@@ -1185,6 +1188,29 @@
     $$('.slide.is-active', deck).forEach(function (s) { s.classList.remove('is-active'); s.setAttribute('aria-hidden', 'true'); });
     current = -1;
     go(target, { fromHash: !manual });
+  }
+
+  /* Seatwork answer: replace the small lock box with the decrypted <details class="answer"> */
+  function insertAnswer(ph, html, lockId, manual) {
+    if (!ph.parentNode) return;
+    var tmp = document.createElement('div');
+    tmp.innerHTML = html;
+    var els = [].slice.call(tmp.children);
+    if (!els.length) return;
+    var frag = document.createDocumentFragment();
+    els.forEach(function (el) { frag.appendChild(el); });
+    ph.parentNode.replaceChild(frag, ph);
+    els.forEach(function (el) {
+      initComponents(el);
+      $$('.tracer', el).forEach(initTracer);
+      var sum = el.tagName === 'DETAILS' ? $('summary', el) : null;
+      if (sum) {
+        sum.insertAdjacentHTML('afterend', '<p class="unlocked-bar"><span>Answer unlocked on this device</span>' +
+          '<button type="button" class="btn ghost tiny" data-relock="' + esc(lockId) + '">Lock again</button></p>');
+        if (manual) el.open = true;
+      }
+    });
+    searchEntries = null;
   }
 
   function init() {

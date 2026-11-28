@@ -1030,6 +1030,21 @@ html { font-variant-ligatures: none; font-feature-settings: "liga" 0, "calt" 0; 
   border-radius: 99px; padding: .15rem .3rem .15rem .75rem;
 }
 @media print { .unlocked-bar { display: none; } }
+/* Locked seatwork answer (replaces the "Reveal answer" button until unlocked) */
+.locked-answer {
+  margin-top: 1.3rem; display: flex; flex-wrap: wrap; align-items: center; gap: .5rem 1rem;
+  background: var(--surface); border: 2px dashed var(--border); border-radius: 14px; padding: .75rem 1rem;
+}
+.locked-answer p { margin: 0; }
+.locked-answer .lock-icon { width: 2rem; height: 2rem; flex: none; fill: none; stroke: var(--accent); stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+.locked-answer-text { flex: 1 1 16rem; }
+.locked-answer-title { font-weight: 800; }
+.locked-answer .lock-form { margin: 0; flex: 1 1 20rem; justify-content: flex-end; }
+.locked-answer .lock-form input { max-width: 16rem; }
+.locked-answer .lock-msg { flex-basis: 100%; min-height: 0; }
+.locked-answer .lock-msg:empty { display: none; }
+.answer > .unlocked-bar { margin: .6rem 0 0; }
+@media print { .locked-answer { display: none; } }
 
 /* Modern light finish */
 .topbar, .controls { background: color-mix(in srgb, var(--surface) 88%, transparent); backdrop-filter: saturate(1.4) blur(10px); }
